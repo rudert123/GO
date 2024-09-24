@@ -133,6 +133,9 @@ end)
 function ManualSpam()
 	loadstring(game:HttpGet("https://pastebin.com/raw/KNgpQxtv"))()
 end
+function ManualSpam()
+        loadstring(game:HttpGet("https://pastebin.com/raw/4Wx5dumR"))()
+end
 task.defer(function()
 	local self = Nurysium_Util.getBall()
 	local Visualize = Instance.new("Part",workspace)
@@ -467,9 +470,11 @@ end
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
+
+
 ----------------------------------------------------------------------------------------------------------------------------------------------
 local Window = Fluent:CreateWindow({
-    Title = "March Hub",
+    Title = "Vico Hub [Intergrated Version?!]",
     SubTitle = "https://discord.gg/EJB93G3jGe",
     TabWidth = 160,
     Size = UDim2.fromOffset(500, 320),
@@ -487,29 +492,33 @@ local Options = Fluent.Options
 do
     local MainTab = Tabs.Main
     local Toggle = MainTab:AddToggle("Auto Parry", {
-        Title = "Auto Parry",
-        Description = "• Main Parry",
+        Title = "[Auto] Parry",
+        Description = "• The Main Auto Parry [OP] ",
         Default = false,
         Callback = function(state)
             auto_parry = state
         end
     })
 	local Toggle1 = MainTab:AddToggle("Visualizer", {
-        Title = "Visualizer",
-        Description = "• View Part",
+        Title = "[Part Parry] Visualizer",
+        Description = "• see the part that will be parrying by the system",
         Default = false,
         Callback = function(state)
             visualize_Enabled = state
         end
     })
     local Toggle = MainTab:AddToggle("Auto Parry", {
-        Title = "Auto Spam",
-        Description = "• Main Spam",
+        Title = "[Auto] Spam Parry",
+        Description = "• The Main Spam Parry [OP] ",
         Default = false,
         Callback = function(state)
             auto_spam = state
         end
     })
+local Tabs = {
+    Main = Window:AddTab({ Title = "Shop", Icon = "home" }),
+}
+
 local ScreenGui = Instance.new("ScreenGui")
 local ImageButton = Instance.new("ImageButton")
 local UICorner = Instance.new("UICorner")
