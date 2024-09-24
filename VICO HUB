@@ -79,7 +79,7 @@ local data = {
 	canParry = true,
 	modeParry = nil,
 	is_Spamming = false,
-	parry_Range = 30,
+	parry_Range = 20,
 	spam_Range = 10,  
 	hit_Count = 0,
 	target_Count = 0,
@@ -160,7 +160,7 @@ task.defer(function()
 			Visualize.CFrame = CFrame.new(local_player.Character.PrimaryPart.Position)
 		else
 			Visualize.Material = Enum.Material.ForceField
-			Visualize.Transparency = 1
+			Visualize.Transparency = 1,5
 		end	
 	end)
 end)
@@ -340,7 +340,7 @@ task.spawn(function()
 		local moveAmountNew = math.max(0, math.min(0.6 * closest_target_Distance, 1))
 		data.spam_delay = moveAmountNew
 		data.spam_Range = math.min(moveAmount + (ball_Speed / 7.15), (150 + moveAmount)) + math.max(ping / 2, 3.5)
-		local L = ball_Speed / 2000
+		local L = ball_Speed / 2500
 		local time_since_last_angle_check = tick() - (data.last_check_time or 0)
 		local min_time_between_checks = 0.1
 		local angle_degrees = math.deg(math.acos(ball_Dot_New))
@@ -552,7 +552,7 @@ ImageButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 ImageButton.BorderSizePixel = 0
 ImageButton.Position = UDim2.new(0.120833337, 0, 0.0952890813, 0)
 ImageButton.Size = UDim2.new(0, 50, 0, 50)
-ImageButton.Image = "rbxassetid://83582647628443" -- Set the image using the decal ID
+ImageButton.Image = "rbxassetid://7683701966" -- Set the image using the decal ID
 ImageButton.Draggable = true
 
 -- Add UICorner for rounded corners
