@@ -443,26 +443,6 @@ local function optimizePerformance()
     game:GetService("Lighting").Brightness = 2 -- Adjust lighting for smoothness
     game:GetService("UserInputService").MouseDeltaSensitivity = 0.5 -- Reduce mouse lag
     setfpscap(120) -- Increase FPS cap to 120 for smoother performance
-
-local Optimizer = {}
-Optimizer.Interval = 1
-Optimizer.FPSBoost = 10
-
-local function OptimizePerformance()
-    if not getgenv().optimize_Enabled then
-        return
-    end
-
-    while true do
-        if getgenv().optimize_Enabled then
-            task.wait(Optimizer.Interval)
-            local fps = Stats.RenderFPS
-            if fps < Optimizer.FPSBoost then
-                UserInputService.GamepadEnabled = false
-            end
-        end
-    end
-end
     
     -- Optimize memory usage
     local function optimizeMemoryUsage()
@@ -489,9 +469,9 @@ local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/d
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 ----------------------------------------------------------------------------------------------------------------------------------------------
 local Window = Fluent:CreateWindow({
-    Title = "Vico Hub [Version Intergrated]",
+    Title = "March Hub",
     SubTitle = "https://discord.gg/EJB93G3jGe",
-    TabWidth = 145,
+    TabWidth = 160,
     Size = UDim2.fromOffset(500, 320),
     Acrylic = true,
     Theme = "Light",
@@ -507,38 +487,28 @@ local Options = Fluent.Options
 do
     local MainTab = Tabs.Main
     local Toggle = MainTab:AddToggle("Auto Parry", {
-        Title = "[Auto] Parry",
-        Description = "• The Main Parry [OP]",
+        Title = "Auto Parry",
+        Description = "• Main Parry",
         Default = false,
         Callback = function(state)
             auto_parry = state
         end
     })
 	local Toggle1 = MainTab:AddToggle("Visualizer", {
-        Title = "[Set Visual Part] Visualizer",
-        Description = "• View An Part Parry",
+        Title = "Visualizer",
+        Description = "• View Part",
         Default = false,
         Callback = function(state)
             visualize_Enabled = state
         end
     })
     local Toggle = MainTab:AddToggle("Auto Parry", {
-        Title = "[Auto] Spam Parry",
-        Description = "• The Main Spam Parry [Op]",
+        Title = "Auto Spam",
+        Description = "• Main Spam",
         Default = false,
         Callback = function(state)
             auto_spam = state
         end
-
-tab1.create_toggle({
-    name = 'Optimize',
-    flag = 'optimize',
-    section = 'left',
-    enabled = false,
-    callback = function(toggled)
-        getgenv().optimize_Enabled = toggled
-    end
-
     })
 local ScreenGui = Instance.new("ScreenGui")
 local ImageButton = Instance.new("ImageButton")
@@ -562,5 +532,7 @@ UICorner.Parent = ImageButton
 
 -- Function to handle click event
 ImageButton.MouseButton1Click:Connect(function()
-    game:GetService
-
+    game:GetService("VirtualInputManager"):SendKeyEvent(true, Enum.KeyCode.End, false, game)
+end)
+end
+optimizePerformance()
