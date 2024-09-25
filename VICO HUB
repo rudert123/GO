@@ -25,39 +25,72 @@ local Tab3 = Window:MakeTab({ Name = "Visuals", Icon = "rbxassetid://4483345998"
 initialize("Celery_Data")
 optimizePerformance()
 
--- Initialization function
-local function initialize(dataFolderName)
-    if not game:GetService("CoreGui"):FindFirstChild(dataFolderName) then
-        celery_Data = Instance.new('Folder', game:GetService('CoreGui'))
-        celery_Data.Name = dataFolderName
+-- Toggle untuk Aura
+Tab:Toggle({
+    Name = "Aura",
+    Default = false,
+    Callback = function(value)
+        getgenv().aura_Enabled = value
+        print(value and "Aura Enabled" or "Aura Disabled")
     end
-end
+})
 
--- Optimize FPS and Network Settings
-local function optimizePerformance()
-    game:GetService("Workspace").StreamingEnabled = true
-    settings().Rendering.QualityLevel = Enum.QualityLevel.Level01 -- Lowest quality for best FPS
-    game:GetService("Lighting").GlobalShadows = false -- Disable shadows
-    game:GetService("Lighting").Brightness = 2 -- Adjust lighting for smoothness
-    game:GetService("UserInputService").MouseDeltaSensitivity = 0.5 -- Reduce mouse lag
+-- Toggle untuk Hit Effect
+Tab:Toggle({
+    Name = "Hit Effect",
+    Default = false,
+    Callback = function(value)
+        getgenv().hit_effect_Enabled = value
+        print(value and "Hit Effect Enabled" or "Hit Effect Disabled")
+    end
+})
 
-    RunService:Set3DRenderingEnabled(false) -- Disable rendering of 3D parts outside view
-    setfpscap(120) -- Increase FPS cap to 120 for smoother performance
+-- Toggle untuk Auto Parry
+Tab:Toggle({
+    Name = "Auto Parry",
+    Default = false,
+    Callback = function(value)
+        getgenv().auto_parry_Enabled = value
+        print(value and "Auto Parry Enabled" or "Auto Parry Disabled")
+    end
+})
 
-    OrionLib:MakeNotification({
-        Name = "Performance Boosted",
-        Content = "FPS boosted, Ping lowered, and smooth gameplay enabled.",
-        Image = "rbxassetid://4483345998",
-        Time = 5
-    })
-end
+-- Toggle untuk Auto Spam
+Tab:Toggle({
+    Name = "Auto Spam",
+    Default = false,
+    Callback = function(value)
+        getgenv().auto_spam_Enabled = value
+        print(value and "Auto Spam Enabled" or "Auto Spam Disabled")
+    end
+})
+
+-- Toggle untuk Night Mode
+Tab3:Toggle({
+    Name = "Night Mode",
+    Default = false,
+    Callback = function(value)
+        getgenv().night_mode_Enabled = value
+        print(value and "Night Mode Enabled" or "Night Mode Disabled")
+    end
+})
+
+-- Toggle untuk Self Effect
+Tab3:Toggle({
+    Name = "Self Effect",
+    Default = false,
+    Callback = function(value)
+        getgenv().self_effect_Enabled = value
+        print(value and "Self Effect Enabled" or "Self Effect Disabled")
+    end
+})
 
 -- Closest Entity
 local function getClosestEntity(Object)
     local closest
     local max_distance = math.huge
     for _, entity in ipairs(workspace.Alive:GetChildren()) do
-        if entity.Name ~= local_player.Name and entity:FindFirstChild("HumanoidRootPart") then
+        if entity.Name ~= local_player.Name then
             local distance = (Object.Position - entity.HumanoidRootPart.Position).Magnitude
             if distance < max_distance then
                 closest = entity
@@ -121,104 +154,10 @@ workspace.Alive.ChildRemoved:Connect(function(child)
     end
 end)
 
--- Call the resolve function at the start
-resolveParryRemote()
+-- Initialize the script
+initialize("Celery_Data")
+optimizePerformance()
 
--- Toggle untuk Aura
-Tab:Toggle({
-    Name = "Aura",
-    Default = false,
-    Callback = function(value)
-        getgenv().aura_Enabled = value
-        print(value and "Aura Enabled" or "Aura Disabled")
-    end
-})
-
--- Toggle untuk Hit Effect
-Tab:Toggle({
-    Name = "Hit Effect",
-    Default = false,
-    Callback = function(value)
-        getgenv().hit_effect_Enabled = value
-        print(value and "Hit Effect Enabled" or "Hit Effect Disabled")
-    end
-})
-
--- Toggle untuk Auto Parry
-Tab:Toggle({
-    Name = "Auto Parry",
-    Default = false,
-    Callback = function(value)
-        getgenv().auto_parry_Enabled = value
-        print(value and "Auto Parry Enabled" or "Auto Parry Disabled")
-    end
-})
-
--- Toggle untuk Auto Spam
-Tab:Toggle({
-    Name = "Auto Spam",
-    Default = false,
-    Callback = function(value)
-        getgenv().auto_spam_Enabled = value
-        print(value and "Auto Spam Enabled" or "Auto Spam Disabled")
-    end
-})
-
--- Toggle untuk Night Mode
-Tab3:Toggle({
-    Name = "Night Mode",
-    Default = false,
-    Callback = function(value)
-        getgenv().night_mode_Enabled = value
-        print(value and "Night Mode Enabled" or "Night Mode Disabled")
-    end
-})
-
--- Toggle untuk Self Effect
-Tab3:Toggle({
-    Name = "Self Effect",
-    Default = false,
-    Callback = function(value)
-        getgenv().self_effect_Enabled = value
-        print(value and "Self Effect Enabled" or "Self Effect Disabled")
-    end
-})
-
--- GUI loop
-RunService.RenderStepped:Connect(function()
-    if getgenv().auto_parry_Enabled then
-        -- Logika untuk Auto Parry
-        parry() -- Pastikan Anda membuat fungsi parry() yang sesuai
-    end
-    
-    if getgenv().auto_spam_Enabled then
-        -- Logika untuk Auto Spam
-        attack() -- Pastikan Anda membuat fungsi attack() yang sesuai
-    end
-    
-    if getgenv().aura_Enabled then
-        -- Logika untuk aura yang aktif
-    end
-    if getgenv().hit_effect_Enabled then
-        -- Logika untuk efek hit yang aktif
-    end
-    if getgenv().night_mode_Enabled then
-        -- Logika untuk mode malam yang aktif
-    end
-    if getgenv().self_effect_Enabled then
-        -- Logika untuk efek diri yang aktif
-    end
-    
-    -- Update closest entity
-    closest_Entity = getClosestEntity(camera.CFrame.Position)
-end)
-
-function parry()
-    -- Tambahkan logika parry di sini
-    print("Parry executed!") -- Ubah dengan logika yang sesuai
-end
-
-function attack()
-    -- Tambahkan logika serangan di sini
-    print("Attack executed!") -- Ubah dengan logika yang sesuai
-end
+-- Inisialisasi Orion Library
+OrionLib:Init()
+print("Orion Library initialized")
