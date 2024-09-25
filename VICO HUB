@@ -528,35 +528,26 @@ local Options = Fluent.Options
 do
     local MainTab = Tabs.Main
     local Toggle = MainTab:AddToggle("Auto Parry", {
-        Title = "Auto Parry",
-        Description = "• Main Parry",
+        Title = "[Auto] Parry",
+        Description = "• Better and more efficient auto parry main [OP]",
         Default = false,
         Callback = function(state)
             auto_parry = state
         end
     })
-    local Toggle = MainTab:AddToggle("Auto Parry", {
-        Title = "Auto Spam",
-        Description = "• Main Spam",
-        Default = false,
-        Callback = function(state)
-            auto_spam = state
-        end
-    })
-local Tabs = {
-    Main = Window:AddTab({ Title = "Visual", Icon = "home" }),
-}
-
-local Options = Fluent.Options
-
-do
-    local MainTab = Tabs.Main
     local Toggle = MainTab:AddToggle("Visualizer", {  a
-        Title = "Visualizer"
+        Title = "[See Part] Visualizer"
         Description = "• Visualizer for showing real-time effects",  -- Deskripsi baru
         Default = false,
         Callback = function(state)
             visualizer_enabled = state
+        end
+    local Toggle = MainTab:AddToggle("Auto Parry", {
+        Title = "Auto Spam",
+        Description = "• Main Auto Spam Faster and estimate Range or curve [OP]",
+        Default = false,
+        Callback = function(state)
+            auto_spam = state
         end
     })
 local ScreenGui = Instance.new("ScreenGui")
