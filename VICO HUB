@@ -432,12 +432,13 @@ if (ping_based_ball_distance <= data.parry_Range) and not data.is_ball_Warping a
     end)
     data.hit_Time = tick()
     data.canParry = false
-                end
-		task.spawn(function()
-			repeat
-				RunService.Heartbeat:Wait()
-			until (tick() - data.hit_Time) >= 1
-			data.canParry = true
+end
+
+task.spawn(function()
+    repeat
+        RunService.Heartbeat:Wait()
+    until (tick() - data.hit_Time) >= 0.8
+    data.canParry = true
 		end)
 	end)
 end)
