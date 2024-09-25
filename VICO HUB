@@ -6,18 +6,13 @@ local Celery_Util = loadstring(game:HttpGet('https://raw.githubusercontent.com/C
 local local_player = Players.LocalPlayer
 local camera = workspace.CurrentCamera
 local celery_Data, closest_Entity, parry_remote = nil, nil, nil -- Global Settings
-
--- Global settings
 getgenv().aura_Enabled = false
 getgenv().hit_effect_Enabled = false
 getgenv().night_mode_Enabled = false
 getgenv().self_effect_Enabled = false
-getgenv().auto_parry_Enabled = false
-getgenv().auto_spam_Enabled = false
-
 local Services = { game:GetService('AdService'), game:GetService('SocialService') } -- UI Library
 local OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/shlexware/Orion/main/source'))()
-local Window = OrionLib:MakeWindow({ Name = "Lunar Premium Blade Ball", HidePremium = true, SaveConfig = true, ConfigFolder = "cElerytEst" })
+local Window = OrionLib:MakeWindow({ Name = "Lunar Premium Blade ball", HidePremium = true, SaveConfig = true, ConfigFolder = "cElerytEst" })
 local Tab = Window:MakeTab({ Name = "Main", Icon = "rbxassetid://4483345998", PremiumOnly = false })
 local Tab3 = Window:MakeTab({ Name = "Visuals", Icon = "rbxassetid://4483345998", PremiumOnly = false })
 
@@ -31,15 +26,18 @@ end
 
 -- Optimize FPS and Network Settings
 local function optimizePerformance()
+    -- Boost FPS by disabling unnecessary features and reducing settings
     game:GetService("Workspace").StreamingEnabled = true
     settings().Rendering.QualityLevel = Enum.QualityLevel.Level01 -- Lowest quality for best FPS
     game:GetService("Lighting").GlobalShadows = false -- Disable shadows
     game:GetService("Lighting").Brightness = 2 -- Adjust lighting for smoothness
     game:GetService("UserInputService").MouseDeltaSensitivity = 0.5 -- Reduce mouse lag
 
+    -- Reduce Ping by limiting network updates
     RunService:Set3DRenderingEnabled(false) -- Disable rendering of 3D parts outside view
     setfpscap(120) -- Increase FPS cap to 120 for smoother performance
-
+    
+    -- Notify the user of performance boost
     OrionLib:MakeNotification({
         Name = "Performance Boosted",
         Content = "FPS boosted, Ping lowered, and smooth gameplay enabled.",
@@ -48,76 +46,20 @@ local function optimizePerformance()
     })
 end
 
--- UI Toggles
-Tab:AddToggle({
-    Name = "Aura",
-    Default = false,
-    Callback = function(Value)
-        getgenv().aura_Enabled = Value
-        print(Value and "Aura Enabled" or "Aura Disabled")
-    end
-})
-
-Tab:AddToggle({
-    Name = "Hit Effect",
-    Default = false,
-    Callback = function(Value)
-        getgenv().hit_effect_Enabled = Value
-        print(Value and "Hit Effect Enabled" or "Hit Effect Disabled")
-    end
-})
-
-Tab:AddToggle({
-    Name = "Auto Parry",
-    Default = false,
-    Callback = function(Value)
-        getgenv().auto_parry_Enabled = Value
-        resolveParryRemote() -- Call resolveParryRemote when toggled
-        print(Value and "Auto Parry Enabled" or "Auto Parry Disabled")
-    end
-})
-
-Tab:AddToggle({
-    Name = "Auto Spam",
-    Default = false,
-    Callback = function(Value)
-        getgenv().auto_spam_Enabled = Value
-        print(Value and "Auto Spam Enabled" or "Auto Spam Disabled")
-    end
-})
-
-Tab3:AddToggle({
-    Name = "Night Mode",
-    Default = false,
-    Callback = function(Value)
-        getgenv().night_mode_Enabled = Value
-        print(Value and "Night Mode Enabled" or "Night Mode Disabled")
-    end
-})
-
-Tab3:AddToggle({
-    Name = "Self Effect",
-    Default = false,
-    Callback = function(Value)
-        getgenv().self_effect_Enabled = Value
-        print(Value and "Self Effect Enabled" or "Self Effect Disabled")
-    end
-})
-
 -- Closest Entity
 local function getClosestEntity(Object)
     local closest
     local max_distance = math.huge
     for _, entity in ipairs(workspace.Alive:GetChildren()) do
-        if entity.Name ~= local_player.Name then
+        if entity.Name ~= local_player.Name and entity:FindFirstChild("HumanoidRootPart") then
             local distance = (Object.Position - entity.HumanoidRootPart.Position).Magnitude
             if distance < max_distance then
-                closest = entity
+                closest_Entity = entity
                 max_distance = distance
             end
         end
     end
-    return closest
+    return closest_Entity
 end
 
 -- Resolve Parry Remote
@@ -135,13 +77,13 @@ end
 local aura_table = {
     canParry = true,
     is_Spamming = false,
-    parry_Range = 15,
-    spam_Range = 8,
+    parry_Range = 0,
+    spam_Range = 0,
     hit_Count = 0,
     hit_Time = tick(),
     ball_Warping = tick(),
     is_ball_Warping = false,
-    target_Dead = false -- New variable to track if the target is dead
+    target_Dead = false  -- New variable to track if the target is dead
 }
 
 -- Event Listeners
@@ -169,31 +111,147 @@ end)
 workspace.Alive.ChildRemoved:Connect(function(child)
     if child == closest_Entity then
         aura_table.target_Dead = true
-        aura_table.is_Spamming = false -- Stop spamming when the target is dead
+        aura_table.is_Spamming = false  -- Stop spamming when the target is dead
     end
 end)
 
--- Auto Parry and Auto Spam Functionality
-RunService.RenderStepped:Connect(function()
-    if getgenv().auto_parry_Enabled then
-        closest_Entity = getClosestEntity(local_player.Character.HumanoidRootPart)
-        if closest_Entity and (local_player.Character.HumanoidRootPart.Position - closest_Entity.HumanoidRootPart.Position).Magnitude <= aura_table.parry_Range then
-            parry_remote:FireServer() -- Fire the parry remote
-        end
+-- UI Toggles
+Tab:AddToggle({
+    Name = "Auto Parry/Spam",
+    Default = false,
+    Callback = function(Value)
+        resolveParryRemote()
+        getgenv().aura_Enabled = Value
     end
+})
 
-    if getgenv().auto_spam_Enabled then
-        if closest_Entity and (local_player.Character.HumanoidRootPart.Position - closest_Entity.HumanoidRootPart.Position).Magnitude <= aura_table.spam_Range then
-            -- Replace this line with your spam action
-            parry_remote:FireServer() -- Example action (you may need to replace this)
+Tab3:AddToggle({
+    Name = "Night Mode",
+    Default = false,
+    Callback = function(toggled)
+        getgenv().night_mode_Enabled = toggled
+    end
+})
+
+-- Manual Spam Button in Visuals Tab
+Tab3:AddButton({
+    Name = "Manual Spam",
+    Callback = function()
+        loadstring(game:HttpGet("https://pastebin.com/raw/4Wx5dumR"))()
+    end
+})
+
+-- Night Mode
+task.defer(function()
+    while task.wait(1) do
+        local clockTime = getgenv().night_mode_Enabled and 3.9 or 13.5
+        game:GetService("TweenService"):Create(game:GetService("Lighting"), TweenInfo.new(3), {ClockTime = clockTime}):Play()
+    end
+end)
+
+-- Aura Mechanics
+local lastParryTime = tick()
+local parryThrottle = 0.05 -- Faster spam speed
+
+RunService.PreRender:Connect(function()
+    if not getgenv().aura_Enabled or not closest_Entity then return end
+    
+    if workspace.Alive:FindFirstChild(closest_Entity.Name) and workspace.Alive:FindFirstChild(closest_Entity.Name).Humanoid.Health > 0 and aura_table.is_Spamming and local_player:DistanceFromCharacter(closest_Entity.HumanoidRootPart.Position) <= aura_table.spam_Range then
+        local self = Celery_Util.getBall()
+        if self then
+            parry_remote:FireServer(
+                0.5,
+                CFrame.new(camera.CFrame.Position, Vector3.zero),
+                {[closest_Entity.Name] = closest_Entity.HumanoidRootPart.Position},
+                {closest_Entity.HumanoidRootPart.Position.X, closest_Entity.HumanoidRootPart.Position.Y},
+                false
+            )
         end
     end
 end)
 
--- Initialize the script
-initialize("Celery_Data")
+RunService.Heartbeat:Connect(function()
+    if not getgenv().aura_Enabled then return end
+    
+    local ping = Stats.Network.ServerStatsItem['Data Ping']:GetValue() / 10
+    local self = Celery_Util.getBall()
+    
+    if not self then return end
+    
+    self:GetAttributeChangedSignal('target'):Once(function()
+        aura_table.canParry = true
+    end)
+    
+    if self:GetAttribute('target') ~= local_player.Name or not aura_table.canParry then return end
+    
+    closest_Entity = getClosestEntity(local_player.Character.PrimaryPart)
+    if not closest_Entity then return end
+    
+    local player_Position = local_player.Character.PrimaryPart.Position
+    local ball_Position = self.Position
+    local ball_Velocity = self.AssemblyLinearVelocity
+
+    if self:FindFirstChild('zoomies') then
+        ball_Velocity = self.zoomies.VectorVelocity
+    end
+
+    local ball_Distance = local_player:DistanceFromCharacter(ball_Position)
+
+    -- Update spam range based on conditions
+    if closest_Entity then
+        local target_Position = closest_Entity.HumanoidRootPart.Position
+        local target_Distance = local_player:DistanceFromCharacter(target_Position)
+        
+        -- Set your distance limits
+        local minSpamDistance = 10 -- Minimum distance to allow spam
+        local maxSpamDistance = aura_table.parry_Range -- Maximum range based on your existing logic
+
+        -- Check if the ball is within range before spamming
+        if ball_Distance <= maxSpamDistance and ball_Distance > minSpamDistance and not aura_table.is_ball_Warping then
+            if tick() - lastParryTime >= parryThrottle then
+                parry_remote:FireServer(
+                    0.5,
+                    CFrame.new(camera.CFrame.Position, closest_Entity.HumanoidRootPart.Position),
+                    {[closest_Entity.Name] = target_Position},
+                    {target_Position.X, target_Position.Y},
+                    false
+                )
+                lastParryTime = tick()
+                                aura_table.canParry = false
+            end
+        end
+    end
+
+    -- Handle ball warping logic if the ball is very close to the target
+    if closest_Entity and closest_Entity:FindFirstChild("HumanoidRootPart") then
+        local target_Position = closest_Entity.HumanoidRootPart.Position
+        local target_Distance = local_player:DistanceFromCharacter(target_Position)
+
+        if target_Distance < aura_table.spam_Range and target_Distance > 5 then
+            if not aura_table.is_ball_Warping then
+                aura_table.is_ball_Warping = true
+                parry_remote:FireServer(
+                    0.5,
+                    CFrame.new(camera.CFrame.Position, target_Position),
+                    {[closest_Entity.Name] = target_Position},
+                    {target_Position.X, target_Position.Y},
+                    false
+                )
+                aura_table.ball_Warping = tick() -- set the timestamp when the ball warps
+                task.wait(1) -- wait for 1 second before allowing further ball warping
+                aura_table.is_ball_Warping = false
+            end
+        end
+    end
+end)
+
+-- Initialize everything
+initialize("CeleryData")
 optimizePerformance()
 
--- Inisialisasi Orion Library
-OrionLib:Init()
-print("Orion Library initialized")
+-- Close the UI when the player leaves
+local playerRemoving = Players.PlayerRemoving:Connect(function(player)
+    if player == local_player then
+        OrionLib:Destroy()
+    end
+end)
