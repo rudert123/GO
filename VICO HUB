@@ -80,8 +80,8 @@ end
 local aura_table = {
     canParry = true,
     is_Spamming = false,
-    parry_Range = 0,
-    spam_Range = 0,
+    parry_Range = 15,
+    spam_Range = 7,
     hit_Count = 0,
     hit_Time = tick(),
     ball_Warping = tick(),
