@@ -559,8 +559,6 @@ do
             visualizer_enabled = state
         end
     })
-end
-
 local ScreenGui = Instance.new("ScreenGui")
 local ImageButton = Instance.new("ImageButton")
 local UICorner = Instance.new("UICorner")
