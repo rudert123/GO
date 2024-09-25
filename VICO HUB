@@ -79,8 +79,8 @@ local data = {
 	canParry = true,
 	modeParry = nil,
 	is_Spamming = false,
-	parry_Range = 20,
-	spam_Range = 9,  
+	parry_Range = 30,
+	spam_Range = 10,  
 	hit_Count = 0,
 	target_Count = 0,
 	hit_Time = tick(),
@@ -469,7 +469,7 @@ local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/d
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 ----------------------------------------------------------------------------------------------------------------------------------------------
 local Window = Fluent:CreateWindow({
-    Title = "March Hub",
+    Title = "Vico Hub [Intergrated Version?!]",
     SubTitle = "https://discord.gg/EJB93G3jGe",
     TabWidth = 160,
     Size = UDim2.fromOffset(500, 320),
@@ -488,34 +488,26 @@ do
     local MainTab = Tabs.Main
     local Toggle = MainTab:AddToggle("Auto Parry", {
         Title = "[Auto] Parry",
-        Description = "• main auto party which is very good for you",
+        Description = "• main parry which will help you to parry by the system [op]",
         Default = false,
         Callback = function(state)
             auto_parry = state
         end
-    })	
-    local Toggle = MainTab:AddToggle("Auto Parry", {
-        Title = "[Auto] Spam Parry",
-        Description = "• main auto spam parry will help you to clash",
-        Default = false,
-        Callback = function(state)
-            auto_spam = state
-        end
     })
-
-local Tabs = {
-    Main = Window:AddTab({ Title = "Visualizer", Icon = "home" }),
-}
-
-local Options = Fluent.Options
-
-do
-local Toggle1 = VizualizerTab:AddToggle("Visualizer", {
-        Title = "[Parry Part] Visualizer",
-        Description = "• see the part where the system will parry the ball",
+	local Toggle1 = MainTab:AddToggle("Visualizer", {
+        Title = "[Part Parry] Visualizer",
+        Description = "• see the part parry that will be carried out by the system",
         Default = false,
         Callback = function(state)
             visualize_Enabled = state
+        end
+    })
+    local Toggle = MainTab:AddToggle("Auto Parry", {
+        Title = "[Auto] Spam Parry",
+        Description = "• main spam parry which will help you to clash [OP]",
+        Default = false,
+        Callback = function(state)
+            auto_spam = state
         end
     })
 local ScreenGui = Instance.new("ScreenGui")
@@ -532,7 +524,7 @@ ImageButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 ImageButton.BorderSizePixel = 0
 ImageButton.Position = UDim2.new(0.120833337, 0, 0.0952890813, 0)
 ImageButton.Size = UDim2.new(0, 50, 0, 50)
-ImageButton.Image = "rbxassetid://7683701966" -- Set the image using the decal ID
+ImageButton.Image = "rbxassetid://83582647628443" -- Set the image using the decal ID
 ImageButton.Draggable = true
 
 -- Add UICorner for rounded corners
