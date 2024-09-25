@@ -31,18 +31,15 @@ end
 
 -- Optimize FPS and Network Settings
 local function optimizePerformance()
-    -- Boost FPS by disabling unnecessary features and reducing settings
     game:GetService("Workspace").StreamingEnabled = true
     settings().Rendering.QualityLevel = Enum.QualityLevel.Level01 -- Lowest quality for best FPS
     game:GetService("Lighting").GlobalShadows = false -- Disable shadows
     game:GetService("Lighting").Brightness = 2 -- Adjust lighting for smoothness
     game:GetService("UserInputService").MouseDeltaSensitivity = 0.5 -- Reduce mouse lag
 
-    -- Reduce Ping by limiting network updates
     RunService:Set3DRenderingEnabled(false) -- Disable rendering of 3D parts outside view
     setfpscap(120) -- Increase FPS cap to 120 for smoother performance
 
-    -- Notify the user of performance boost
     OrionLib:MakeNotification({
         Name = "Performance Boosted",
         Content = "FPS boosted, Ping lowered, and smooth gameplay enabled.",
@@ -173,6 +170,23 @@ workspace.Alive.ChildRemoved:Connect(function(child)
     if child == closest_Entity then
         aura_table.target_Dead = true
         aura_table.is_Spamming = false -- Stop spamming when the target is dead
+    end
+end)
+
+-- Auto Parry and Auto Spam Functionality
+RunService.RenderStepped:Connect(function()
+    if getgenv().auto_parry_Enabled then
+        closest_Entity = getClosestEntity(local_player.Character.HumanoidRootPart)
+        if closest_Entity and (local_player.Character.HumanoidRootPart.Position - closest_Entity.HumanoidRootPart.Position).Magnitude <= aura_table.parry_Range then
+            parry_remote:FireServer() -- Fire the parry remote
+        end
+    end
+
+    if getgenv().auto_spam_Enabled then
+        if closest_Entity and (local_player.Character.HumanoidRootPart.Position - closest_Entity.HumanoidRootPart.Position).Magnitude <= aura_table.spam_Range then
+            -- Replace this line with your spam action
+            parry_remote:FireServer() -- Example action (you may need to replace this)
+        end
     end
 end)
 
