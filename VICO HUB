@@ -300,23 +300,56 @@ task.spawn(function()
 		end
 local ball_Direction = (local_player.Character.PrimaryPart.Position - ball_Position).Unit
 local ball_Distance = (local_player.Character.PrimaryPart.Position - ball_Position).Magnitude
+local target_ball_distance = (closest_Entity.HumanoidRootPart.Position - ball_Position).Magnitude
+data.distance_player_to_ball = ball_Distance
+local ball_DirectionNew
+local ball_DistanceNew
 local targetPosition = (self:GetAttribute('target') == local_player.Name and local_player.Character.PrimaryPart.Position or closest_Entity.HumanoidRootPart.Position)
-
--- Memperbaiki prediksi posisi bola
-local predictionTime = math.max(ball_Distance / ball_Velocity.Magnitude, 0.1) -- Hitung waktu prediksi berdasarkan kecepatan
+ball_DirectionNew = (targetPosition - ball_Position).Unit
+ball_DistanceNew = (targetPosition - ball_Position).Magnitude
+local ball_Dot = ball_Direction:Dot(ball_Velocity.Unit)
+ball_Dot = math.clamp(ball_Dot, -1, 1)
+local ball_Dot_New = ball_DirectionNew:Dot(ball_Velocity.Unit)
+local ball_Speed = ball_Velocity.Magnitude
+local player_Position = local_player.Character.PrimaryPart.Position
+local player_Dir = (local_player.Character.PrimaryPart.Position - closest_Entity.HumanoidRootPart.Position).Unit
+local player_Velocity = local_player.Character.HumanoidRootPart.AssemblyLinearVelocity
+local player_isMoving = player_Velocity.Magnitude > 0
+local player_dot = player_isMoving and math.max(player_Dir:Dot(player_Velocity.Unit), 0)
+local ball_speed_Limited = math.min(ball_Speed / 1000, 0.1)
+local ball_predicted_Distance = (ball_Distance - ping / 15.5) - (ball_Speed / 3.5)
+local ball_predicted_Distance_target = (target_ball_distance - ping / 15.5) - (ball_Speed / 3.5)
+local predictionTime = 0.25 + (ping / 100)
 local ball_PredictedPosition = ball_Position + (ball_Velocity * predictionTime)
-
-local ball_DirectionNew = (targetPosition - ball_PredictedPosition).Unit
-local target_Distance = (targetPosition - ball_PredictedPosition).Magnitude
-data.spam_delay = math.min(1, target_Distance / 100) -- Atur delay spam berdasarkan jarak
-
--- Logika untuk menentukan apakah bola seharusnya menargetkan pemain
-if target_Distance <= data.spam_Range then
+local ball_PredictedDistance = (local_player.Character.PrimaryPart.Position - ball_PredictedPosition).Magnitude 
+local target_Position = closest_Entity.HumanoidRootPart.Position
+local target_Distance = local_player:DistanceFromCharacter(target_Position)
+local closest_target_Distance = local_player:DistanceFromCharacter(closest_Entity.HumanoidRootPart.Position)
+local target_distance_Limited = math.min(target_Distance / 10000, 0.1)
+local target_Direction = (local_player.Character.PrimaryPart.Position - closest_Entity.HumanoidRootPart.Position).Unit
+local target_Ball_Distance = (targetPosition - ball_Position).Magnitude
+local target_Velocity = closest_Entity.HumanoidRootPart.AssemblyLinearVelocity
+local target_isMoving = target_Velocity.Magnitude > 0
+local target_Dot = target_isMoving and math.max(target_Direction:Dot(target_Velocity.Unit), 0)
+local baseMoveAmount = 0.5
+local moveAmount = baseMoveAmount * (1 / (closest_target_Distance + 0.01)) * 1000
+local maxDistance = 1000
+local moveAmountNew = math.max(0, math.min(0.6 * closest_target_Distance, 1))
+data.spam_delay = math.clamp(moveAmountNew, 0.1, 0.5)  -- Membatasi spam delay
+data.spam_Range = math.min(moveAmount + (ball_Speed / 10), (150 + moveAmount)) + math.max(ping / 2, 3.5)
+local L = ball_Speed / 2000
+local time_since_last_angle_check = tick() - (data.last_check_time or 0)
+local min_time_between_checks = 0.1
+local angle_degrees = math.deg(math.acos(ball_Dot_New))
+local ball_is_target = self:GetAttribute('target') == local_player.Name
+local previous_angle_degrees = data.last_angle_degrees or angle_degrees
+local delta_angle = math.abs(previous_angle_degrees - angle_degrees)
+if target_Distance <= data.spam_Range and ball_is_target then
     takentimestart = true
 elseif target_Distance >= data.spam_Range + 7.5 then
     takentimestart = false
     data.taken_time = 1
-end
+             end
 		data.can_spam = true
 		local curve = (1 - ball_Dot_New) / 2
 		local num = 6.25 - (ping / 10)
