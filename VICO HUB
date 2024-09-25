@@ -410,13 +410,14 @@ elseif target_Distance >= data.spam_Range + 7.5 then
 			return
 		end
 local ping_based_ball_distance
-if Stats.Network.ServerStatsItem["Data Ping"]:GetValue() > 120 and ball_predicted_Distance or ball_Distance then
+if Stats.Network.ServerStatsItem["Data Ping"]:GetValue() > 100 and ball_predicted_Distance or ball_Distance then
     ping_based_ball_distance = ball_predicted_Distance
 else
     ping_based_ball_distance = ball_Distance
 end
 
-if (ping_based_ball_distance <= data.parry_Range) and not data.is_ball_Warping and delta_angle < 25 and angle_degrees < 69 then		
+-- Memastikan jarak dan sudut parry yang lebih responsif
+if (ping_based_ball_distance <= data.parry_Range) and not data.is_ball_Warping and delta_angle < 20 and angle_degrees < 60 then		
     local cf = camera.CFrame
     local x, y, z, R00, R01, R02, R10, R11, R12, R20, R21, R22 = cf:GetComponents()
     originalParryRemote:FireServer(
@@ -427,7 +428,7 @@ if (ping_based_ball_distance <= data.parry_Range) and not data.is_ball_Warping a
         false
     )
     data.hit_Count = data.hit_Count + 1
-    task.delay(0.1 + (ping / 100), function()
+    task.delay(0.1 + (ping / 120), function()  -- Mengurangi divisor untuk meningkatkan responsifitas
         data.hit_Count = data.hit_Count - 1
     end)
     data.hit_Time = tick()
@@ -438,9 +439,41 @@ task.spawn(function()
     repeat
         RunService.Heartbeat:Wait()
     until (tick() - data.hit_Time) >= 0.8
+
     data.canParry = true
-		end)
-	end)
+end)
+local ping_based_ball_distance
+if Stats.Network.ServerStatsItem["Data Ping"]:GetValue() > 100 and ball_predicted_Distance or ball_Distance then
+    ping_based_ball_distance = ball_predicted_Distance
+else
+    ping_based_ball_distance = ball_Distance
+end
+
+-- Memastikan jarak dan sudut parry yang lebih responsif
+if (ping_based_ball_distance <= data.parry_Range) and not data.is_ball_Warping and delta_angle < 20 and angle_degrees < 60 then		
+    local cf = camera.CFrame
+    local x, y, z, R00, R01, R02, R10, R11, R12, R20, R21, R22 = cf:GetComponents()
+    originalParryRemote:FireServer(
+        0,
+        CFrame.new(x, y, z, R00, R01, R02, R10, R11, R12, R20, R21, R22),
+        {[closest_Entity_To_mouse.Name] = closest_Entity_To_mouse.HumanoidRootPart.Position},
+        {closest_Entity_To_mouse.HumanoidRootPart.Position.X, closest_Entity_To_mouse.HumanoidRootPart.Position.Y},
+        false
+    )
+    data.hit_Count = data.hit_Count + 1
+    task.delay(0.1 + (ping / 120), function()  -- Mengurangi divisor untuk meningkatkan responsifitas
+        data.hit_Count = data.hit_Count - 1
+    end)
+    data.hit_Time = tick()
+    data.canParry = false
+end
+
+task.spawn(function()
+    repeat
+        RunService.Heartbeat:Wait()
+    until (tick() - data.hit_Time) >= 0.8
+
+    data.canParry = true
 end)
 initializate("nurysium_temp")
 local function optimizePerformance()
@@ -502,14 +535,6 @@ do
             auto_parry = state
         end
     })
-	local Toggle1 = MainTab:AddToggle("Visualizer", {
-        Title = "Visualizer",
-        Description = "• View Part",
-        Default = false,
-        Callback = function(state)
-            visualize_Enabled = state
-        end
-    })
     local Toggle = MainTab:AddToggle("Auto Parry", {
         Title = "Auto Spam",
         Description = "• Main Spam",
@@ -518,6 +543,24 @@ do
             auto_spam = state
         end
     })
+local Tabs = {
+    Main = Window:AddTab({ Title = "Visual", Icon = "home" }),
+}
+
+local Options = Fluent.Options
+
+do
+    local MainTab = Tabs.Main
+    local Toggle = MainTab:AddToggle("Visualizer", {  a
+        Title = "Visualizer"
+        Description = "• Visualizer for showing real-time effects",  -- Deskripsi baru
+        Default = false,
+        Callback = function(state)
+            visualizer_enabled = state
+        end
+    })
+end
+
 local ScreenGui = Instance.new("ScreenGui")
 local ImageButton = Instance.new("ImageButton")
 local UICorner = Instance.new("UICorner")
