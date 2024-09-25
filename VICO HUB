@@ -1,98 +1,172 @@
--- Memuat Orion Library
-local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
-local Window = OrionLib:MakeWindow({Name = "Blade Ball AutoParry & AutoSpam", HidePremium = false, SaveConfig = true, ConfigFolder = "BladeBallSettings"})
+-- Memuat OrionLibrary
+local OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/shlexware/Orion/main/source'))()
 
--- Variabel kontrol untuk Auto Parry dan Auto Spam
-local autoParry = false
-local autoSpam = false
+-- Memuat layanan yang diperlukan
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TweenService = game:GetService("TweenService")
+local Services = {game:GetService("AdService"), game:GetService("SocialService")}
+local local_player = Players.LocalPlayer
+local camera = workspace.CurrentCamera
+local nurysium_dataa = nil
+local hit_Sound = nil
+local closest_Entity = nil
+local takentimestart = false
+local auto_parry = true -- Variabel untuk mengaktifkan auto parry
 
--- Fungsi utama Auto Parry
-local function autoParryFunction()
-    local player = game.Players.LocalPlayer
-    local ball_Position, ball_Velocity
-    while autoParry do
-        -- Ambil bola dari workspace
-        local ball = game.Workspace:FindFirstChild("Ball")
-        if ball then
-            ball_Position = ball.Position
-            ball_Velocity = ball.AssemblyLinearVelocity
-            -- Prediksi posisi bola
-            local targetPosition = (ball:GetAttribute('target') == player.Name and player.Character.PrimaryPart.Position or ball.Position)
-            local ball_DirectionNew = (targetPosition - ball_Position).Unit
-            local ball_DistanceNew = (targetPosition - ball_Position).Magnitude
-            local ball_Dot_New = ball_DirectionNew:Dot(ball_Velocity.Unit)
-            local angle_degrees = math.deg(math.acos(ball_Dot_New))
+-- Data untuk parry dan spam
+local data = {
+	canParry = true,
+	modeParry = nil,
+	is_Spamming = false,
+	parry_Range = 15,
+	spam_Range = 10,
+	hit_Count = 0,
+	target_Count = 0,
+	hit_Time = tick(),
+	ball_Warping = tick(),
+	is_ball_Warping = false,
+	last_target = nil,
+	is_target = false,
+	taken_time = 1,
+	aero_taken_times = 0,
+	not_target_time = tick(),
+	distance_player_to_ball = 0,
+	aero_find = false,
+	can_spam = true,
+	last_angle_degrees = 0,
+	last_ball_position = Vector3.new(0,0,0),
+	is_curving = false,
+	telesink_start_time = nil,
+	is_telesinking = false,
+	pull_start_time = nil,
+	is_pulled = false,
+	last_ball_speed = 0,
+	spam_delay = 0,
+	last_check_time = 0,
+}
 
-            -- Perhitungan jarak, kecepatan bola, dan sudut
-            local ball_Speed = ball_Velocity.Magnitude
-            local player_Position = player.Character.PrimaryPart.Position
-            local ball_predicted_Distance = (player_Position - (ball_Position + (ball_Velocity * 0.25))).Magnitude
-
-            -- Tentukan apakah bisa melakukan parry
-            if ball_predicted_Distance <= data.parry_Range and angle_degrees < 69 then
-                -- Kirim permintaan parry ke server
-                game.ReplicatedStorage.Remotes.ParryEvent:FireServer()
-                data.hit_Count = data.hit_Count + 1
-                task.delay(0.2, function()
-                    data.hit_Count = data.hit_Count - 1
-                end)
-                data.canParry = false
-                task.wait(1)
-                data.canParry = true
-            end
-        end
-        wait(0.1)
-    end
+-- Inisialisasi data
+function initializate(dataaFolder_name)
+	nurysium_dataa = Instance.new("Folder", game:GetService("CoreGui"))
+	nurysium_dataa.Name = dataaFolder_name
+	hit_Sound = Instance.new("Sound", nurysium_dataa)
+	hit_Sound.SoundId = "rbxassetid://8632670510"
+	hit_Sound.Volume = 5
 end
 
--- Fungsi utama Auto Spam
-local function autoSpamFunction()
-    local player = game.Players.LocalPlayer
-    while autoSpam do
-        local ball = game.Workspace:FindFirstChild("Ball")
-        if ball then
-            local ball_Velocity = ball.AssemblyLinearVelocity
-            local ball_Speed = ball_Velocity.Magnitude
-            local target_Position = ball:GetAttribute('target') == player.Name and player.Character.PrimaryPart.Position
-            local target_Distance = (player.Character.PrimaryPart.Position - ball.Position).Magnitude
-            if ball_Speed >= 250 and target_Distance <= 15 then
-                game.ReplicatedStorage.Remotes.AttackEvent:FireServer()
-            end
-        end
-        wait(0.1)
-    end
+-- Mendapatkan bola latihan
+local function getTrainingBall()
+	for index, ball in workspace:WaitForChild("TrainingBalls"):GetChildren() do
+		if ball:IsA("BasePart") and ball:GetAttribute("realBall") then
+			return ball
+		end
+	end
 end
 
--- Membuat Tab di GUI untuk Auto Parry dan Auto Spam
-local Tab = Window:MakeTab({
-    Name = "Main",
-    Icon = "rbxassetid://4483345998",
-    PremiumOnly = false
-})
+-- Mendapatkan entitas terdekat
+local function get_closest_entity(Object)
+	task.spawn(function()
+		local closest
+		local max_distance = math.huge
+		for _, entity in workspace.Alive:GetChildren() do
+			if entity.Name ~= Players.LocalPlayer.Name then
+				local distance = (Object.Position - entity.HumanoidRootPart.Position).Magnitude
+				if distance < max_distance then
+					closest_Entity = entity
+					max_distance = distance
+				end
+			end
+		end
+		return closest_Entity
+	end)
+end
 
--- Tombol Auto Parry
-Tab:AddToggle({
-    Name = "Auto Parry",
-    Default = false,
-    Callback = function(Value)
-        autoParry = Value
-        if autoParry then
-            autoParryFunction()
+-- Fungsi untuk auto parry
+local function autoParry()
+	while auto_parry do
+		if data.canParry and closest_Entity then
+			local distance = (local_player.Character.HumanoidRootPart.Position - closest_Entity.HumanoidRootPart.Position).Magnitude
+			if distance <= data.parry_Range then
+				-- Kirim event untuk parry
+				ReplicatedStorage.Remotes.Parry:FireServer()
+				task.wait(0.5) -- Delay sebelum mencoba parry lagi
+			end
+		end
+		task.wait(0.1) -- Delay untuk menghindari spam
+	end
+end
+
+-- Menghubungkan event untuk ParrySuccess
+ReplicatedStorage.Remotes.ParrySuccess.OnClientEvent:Connect(function()
+	if takentimestart then
+		data.taken_time = tick() - data.hit_Time
+	end
+	if hit_Sound then
+		hit_Sound:Play()
+	end
+	if hit_effect_Enabled then
+		local hit_effect = game:GetObjects("rbxassetid://17407244385")[1]
+		hit_effect.Parent = Nurysium_Util.getBall()
+		hit_effect:Emit(3)
+		task.delay(5, function()
+			hit_effect:Destroy()
+		end)
+	end
+end)
+
+-- Resolusi Remote Parry
+function resolve_parry_Remote()
+	for _, value in pairs(Services) do
+		local temp_remote = value:FindFirstChildOfClass('RemoteEvent')
+		if not temp_remote then continue end
+		if not temp_remote.Name:find('\n') then continue end
+		originalParryRemote = temp_remote
+	end
+end
+resolve_parry_Remote()
+
+-- Mengatur GUI dengan OrionLibrary
+local Window = OrionLib:MakeWindow({Name = "My GUI", HidePremium = false, SaveConfig = true, ConfigFolder = "OrionTest"})
+
+-- Tombol untuk mengaktifkan auto parry
+Window:MakeToggle({
+    Name = "Auto Parry", 
+    Callback = function(state)
+        auto_parry = state
+        if state then
+            autoParry() -- Mulai auto parry
         end
     end
 })
 
--- Tombol Auto Spam
-Tab:AddToggle({
-    Name = "Auto Spam",
-    Default = false,
-    Callback = function(Value)
-        autoSpam = Value
-        if autoSpam then
-            autoSpamFunction()
-        end
+-- Tombol untuk mengatur Parry
+Window:MakeButton({
+    Name = "Manual Parry", 
+    Callback = function()
+        game:GetService("VirtualInputManager"):SendKeyEvent(true, Enum.KeyCode.End, false, game)
     end
 })
 
--- Inisialisasi Orion Library
-OrionLib:Init()
+-- Reset data saat bola dihapus
+workspace:WaitForChild("Balls").ChildRemoved:Connect(function(child)
+	data.target_Count = 0
+	data.taken_time = 1
+	data.hit_Count = 0
+	data.is_ball_Warping = false
+	data.is_Spamming = false
+	data.can_parry = true
+	data.last_target = nil
+end)
+
+-- Inisialisasi data
+initializate("NurysiumData")
+
+-- Jangan lupa untuk memanggil fungsi ini
+optimizePerformance()
+
+-- Memulai mencari entitas terdekat
+RunService.RenderStepped:Connect(function()
+	get_closest_entity(local_player.Character.HumanoidRootPart)
+end)
