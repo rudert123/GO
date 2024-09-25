@@ -528,24 +528,24 @@ local Options = Fluent.Options
 do
     local MainTab = Tabs.Main
     local Toggle = MainTab:AddToggle("Auto Parry", {
-        Title = "[Auto] Parry",
-        Description = "• main auto parry very good and efficient Parrying [OP]",
+        Title = "Auto Parry",
+        Description = "• Main Parry",
         Default = false,
         Callback = function(state)
             auto_parry = state
         end
     })
 	local Toggle1 = MainTab:AddToggle("Visualizer", {
-        Title = "[See Part] Visualizer",
-        Description = "• See And View Part, where will the system is gonna parrying.",
+        Title = "Visualizer",
+        Description = "• View Part",
         Default = false,
         Callback = function(state)
             visualize_Enabled = state
         end
     })
     local Toggle = MainTab:AddToggle("Auto Parry", {
-        Title = "[Auto] Spam",
-        Description = "• main auto spam parry which is very fast and predicts, the distance probability is 90% [OP]",
+        Title = "Auto Spam",
+        Description = "• Main Spam",
         Default = false,
         Callback = function(state)
             auto_spam = state
