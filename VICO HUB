@@ -537,7 +537,7 @@ do
         Callback = function(state)
             visualize_buyexplosion = state
         end
-    })
+
 local ScreenGui = Instance.new("ScreenGui")
 local ImageButton = Instance.new("ImageButton")
 local UICorner = Instance.new("UICorner")
