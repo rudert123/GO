@@ -47,20 +47,19 @@ function initializate(dataaFolder_name)
 	hit_Sound.Volume = 5
 end
 local function get_closest_entity(Object)
-	task.spawn(function()
-		local closest
-		local max_distance = math.huge
-		for index, entity in workspace.Alive:GetChildren() do
-			if entity.Name ~= Players.LocalPlayer.Name then
-				local distance = (Object.Position - entity.HumanoidRootPart.Position).Magnitude
-				if distance < max_distance then
-					closest_Entity = entity
-					max_distance = distance
-				end
-			end
-		end
-		return closest_Entity
-	end)
+	task.spawn(function()		
+        local closest
+        local max_distance = math.huge
+        for _, entity in ipairs(workspace.Alive:GetChildren()) do
+         if entity.Name ~= local_player.Name then
+            local distance = (Object.Position - entity.HumanoidRootPart.Position).Magnitude
+            if distance < max_distance then
+                closest_Entity = entity
+                max_distance = distance
+            end
+        end
+    end
+    return closest_Entity
 end
 function resolve_parry_Remote()
 	for _, value in pairs(Services) do
@@ -79,8 +78,8 @@ local data = {
 	canParry = true,
 	modeParry = nil,
 	is_Spamming = false,
-	parry_Range = 30,
-	spam_Range = 10,  
+	parry_Range = 20,
+	spam_Range = 9,  
 	hit_Count = 0,
 	target_Count = 0,
 	hit_Time = tick(),
@@ -352,88 +351,205 @@ task.spawn(function()
 			data.taken_time = 1
 		end
 		data.can_spam = true
-		local curve = (1 - ball_Dot_New) / 2
-		local num = 6.25 - (ping / 10)
-		if ball_Speed >= 250 then
-		num = 12.5 - (ping / 10)
-		elseif ball_Speed >= 500 then
-		num = 25 - (ping / 10)
-		elseif ball_Speed >= 750 then
-		num = 50 - (ping / 10)
+local curve = (1 - ball_Dot_New) / 2
+local num = 6.25 - (ping / 10)
+
+if ball_Speed >= 750 then
+    num = 50 - (ping / 10)
+elseif ball_Speed >= 500 then
+    num = 25 - (ping / 10)
+elseif ball_Speed >= 250 then
+    num = 12.5 - (ping / 10)
+end
+
+local distance = (Object.Position - entity.HumanoidRootPart.Position).Magnitude
+
+if distance < max_distance then
+    if delta_angle > 31 + (ball_Speed / num) then
+        data.can_spam = false
+    else
+        data.can_spam = true
+    end
+else
+    data.can_spam = false
+end
+
+local pingHistory = {}
+local maxHistorySize = 5  
+
+local function getAveragePing()
+    local totalPing = 0
+    for _, ping in ipairs(pingHistory) do
+        totalPing = totalPing + ping
+    end
+    return totalPing / #pingHistory
+end
+
+local function updatePingHistory(newPing)
+    table.insert(pingHistory, newPing)
+    if #pingHistory > maxHistorySize then
+        table.remove(pingHistory, 1)  -- Menghapus nilai ping tertua
+    end
+end
+
+updatePingHistory(Stats.Network.ServerStatsItem["Data Ping"]:GetValue())
+
+local averagePing = getAveragePing()
+
+data.last_angle_degrees = angle_degrees
+data.last_check_time = tick()
+
+local speedFactor = 3.3
+local speedFactorPingBased = 7.15  -- Faktor berbasis ping
+
+if ball_Speed >= 750 then
+    speedFactor = 2.55
+end
+
+if averagePing > 100 then  -- Jika ping lebih tinggi dari 100ms
+    speedFactor = speedFactor * (averagePing / 150)  -- Sesuaikan faktor berdasarkan ping
+else
+    speedFactor = speedFactor * 1.05  -- Tambahkan faktor kecil jika ping rendah
+end
+
+
+local adjustedBallSpeed = ball_Speed / speedFactor
+
+
+local opponentPing = opponentAveragePing  -- Asumsi ping lawan telah dihitung
+local pingDifference = math.abs(averagePing - opponentPing)
+
+
+if averagePing > opponentPing then
+    local parryAdjustment = (pingDifference / 100)  -- Penyesuaian berdasarkan perbedaan ping
+
+    task.delay(parryAdjustment, function()
+        
+        executeParry()
+    end)
+else
+
+    executeParry()
+end
 		end
-		if delta_angle > 31 + (ball_Speed / num) then
-			data.can_spam = false
-		else
-			data.can_spam = true
-		end
-		data.last_angle_degrees = angle_degrees
-		data.last_check_time = tick()
-		local speedFactor = 3.3
-		local speedFactorPingBased = 7.15
-		if ball_Speed >= 750 then
-			speedFactor = 2.55
-		end
-		data.parry_Range = math.max(math.max(ping / 2, 3.5) + ball_Speed / speedFactor, speedFactorPingBased)
-		if target_isMoving then
-			data.is_Spamming = data.taken_time < (0.7 + (ping / 1000))  or (target_Distance < 12 and ball_Distance < 20) and ball_Velocity.Y > -50
-		else
-			data.is_Spamming = data.taken_time < (0.7 + (ping / 1000))  or (target_Distance < 13.5 and ball_Distance < 20) and ball_Velocity.Y > -50
-		end
-		if ball_Dot < -0.2 then
-			data.ball_Warping = tick()
-		end
-		task.spawn(function()
-			if (tick() - data.ball_Warping) >= 0.15 + target_distance_Limited - ball_speed_Limited or ball_Distance <= 10 then
-				data.is_ball_Warping = false
-				return
-			end
-			if data.last_target then
-				if (ball_Position - data.last_target.HumanoidRootPart.Position).Magnitude > 35.5 or target_Distance <= 12 then
-					data.is_ball_Warping = false
-				end
-			end
-			data.is_ball_Warping = true
-		end)
-		if ball_Velocity.Y < -200 and self:FindFirstChild("AeroDynamicSlash") then
-			data.aero_find = true
-			data.parry_Range /= 2
-		else
-			data.aero_find = false
-		end
-		if not ball_is_target or not data.canParry then
-			return
-		end
-		local ping_based_ball_distance
-		if Stats.Network.ServerStatsItem["Data Ping"]:GetValue() > 150 and ball_predicted_Distance or ball_Distance then
-			ping_based_ball_distance = ball_predicted_Distance
-		else
-			ping_based_ball_distance = ball_Distance
-		end
-		if (ping_based_ball_distance <= data.parry_Range) and not data.is_ball_Warping and delta_angle < 31 and angle_degrees < 69 then		
-			local cf = camera.CFrame
-			local x, y, z, R00, R01, R02, R10, R11, R12, R20, R21, R22 = cf:GetComponents()
-			originalParryRemote:FireServer(
-				0,
-				CFrame.new(x, y, z, R00, R01, R02, R10, R11, R12, R20, R21, R22),
-				{[closest_Entity_To_mouse.Name] = closest_Entity_To_mouse.HumanoidRootPart.Position},
-				{closest_Entity_To_mouse.HumanoidRootPart.Position.X, closest_Entity_To_mouse.HumanoidRootPart.Position.Y},
-				false
-			)
-			data.hit_Count = data.hit_Count + 1
-			task.delay(0.2 + (ping / 100), function()
-				data.hit_Count = data.hit_Count - 1
-			end)
-			data.hit_Time = tick()
-			data.canParry = false
-		end
-		task.spawn(function()
-			repeat
-				RunService.Heartbeat:Wait()
-			until (tick() - data.hit_Time) >= 1
-			data.canParry = true
-		end)
-	end)
+		-- Fungsi untuk menghitung jarak parry
+data.parry_Range = math.max(
+    math.max(ping / 2, 3.5) + ball_Speed / speedFactor,
+    speedFactorPingBased
+)
+
+-- Memperbarui status spamming
+if target_isMoving then
+    data.is_Spamming = data.taken_time < (0.7 + (ping / 1000)) or 
+                       (target_Distance < 12 and ball_Distance < 20 and ball_Velocity.Y > -50)
+else
+    data.is_Spamming = data.taken_time < (0.7 + (ping / 1000)) or 
+                       (target_Distance < 13.5 and ball_Distance < 20 and ball_Velocity.Y > -50)
+end
+
+-- Deteksi warping bola
+if ball_Dot < -0.2 then
+    data.ball_Warping = tick()
+end
+
+-- Memeriksa warping dalam fungsi terpisah
+task.spawn(function()
+    -- Hitung waktu berlalu
+    local timeElapsed = tick() - data.ball_Warping
+    
+    -- Penyesuaian untuk memeriksa warping
+    if timeElapsed >= 0.15 + target_distance_Limited - ball_speed_Limited or ball_Distance <= 10 then
+        data.is_ball_Warping = false
+        return
+    end
+
+    if data.last_target then
+        -- Hitung jarak antara posisi bola dan target
+        if (ball_Position - data.last_target.HumanoidRootPart.Position).Magnitude > 35.5 or target_Distance <= 12 then
+            data.is_ball_Warping = false
+        else
+            data.is_ball_Warping = true
+        end
+    end
 end)
+
+if ball_Velocity.Y < -200 and self:FindFirstChild("AeroDynamicSlash") then
+    data.aero_find = true
+    data.parry_Range /= 2  -- Mengurangi jangkauan parry jika aerodinamis terdeteksi
+else
+    data.aero_find = false
+end
+
+if ball_Velocity.Y < -50 then
+    
+    data.parry_Range = data.parry_Range * 0.75  -- Mengurangi jangkauan parry 25%
+elseif ball_Velocity.Y > 50 then
+
+    data.parry_Range = data.parry_Range * 1.25  -- Meningkatkan jangkauan parry 25%
+end
+
+if not ball_is_target or not data.canParry then
+    return
+end
+local pingHistory = {}
+local maxHistorySize = 5
+local function getAveragePing()
+    local totalPing = 0
+    for _, ping in ipairs(pingHistory) do
+        totalPing = totalPing + ping
+    end
+    return totalPing / #pingHistory
+end
+local function updatePingHistory(newPing)
+    table.insert(pingHistory, newPing)
+    if #pingHistory > maxHistorySize then
+        table.remove(pingHistory, 1)
+    end
+end
+
+updatePingHistory(Stats.Network.ServerStatsItem["Data Ping"]:GetValue())
+
+local averagePing = getAveragePing()
+local ping_based_ball_distance
+
+if averagePing > 150 and ball_predicted_Distance or ball_Distance then
+    ping_based_ball_distance = ball_predicted_Distance
+else
+    ping_based_ball_distance = ball_Distance
+end
+
+if (ping_based_ball_distance <= data.parry_Range) and not data.is_ball_Warping and delta_angle < 31 and angle_degrees < 69 then
+    local cf = camera.CFrame
+    local x, y, z, R00, R01, R02, R10, R11, R12, R20, R21, R22 = cf:GetComponents()
+    originalParryRemote:FireServer(
+        0,
+        CFrame.new(x, y, z, R00, R01, R02, R10, R11, R12, R20, R21, R22),
+        {[closest_Entity_To_mouse.Name] = closest_Entity_To_mouse.HumanoidRootPart.Position},
+        {closest_Entity_To_mouse.HumanoidRootPart.Position.X, closest_Entity_To_mouse.HumanoidRootPart.Position.Y},
+        false
+    )
+    data.hit_Count = data.hit_Count + 1
+    task.delay(0.2 + (averagePing / 100), function()
+        data.hit_Count = data.hit_Count - 1
+    end)
+    data.hit_Time = tick()
+    data.canParry = false
+end
+		task.spawn(function()
+    
+    if not data.hit_Time then
+        data.hit_Time = tick()  -- Atur ke waktu sekarang jika belum ada
+    end
+    
+    local cooldownDuration = 1  -- Durasi cooldown dalam detik
+    
+    repeat
+        RunService.Heartbeat:Wait()
+    until (tick() - data.hit_Time) >= cooldownDuration
+
+    data.canParry = true  -- Izinkan parry setelah cooldown
+end)
+
 initializate("nurysium_temp")
 local function optimizePerformance()
     -- Boost FPS by disabling unnecessary features and reducing settings
