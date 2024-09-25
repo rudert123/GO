@@ -217,16 +217,10 @@ RunService.Heartbeat:Connect(function()
     if (tick() - aura_table.ball_Warping) >= 0.1 or ball_Distance <= 10 then
         aura_table.is_ball_Warping = false
     else
-        aura_table.is_ball_Warping = true
+                aura_table.is_ball_Warping = true
     end
 
     -- Check if the ball is within range before parry
-        aura_table.is_ball_Warping = true
-    else
-        aura_table.is_ball_Warping = false
-    end
-
-    -- Menyesuaikan range dan kecepatan untuk parry
     if aura_table.is_Spamming then
         if ball_Speed > 25 then
             aura_table.parry_Range = math.max(4, ball_Speed / 5)
@@ -326,7 +320,6 @@ end)
 task.delay(2, function()
     abilityDetected = false
 end)
-
 
 -- Initialize the script
 initialize("Celery_Data")
