@@ -6,54 +6,60 @@ local Window = OrionLib:MakeWindow({Name = "Blade Ball AutoParry & AutoSpam", Hi
 local autoParry = false
 local autoSpam = false
 
--- Auto Parry memperhatikan bola dan pemain
-function autoParryFunction()
+-- Fungsi utama Auto Parry
+local function autoParryFunction()
+    local player = game.Players.LocalPlayer
+    local ball_Position, ball_Velocity
     while autoParry do
-        local ball = game.Workspace:FindFirstChild("Ball") -- Sesuaikan dengan nama obyek bola
-        local player = game.Players.LocalPlayer
-        local char = player.Character or player.CharacterAdded:Wait()
-
+        -- Ambil bola dari workspace
+        local ball = game.Workspace:FindFirstChild("Ball")
         if ball then
-            local ballPosition = ball.Position
-            local playerPosition = char.HumanoidRootPart.Position
-            local distance = (ballPosition - playerPosition).magnitude
+            ball_Position = ball.Position
+            ball_Velocity = ball.AssemblyLinearVelocity
+            -- Prediksi posisi bola
+            local targetPosition = (ball:GetAttribute('target') == player.Name and player.Character.PrimaryPart.Position or ball.Position)
+            local ball_DirectionNew = (targetPosition - ball_Position).Unit
+            local ball_DistanceNew = (targetPosition - ball_Position).Magnitude
+            local ball_Dot_New = ball_DirectionNew:Dot(ball_Velocity.Unit)
+            local angle_degrees = math.deg(math.acos(ball_Dot_New))
 
-            -- Memastikan bola sedang bergerak dan dalam jarak yang aman
-            if ball.Velocity.magnitude > 0 then
-                if distance <= 10 then -- Jarak untuk Parry
-                    game.ReplicatedStorage.Events.ParryEvent:FireServer() -- Aktifkan Parry
-                end
-            else
-                print("Bola berhenti, Auto Parry mati.")
+            -- Perhitungan jarak, kecepatan bola, dan sudut
+            local ball_Speed = ball_Velocity.Magnitude
+            local player_Position = player.Character.PrimaryPart.Position
+            local ball_predicted_Distance = (player_Position - (ball_Position + (ball_Velocity * 0.25))).Magnitude
+
+            -- Tentukan apakah bisa melakukan parry
+            if ball_predicted_Distance <= data.parry_Range and angle_degrees < 69 then
+                -- Kirim permintaan parry ke server
+                game.ReplicatedStorage.Remotes.ParryEvent:FireServer()
+                data.hit_Count = data.hit_Count + 1
+                task.delay(0.2, function()
+                    data.hit_Count = data.hit_Count - 1
+                end)
+                data.canParry = false
+                task.wait(1)
+                data.canParry = true
             end
         end
-        wait(0.1) -- Frekuensi pengecekan
+        wait(0.1)
     end
 end
 
--- Auto Spam mendeteksi bola dan pemain lain
-function autoSpamFunction()
+-- Fungsi utama Auto Spam
+local function autoSpamFunction()
+    local player = game.Players.LocalPlayer
     while autoSpam do
-        local ball = game.Workspace:FindFirstChild("Ball") -- Nama bola
-        local player = game.Players.LocalPlayer
-        local char = player.Character or player.CharacterAdded:Wait()
-
+        local ball = game.Workspace:FindFirstChild("Ball")
         if ball then
-            local ballPosition = ball.Position
-            local playerPosition = char.HumanoidRootPart.Position
-            local distance = (ballPosition - playerPosition).magnitude
-            local targetPlayer = ball:GetAttribute("TargetPlayer") -- Asumsi bola memiliki atribut target
-
-            -- Memastikan bola mendekati dan target kita
-            if ball.Velocity.magnitude > 0 and targetPlayer == player then
-                if distance <= 15 then -- Jarak serangan
-                    game.ReplicatedStorage.Events.AttackEvent:FireServer() -- Serang otomatis
-                end
-            else
-                print("Bola tidak menargetkan kita atau terlalu jauh, Auto Spam mati.")
+            local ball_Velocity = ball.AssemblyLinearVelocity
+            local ball_Speed = ball_Velocity.Magnitude
+            local target_Position = ball:GetAttribute('target') == player.Name and player.Character.PrimaryPart.Position
+            local target_Distance = (player.Character.PrimaryPart.Position - ball.Position).Magnitude
+            if ball_Speed >= 250 and target_Distance <= 15 then
+                game.ReplicatedStorage.Remotes.AttackEvent:FireServer()
             end
         end
-        wait(0.1) -- Frekuensi pengecekan
+        wait(0.1)
     end
 end
 
@@ -88,5 +94,5 @@ Tab:AddToggle({
     end
 })
 
--- GUI Orion Library
+-- Inisialisasi Orion Library
 OrionLib:Init()
