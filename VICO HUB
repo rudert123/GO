@@ -516,27 +516,7 @@ do
         end
     })
 local Tabs = {
-    Main = Window:AddTab({ Title = "Shop", Icon = "home" }),
-}
-local Options = Fluent.Options
-
-do
-    local ShopTab = Tabs.Shop
-    local Toggle = MainTab:AddToggle("Shop", {
-        Title = "[AutoBuy] Crates Sword",
-        Description = "• buying a sword crates this way will make it easier for you, right? ",
-        Default = false,
-        Callback = function(state)
-            auto_buysword = state
-        end
-    })
-	local Toggle1 = ShopTab:AddToggle("Shop", {
-        Title = "[AutoBuy] Crates Explosion ",
-        Description = "• buying a explosion crates this way will make it easier for you, right?,
-        Default = false,
-        Callback = function(state)
-            visualize_buyexplosion = state
-        end
+    Main = Window:AddTab({ Title = "Shop[Soon]", Icon = "home" }),
 
 local ScreenGui = Instance.new("ScreenGui")
 local ImageButton = Instance.new("ImageButton")
