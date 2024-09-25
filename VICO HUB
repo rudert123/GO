@@ -80,7 +80,7 @@ local data = {
 	modeParry = nil,
 	is_Spamming = false,
 	parry_Range = 20,
-	spam_Range = 10,  
+	spam_Range = 9,  
 	hit_Count = 0,
 	target_Count = 0,
 	hit_Time = tick(),
@@ -133,9 +133,6 @@ end)
 function ManualSpam()
 	loadstring(game:HttpGet("https://pastebin.com/raw/KNgpQxtv"))()
 end
-function ManualSpam()
-        loadstring(game:HttpGet("https://pastebin.com/raw/4Wx5dumR"))()
-end
 task.defer(function()
 	local self = Nurysium_Util.getBall()
 	local Visualize = Instance.new("Part",workspace)
@@ -160,7 +157,7 @@ task.defer(function()
 			Visualize.CFrame = CFrame.new(local_player.Character.PrimaryPart.Position)
 		else
 			Visualize.Material = Enum.Material.ForceField
-			Visualize.Transparency = 1,5
+			Visualize.Transparency = 1
 		end	
 	end)
 end)
@@ -340,7 +337,7 @@ task.spawn(function()
 		local moveAmountNew = math.max(0, math.min(0.6 * closest_target_Distance, 1))
 		data.spam_delay = moveAmountNew
 		data.spam_Range = math.min(moveAmount + (ball_Speed / 7.15), (150 + moveAmount)) + math.max(ping / 2, 3.5)
-		local L = ball_Speed / 2500
+		local L = ball_Speed / 2000
 		local time_since_last_angle_check = tick() - (data.last_check_time or 0)
 		local min_time_between_checks = 0.1
 		local angle_degrees = math.deg(math.acos(ball_Dot_New))
@@ -470,11 +467,9 @@ end
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
-
-
 ----------------------------------------------------------------------------------------------------------------------------------------------
 local Window = Fluent:CreateWindow({
-    Title = "Vico Hub [Intergrated Version?!]",
+    Title = "March Hub",
     SubTitle = "https://discord.gg/EJB93G3jGe",
     TabWidth = 160,
     Size = UDim2.fromOffset(500, 320),
@@ -493,31 +488,36 @@ do
     local MainTab = Tabs.Main
     local Toggle = MainTab:AddToggle("Auto Parry", {
         Title = "[Auto] Parry",
-        Description = "• The Main Auto Parry [OP] ",
+        Description = "• main auto party which is very good for you",
         Default = false,
         Callback = function(state)
             auto_parry = state
         end
-    })
-	local Toggle1 = MainTab:AddToggle("Visualizer", {
-        Title = "[Part Parry] Visualizer",
-        Description = "• see the part that will be parrying by the system",
-        Default = false,
-        Callback = function(state)
-            visualize_Enabled = state
-        end
-    })
+    })	
     local Toggle = MainTab:AddToggle("Auto Parry", {
         Title = "[Auto] Spam Parry",
-        Description = "• The Main Spam Parry [OP] ",
+        Description = "• main auto spam parry will help you to clash",
         Default = false,
         Callback = function(state)
             auto_spam = state
         end
     })
-local Tabs = {
-    Main = Window:AddTab({ Title = "Shop[Soon]", Icon = "home" }),
 
+local Tabs = {
+    Main = Window:AddTab({ Title = "Visualizer", Icon = "home" }),
+}
+
+local Options = Fluent.Options
+
+do
+local Toggle1 = VizualizerTab:AddToggle("Visualizer", {
+        Title = "[Parry Part] Visualizer",
+        Description = "• see the part where the system will parry the ball",
+        Default = false,
+        Callback = function(state)
+            visualize_Enabled = state
+        end
+    })
 local ScreenGui = Instance.new("ScreenGui")
 local ImageButton = Instance.new("ImageButton")
 local UICorner = Instance.new("UICorner")
