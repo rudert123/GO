@@ -47,18 +47,21 @@ function initializate(dataaFolder_name)
 	hit_Sound.Volume = 5
 end
 local function get_closest_entity(Object)
-	task.spawn(function()		
-        local closest
-        local max_distance = math.huge
+    local closest_Entity = nil
+    local max_distance = math.huge
+
+    task.spawn(function()		
         for _, entity in ipairs(workspace.Alive:GetChildren()) do
-         if entity.Name ~= local_player.Name then
-            local distance = (Object.Position - entity.HumanoidRootPart.Position).Magnitude
-            if distance < max_distance then
-                closest_Entity = entity
-                max_distance = distance
+            if entity.Name ~= local_player.Name then
+                local distance = (Object.Position - entity.HumanoidRootPart.Position).Magnitude
+                if distance < max_distance then
+                    closest_Entity = entity
+                    max_distance = distance
+                end
             end
         end
-    end
+    end)
+
     return closest_Entity
 end
 function resolve_parry_Remote()
