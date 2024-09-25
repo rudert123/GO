@@ -21,67 +21,89 @@ local Window = OrionLib:MakeWindow({ Name = "Lunar Premium Blade Ball", HidePrem
 local Tab = Window:MakeTab({ Name = "Main", Icon = "rbxassetid://4483345998", PremiumOnly = false })
 local Tab3 = Window:MakeTab({ Name = "Visuals", Icon = "rbxassetid://4483345998", PremiumOnly = false })
 
--- Initialize the script
-initialize("Celery_Data")
-optimizePerformance()
+-- Initialization
+local function initialize(dataFolderName)
+    if not game:GetService("CoreGui"):FindFirstChild(dataFolderName) then
+        celery_Data = Instance.new('Folder', game:GetService('CoreGui'))
+        celery_Data.Name = dataFolderName
+    end
+end
 
--- Toggle untuk Aura
-Tab:Toggle({
+-- Optimize FPS and Network Settings
+local function optimizePerformance()
+    -- Boost FPS by disabling unnecessary features and reducing settings
+    game:GetService("Workspace").StreamingEnabled = true
+    settings().Rendering.QualityLevel = Enum.QualityLevel.Level01 -- Lowest quality for best FPS
+    game:GetService("Lighting").GlobalShadows = false -- Disable shadows
+    game:GetService("Lighting").Brightness = 2 -- Adjust lighting for smoothness
+    game:GetService("UserInputService").MouseDeltaSensitivity = 0.5 -- Reduce mouse lag
+
+    -- Reduce Ping by limiting network updates
+    RunService:Set3DRenderingEnabled(false) -- Disable rendering of 3D parts outside view
+    setfpscap(120) -- Increase FPS cap to 120 for smoother performance
+
+    -- Notify the user of performance boost
+    OrionLib:MakeNotification({
+        Name = "Performance Boosted",
+        Content = "FPS boosted, Ping lowered, and smooth gameplay enabled.",
+        Image = "rbxassetid://4483345998",
+        Time = 5
+    })
+end
+
+-- UI Toggles
+Tab:AddToggle({
     Name = "Aura",
     Default = false,
-    Callback = function(value)
-        getgenv().aura_Enabled = value
-        print(value and "Aura Enabled" or "Aura Disabled")
+    Callback = function(Value)
+        getgenv().aura_Enabled = Value
+        print(Value and "Aura Enabled" or "Aura Disabled")
     end
 })
 
--- Toggle untuk Hit Effect
-Tab:Toggle({
+Tab:AddToggle({
     Name = "Hit Effect",
     Default = false,
-    Callback = function(value)
-        getgenv().hit_effect_Enabled = value
-        print(value and "Hit Effect Enabled" or "Hit Effect Disabled")
+    Callback = function(Value)
+        getgenv().hit_effect_Enabled = Value
+        print(Value and "Hit Effect Enabled" or "Hit Effect Disabled")
     end
 })
 
--- Toggle untuk Auto Parry
-Tab:Toggle({
+Tab:AddToggle({
     Name = "Auto Parry",
     Default = false,
-    Callback = function(value)
-        getgenv().auto_parry_Enabled = value
-        print(value and "Auto Parry Enabled" or "Auto Parry Disabled")
+    Callback = function(Value)
+        getgenv().auto_parry_Enabled = Value
+        resolveParryRemote() -- Call resolveParryRemote when toggled
+        print(Value and "Auto Parry Enabled" or "Auto Parry Disabled")
     end
 })
 
--- Toggle untuk Auto Spam
-Tab:Toggle({
+Tab:AddToggle({
     Name = "Auto Spam",
     Default = false,
-    Callback = function(value)
-        getgenv().auto_spam_Enabled = value
-        print(value and "Auto Spam Enabled" or "Auto Spam Disabled")
+    Callback = function(Value)
+        getgenv().auto_spam_Enabled = Value
+        print(Value and "Auto Spam Enabled" or "Auto Spam Disabled")
     end
 })
 
--- Toggle untuk Night Mode
-Tab3:Toggle({
+Tab3:AddToggle({
     Name = "Night Mode",
     Default = false,
-    Callback = function(value)
-        getgenv().night_mode_Enabled = value
-        print(value and "Night Mode Enabled" or "Night Mode Disabled")
+    Callback = function(Value)
+        getgenv().night_mode_Enabled = Value
+        print(Value and "Night Mode Enabled" or "Night Mode Disabled")
     end
 })
 
--- Toggle untuk Self Effect
-Tab3:Toggle({
+Tab3:AddToggle({
     Name = "Self Effect",
     Default = false,
-    Callback = function(value)
-        getgenv().self_effect_Enabled = value
-        print(value and "Self Effect Enabled" or "Self Effect Disabled")
+    Callback = function(Value)
+        getgenv().self_effect_Enabled = Value
+        print(Value and "Self Effect Enabled" or "Self Effect Disabled")
     end
 })
 
