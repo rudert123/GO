@@ -26,15 +26,18 @@ end
 
 -- Optimize FPS and Network Settings
 local function optimizePerformance()
+    -- Boost FPS by disabling unnecessary features and reducing settings
     game:GetService("Workspace").StreamingEnabled = true
     settings().Rendering.QualityLevel = Enum.QualityLevel.Level01 -- Lowest quality for best FPS
     game:GetService("Lighting").GlobalShadows = false -- Disable shadows
     game:GetService("Lighting").Brightness = 2 -- Adjust lighting for smoothness
     game:GetService("UserInputService").MouseDeltaSensitivity = 0.5 -- Reduce mouse lag
 
+    -- Reduce Ping by limiting network updates
     RunService:Set3DRenderingEnabled(false) -- Disable rendering of 3D parts outside view
     setfpscap(120) -- Increase FPS cap to 120 for smoother performance
 
+    -- Notify the user of performance boost
     OrionLib:MakeNotification({
         Name = "Performance Boosted",
         Content = "FPS boosted, Ping lowered, and smooth gameplay enabled.",
@@ -45,17 +48,20 @@ end
 
 -- Closest Entity
 local function getClosestEntity(Object)
-    local closest
+    local closest_Entity
     local max_distance = math.huge
+    local MIN_DISTANCE = 5 -- Jarak minimum untuk target
+
     for _, entity in ipairs(workspace.Alive:GetChildren()) do
-        if entity.Name ~= local_player.Name then
+        if entity.Name ~= local_player.Name and entity:FindFirstChild("Humanoid") and entity.Humanoid.Health > 0 then
             local distance = (Object.Position - entity.HumanoidRootPart.Position).Magnitude
-            if distance < max_distance then
+            if distance < max_distance and distance >= MIN_DISTANCE then
                 closest_Entity = entity
                 max_distance = distance
             end
         end
     end
+
     return closest_Entity
 end
 
@@ -75,42 +81,137 @@ local aura_table = {
     canParry = true,
     is_Spamming = false,
     parry_Range = 0,
-    spam_Range = 0,
     hit_Count = 0,
     hit_Time = tick(),
-    ball_Warping = tick(),
     is_ball_Warping = false,
-    target_Dead = false  -- New variable to track if the target is dead
+    target_Dead = false,
 }
 
--- Event Listeners
-ReplicatedStorage.Remotes.ParrySuccess.OnClientEvent:Connect(function()
-    if getgenv().hit_effect_Enabled then
-        local hit_effect = game:GetObjects("rbxassetid://18894222844")[1]
-        hit_effect.Parent = Celery_Util.getBall()
-        hit_effect:Emit(3)
-        task.delay(5, function() hit_effect:Destroy() end)
+-- Fungsi untuk menghitung jarak parry
+local function calculateParryRange(ping, ballSpeed)
+    return math.max(math.max(ping / 10, 15) + ballSpeed / 7, 9.5)
+end
+
+-- Fungsi untuk melakukan parry
+local function performParry()
+    if aura_table.canParry and not aura_table.target_Dead then
+        -- Kirim sinyal parry ke server
+        parry_remote:FireServer(
+            0.5,
+            CFrame.new(camera.CFrame.Position, closest_Entity.HumanoidRootPart.Position),
+            {[closest_Entity.Name] = closest_Entity.HumanoidRootPart.Position},
+            {closest_Entity.HumanoidRootPart.Position.X, closest_Entity.HumanoidRootPart.Position.Y},
+            false
+        )
+        aura_table.canParry = false
+        aura_table.hit_Count = aura_table.hit_Count + 1
+        aura_table.hit_Time = tick()
+        
+        -- Reset canParry setelah cooldown
+        task.delay(0.1, function() aura_table.canParry = true end)
+    end
+end
+
+-- Fungsi untuk melakukan spam
+local function performSpam()
+    if aura_table.is_Spamming and not aura_table.target_Dead then
+        -- Kirim sinyal spam ke server
+        parry_remote:FireServer(
+            0.5,
+            CFrame.new(camera.CFrame.Position, closest_Entity.HumanoidRootPart.Position),
+            {[closest_Entity.Name] = closest_Entity.HumanoidRootPart.Position},
+            {closest_Entity.HumanoidRootPart.Position.X, closest_Entity.HumanoidRootPart.Position.Y},
+            false
+        )
+    end
+end
+
+-- Fungsi utama untuk mengelola mekanisme parry dan spam
+RunService.Heartbeat:Connect(function()
+    local ping = Stats.Network.ServerStatsItem['Data Ping']:GetValue() / 10
+    local ballSpeed = Celery_Util.getBall().AssemblyLinearVelocity.Magnitude
+    aura_table.parry_Range = calculateParryRange(ping, ballSpeed)
+
+    -- Jika bola dalam jangkauan dan tidak ada warping
+    local ballDistance = local_player:DistanceFromCharacter(closest_Entity.HumanoidRootPart.Position)
+    if ballDistance <= aura_table.parry_Range and not aura_table.is_ball_Warping then
+        performParry()
+    end
+
+    -- Logika spam
+    if ballDistance <= aura_table.parry_Range then
+        performSpam()
     end
 end)
 
-ReplicatedStorage.Remotes.ParrySuccessAll.OnClientEvent:Connect(function()
-    aura_table.hit_Count += 1
-    task.delay(0.15, function() aura_table.hit_Count -= 1 end)
-end)
-
-workspace:WaitForChild("Balls").ChildRemoved:Connect(function()
-    aura_table.hit_Count = 0
-    aura_table.is_ball_Warping = false
-    aura_table.is_Spamming = false
-end)
-
--- Detect when the target dies
+-- Event untuk mendeteksi perubahan pada status target
 workspace.Alive.ChildRemoved:Connect(function(child)
     if child == closest_Entity then
         aura_table.target_Dead = true
-        aura_table.is_Spamming = false  -- Stop spamming when the target is dead
+        aura_table.is_Spamming = false -- Stop spamming when the target is dead
     end
 end)
+}
+
+-- Event listener for ParrySuccess
+ReplicatedStorage.Remotes.ParrySuccess.OnClientEvent:Connect(function()
+    if getgenv().hit_effect_Enabled then
+        -- Create and emit hit effect if enabled
+        local hit_effect = game:GetObjects("rbxassetid://18894222844")[1]
+        hit_effect.Parent = Celery_Util.getBall()
+        hit_effect:Emit(3)
+        task.delay(5, function() 
+            if hit_effect and hit_effect:IsDescendantOf(workspace) then
+                hit_effect:Destroy() 
+            end 
+        end)
+    end
+    
+    -- Increment hit count safely
+    if aura_table.hit_Count < 2 then  -- Limit max hit count to prevent overflow
+        aura_table.hit_Count += 1
+        task.delay(0.15, function() 
+            if aura_table.hit_Count > 0 then
+                aura_table.hit_Count -= 1 
+            end 
+        end)
+    end
+end)
+
+-- Reset hit count and status when ball is removed
+workspace:WaitForChild("Balls").ChildRemoved:Connect(function(child)
+    if child:IsA("Ball") then -- Ensure it is a ball being removed
+        aura_table.hit_Count = 0 -- Reset hit count
+        aura_table.is_ball_Warping = false -- Reset warping status
+        if child:IsDescendantOf(workspace) then
+            child:Destroy() -- Safely destroy the child object if necessary
+        end
+    end
+end)
+
+-- Monitor the effect of ParrySuccessAll
+ReplicatedStorage.Remotes.ParrySuccessAll.OnClientEvent:Connect(function()
+    if aura_table.hit_Count < 2 then  -- Preventing overflow
+        aura_table.hit_Count += 1
+        task.delay(0.15, function() 
+            if aura_table.hit_Count > 0 then
+                aura_table.hit_Count -= 1 
+            end 
+        end)
+    end
+end)
+
+-- Detect when the target dies
+local function onEntityRemoved(child)
+    -- Memeriksa apakah ent
+    if child == closest_Entity then
+        aura_table.target_Dead = true  -- Tandai target sebagai mati
+        aura_table.is_Spamming = false  -- Hentikan spamming jika target mati
+        closest_Entity = nil  -- Setel closest_Entity ke nil
+    end
+end
+
+workspace.Alive.ChildRemoved:Connect(onEntityRemoved)
 
 -- UI Toggles
 Tab:AddToggle({
@@ -130,14 +231,6 @@ Tab3:AddToggle({
     end
 })
 
--- Manual Spam Button in Visuals Tab
-Tab3:AddButton({
-    Name = "Manual Spam",
-    Callback = function()
-        loadstring(game:HttpGet("https://pastebin.com/raw/4Wx5dumR"))()
-    end
-})
-
 -- Night Mode
 task.defer(function()
     while task.wait(1) do
@@ -148,14 +241,15 @@ end)
 
 -- Aura Mechanics
 local lastParryTime = tick()
-local parryThrottle = 0.05 -- Faster spam speed
+local parryThrottle = 0.05 -- Kecepatan spam yang lebih cepat
 
 RunService.PreRender:Connect(function()
     if not getgenv().aura_Enabled or not closest_Entity then return end
-
-    if workspace.Alive:FindFirstChild(closest_Entity.Name) and workspace.Alive:FindFirstChild(closest_Entity.Name).Humanoid.Health > 0 and aura_table.is_Spamming and local_player:DistanceFromCharacter(closest_Entity.HumanoidRootPart.Position) <= aura_table.spam_Range then
-        local self = Celery_Util.getBall()
-        if self then
+    
+    local self = Celery_Util.getBall()
+    if self and aura_table.is_Spamming then
+        local distance = local_player:DistanceFromCharacter(closest_Entity.HumanoidRootPart.Position)
+        if distance <= aura_table.parry_Range then
             parry_remote:FireServer(
                 0.5,
                 CFrame.new(camera.CFrame.Position, Vector3.zero),
@@ -169,69 +263,222 @@ end)
 
 RunService.Heartbeat:Connect(function()
     if not getgenv().aura_Enabled then return end
-
+    
     local ping = Stats.Network.ServerStatsItem['Data Ping']:GetValue() / 10
     local self = Celery_Util.getBall()
-
+    
     if not self then return end
 
-    self:GetAttributeChangedSignal('target'):Once(function()
-        aura_table.canParry = true
-    end)
-
-    if self:GetAttribute('target') ~= local_player.Name or not aura_table.canParry then return end
-
     closest_Entity = getClosestEntity(local_player.Character.PrimaryPart)
+
     if not closest_Entity then return end
 
     local player_Position = local_player.Character.PrimaryPart.Position
     local ball_Position = self.Position
     local ball_Velocity = self.AssemblyLinearVelocity
-
-    if self:FindFirstChild('zoomies') then
-        ball_Velocity = self.zoomies.VectorVelocity
-    end
-
-    local ball_Direction = (player_Position - ball_Position).Unit
     local ball_Distance = local_player:DistanceFromCharacter(ball_Position)
-    local ball_Dot = ball_Direction:Dot(ball_Velocity.Unit)
-    local ball_Speed = ball_Velocity.Magnitude
-    local ball_speed_Limited = math.min(ball_Speed / 1000, 0.1)
-    local ball_predicted_Distance = (ball_Distance - ping / 15.5) - (ball_Speed / 3.5)
 
-    local target_Position = closest_Entity.HumanoidRootPart.Position
-    local target_Distance = local_player:DistanceFromCharacter(target_Position)
-    local target_distance_Limited = math.min(target_Distance / 10000, 0.1)
-    local target_Direction = (local_player.Character.PrimaryPart.Position - closest_Entity.HumanoidRootPart.Position).Unit
-    local target_Velocity = closest_Entity.HumanoidRootPart.AssemblyLinearVelocity
-    local target_isMoving = target_Velocity.Magnitude > 0
-    local target_Dot = target_isMoving and math.max(target_Direction:Dot(target_Velocity.Unit), 0) or 0
-
-    aura_table.spam_Range = math.max(ping / 10, 15) + ball_Speed / 7
-    aura_table.parry_Range = math.max(math.max(ping, 4) + (target_Velocity.Magnitude * target_Dot), 1)
-
-    if ball_predicted_Distance < 0 then
-        aura_table.is_Spamming = false
-        aura_table.canParry = false
-    else
-        aura_table.is_Spamming = true
-    end
-
-    if ball_predicted_Distance <= aura_table.parry_Range and (tick() - lastParryTime) > parryThrottle then
+    -- Cek apakah bola cukup cepat dan dalam jangkauan parry
+    if isBallFastEnough and ball_Distance <= aura_table.parry_Range and (tick() - lastParryTime) > parryThrottle then
         parry_remote:FireServer(
             0.5,
-            CFrame.new(camera.CFrame.Position, Vector3.zero),
+            CFrame.new(camera.CFrame.Position, closest_Entity.HumanoidRootPart.Position),
             {[closest_Entity.Name] = closest_Entity.HumanoidRootPart.Position},
             {closest_Entity.HumanoidRootPart.Position.X, closest_Entity.HumanoidRootPart.Position.Y},
             false
         )
         lastParryTime = tick()
     end
+
+    -- Atur kondisi spam
+    RunService.Heartbeat:Connect(function()
+    if not getgenv().aura_Enabled then return end
+
+    local ping = Stats.Network.ServerStatsItem['Data Ping']:GetValue() / 10
+    local self = Celery_Util.getBall()
+    
+    if not self then return end
+
+    -- Memperoleh entitas terdekat
+    closest_Entity = getClosestEntity(local_player.Character.PrimaryPart)
+
+    if not closest_Entity then return end
+
+    -- Mengatur nilai parry_range dan memastikan parry selalu bisa diaktifkan jika kondisi lain memenuhi
+    aura_table.parry_Range = 10  -- Tetapkan nilai tetap untuk parry_range, misalnya 10
+    
+    -- Logika untuk melakukan parry tanpa tergantung pada kecepatan atau jarak
+    if (tick() - lastParryTime) > parryThrottle then
+        parry_remote:FireServer(
+            0.5,
+            CFrame.new(camera.CFrame.Position, closest_Entity.HumanoidRootPart.Position),
+            {[closest_Entity.Name] = closest_Entity.HumanoidRootPart.Position},
+            {closest_Entity.HumanoidRootPart.Position.X, closest_Entity.HumanoidRootPart.Position.Y},
+            false
+        )
+        lastParryTime = tick()
+    end
+
+    -- Menetapkan kondisi spam
+    -- Hanya aktifkan is_Spamming jika target bukan player kita
+    if closest_Entity and closest_Entity.Name ~= local_player.Name then
+        aura_table.is_Spamming = true
+    else
+        aura_table.is_Spamming = false
+    end
+end)
+    -- Mengatur parameter kecepatan bola dan jarak
+    local lastParryTime = tick()
+local parryThrottle = 0.05 -- Kecepatan spam yang lebih cepat
+
+RunService.PreRender:Connect(function()
+    if not getgenv().aura_Enabled or not closest_Entity then return end
+    
+    local self = Celery_Util.getBall()
+    if self and aura_table.is_Spamming then
+        local distance = local_player:DistanceFromCharacter(closest_Entity.HumanoidRootPart.Position)
+        if distance <= aura_table.parry_Range then
+            parry_remote:FireServer(
+                0.5,
+                CFrame.new(camera.CFrame.Position, Vector3.zero),
+                {[closest_Entity.Name] = closest_Entity.HumanoidRootPart.Position},
+                {closest_Entity.HumanoidRootPart.Position.X, closest_Entity.HumanoidRootPart.Position.Y},
+                false
+            )
+        end
+    end
 end)
 
--- Optimize performance settings upon initialization
+RunService.Heartbeat:Connect(function()
+    if not getgenv().aura_Enabled then return end
+    
+    local ping = Stats.Network.ServerStatsItem['Data Ping']:GetValue() / 10
+    local self = Celery_Util.getBall()
+    
+    if not self then return end
+    
+    closest_Entity = getClosestEntity(local_player.Character.PrimaryPart)
+
+    if not closest_Entity then return end
+
+    local player_Position = local_player.Character.PrimaryPart.Position
+    local ball_Position = self.Position
+    local ball_Velocity = self.AssemblyLinearVelocity
+    local ball_Distance = local_player:DistanceFromCharacter(ball_Position)
+
+    -- Mengatur parameter kecepatan bola dan jarak
+    local isBallFastEnough = ball_Velocity.Magnitude >= 50 -- Sesuaikan nilai ini sesuai kebutuhan
+    aura_table.parry_Range = math.max(math.max(ping / 100, 4) + (ball_Velocity.Magnitude * 0.5), 1) -- Sesuaikan faktor ping
+
+    -- Memastikan bahwa kondisi parry dipenuhi
+    if isBallFastEnough and ball_Distance <= aura_table.parry_Range and (tick() - lastParryTime) > parryThrottle then
+        parry_remote:FireServer(
+            0.5,
+            CFrame.new(camera.CFrame.Position, closest_Entity.HumanoidRootPart.Position),
+            {[closest_Entity.Name] = closest_Entity.HumanoidRootPart.Position},
+            {closest_Entity.HumanoidRootPart.Position.X, closest_Entity.HumanoidRootPart.Position.Y},
+            false
+        )
+        lastParryTime = tick() -- Perbarui waktu parry terakhir
+    end
+
+    -- Atur kondisi spam
+    if ball_Distance <= aura_table.parry_Range and isBallFastEnough and not aura_table.is_ball_Warping then
+        aura_table.is_Spamming = true
+    else
+        aura_table.is_Spamming = false
+    end
+end)
+
+-- Initialize the script
+local function initialize(dataName)
+    -- Implementasi inisialisasi
+    print(dataName .. " has been initialized.")
+    
+    -- Contoh pemuatan pengaturan dari data
+    local success, settings = pcall(function()
+        -- Misalkan kita mendapatkan data dari ReplicatedStorage
+        return game.ReplicatedStorage:FindFirstChild(dataName)
+    end)
+
+    if success and settings then
+        -- Proses pengaturan yang dimuat
+        if settings:IsA("Folder") then
+            for _, setting in ipairs(settings:GetChildren()) do
+                -- Misalkan setiap child adalah nilai pengaturan yang ingin disimpan
+                print("Setting loaded: " .. setting.Name .. " = " .. tostring(setting.Value))
+                -- Simpan pengaturan ke dalam variabel atau gunakan sesuai kebutuhan
+            end
+        else
+            print(dataName .. " is not a valid settings folder.")
+        end
+    else
+        print("Failed to load settings: " .. tostring(settings))
+    end
+
+    -- Inisialisasi variabel penting lainnya
+    local importantVariable = {} -- Ganti dengan variabel yang sesuai
+    print("Important variables have been initialized.")
+end
+
+-- Menjalankan fungsi inisialisasi
+initialize("Celery_Data")
+
+-- Fungsi untuk mengoptimalkan kinerja
+local function optimizePerformance()
+    -- Implementasi optimisasi kinerja
+    print("Performance optimization started.")
+
+    -- Menghapus objek yang tidak digunakan di workspace
+    for _, obj in ipairs(workspace:GetChildren()) do
+        if obj:IsA("Part") and not obj:IsDescendantOf(workspace.Alive) then
+            obj:Destroy()
+        end
+    end
+
+    -- Menghapus semua koneksi event yang tidak lagi diperlukan
+    for _, conn in ipairs(RunService.Heartbeat:GetConnections()) do
+        if conn.Function then
+            conn:Disconnect()
+        end
+    end
+
+    -- Mengoptimalkan penggunaan variabel
+    local lastRemovedTime = tick() -- untuk melacak waktu penghapusan objek
+    local cleanupInterval = 30 -- waktu dalam detik untuk menjalankan pembersihan
+    
+    -- Mengatur fungsi untuk membersihkan objek secara berkala
+    task.spawn(function()
+        while wait(cleanupInterval) do
+            local currentTime = tick()
+            for _, obj in ipairs(workspace:GetChildren()) do
+                -- Menghapus objek yang tidak aktif selama lebih dari cleanupInterval detik
+                if obj:IsA("Part") and obj:FindFirstChild("LastActive") then
+                    if currentTime - obj.LastActive.Value > cleanupInterval then
+                        obj:Destroy()
+                    end
+                end
+            end
+        end
+    end)
+
+    -- Contoh optimasi: Mencegah pemanggilan berlebihan
+    local debounce = true
+    local function limitedFunction()
+        if debounce then
+            debounce = false
+            -- Optimisasi yang diinginkan
+            print("Running performance optimizations...")
+            task.delay(1, function() debounce = true end) -- Delay untuk mengizinkan pemanggilan lagi
+        end
+    end
+
+    -- Menghubungkan fungsi dengan event yang relevan
+    RunService.Heartbeat:Connect(limitedFunction)
+end
+-- Menjalankan fungsi inisialisasi dan optimasi
+initialize("Celery_Data")
 optimizePerformance()
-initialize("CeleryHub_Data")
 
 -- Keep the UI open
 OrionLib:Init()
