@@ -529,22 +529,23 @@ do
     local MainTab = Tabs.Main
     local Toggle = MainTab:AddToggle("Auto Parry", {
         Title = "[Auto] Parry",
-        Description = "• Better and more efficient auto parry main [OP]",
+        Description = "• main auto parry very good and efficient Parrying [OP]",
         Default = false,
         Callback = function(state)
             auto_parry = state
         end
     })
-    local Toggle = MainTab:AddToggle("Visualizer", {  a
-        Title = "[See Part] Visualizer"
-        Description = "• Visualizer for showing real-time effects",  -- Deskripsi baru
+	local Toggle1 = MainTab:AddToggle("Visualizer", {
+        Title = "[See Part] Visualizer",
+        Description = "• See And View Part, where will the system is gonna parrying.",
         Default = false,
         Callback = function(state)
-            visualizer_enabled = state
+            visualize_Enabled = state
         end
+    })
     local Toggle = MainTab:AddToggle("Auto Parry", {
-        Title = "Auto Spam",
-        Description = "• Main Auto Spam Faster and estimate Range or curve [OP]",
+        Title = "[Auto] Spam",
+        Description = "• main auto spam parry which is very fast and predicts, the distance probability is 90% [OP]",
         Default = false,
         Callback = function(state)
             auto_spam = state
