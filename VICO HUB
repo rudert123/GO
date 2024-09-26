@@ -1,6 +1,12 @@
 -- Memuat ImGui Library dari URL
 local ImGui = loadstring(game:HttpGet("https://raw.githubusercontent.com/depthso/Roblox-ImGUI/refs/heads/main/ImGui.lua"))()
 
+if not ImGui then
+    error("Failed to load ImGui library.")
+end
+
+print("ImGui loaded successfully.")
+
 -- Membuat window GUI utama
 local window = ImGui:New({Title = "Blade Ball AutoParry & AutoSpam", Size = Vector2.new(300, 200)})
 
@@ -30,6 +36,10 @@ window:Ready() -- Memulai GUI
 -- Event parry dan attack dari ReplicatedStorage
 local parryEvent = game.ReplicatedStorage:WaitForChild("ParryEvent")
 local attackEvent = game.ReplicatedStorage:WaitForChild("AttackEvent")
+
+if not parryEvent or not attackEvent then
+    error("ParryEvent or AttackEvent not found in ReplicatedStorage.")
+end
 
 -- Data entitas terdekat
 local local_player = game.Players.LocalPlayer
