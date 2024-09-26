@@ -361,26 +361,9 @@ else
     takentimestart = false
     data.taken_time = 1
 end
-
--- Cek untuk autospam
-if target_Distance <= data.spam_Range and target_Ball_Distance <= ball_PredictedDistance then
-    if target_Ball_Distance < ball_PredictedDistance then
-        takentimestart = true
-        print("Spam started!")
-    else
-        print("Target Ball Distance is not less than Predicted Distance.")
-    end
-else
-    print("Target Distance is not within spam range or Target Ball Distance is too far.")
-end
-
--- Update terakhir untuk sudut
-data.last_angle_degrees = angle_degrees
-end
 data.can_spam = true
 local curve = (1 - ball_Dot_New) / 2
 local num = 6.25 - (ping / 10)
-
 if ball_Speed >= 250 then
     num = 12.5 - (ping / 10)
 elseif ball_Speed >= 500 then
