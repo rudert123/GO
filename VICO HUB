@@ -315,17 +315,24 @@ local ball_Dot = ball_Direction:Dot(ball_Velocity.Unit)
 ball_Dot = math.clamp(ball_Dot, -1, 1)
 local ball_Dot_New = ball_DirectionNew:Dot(ball_Velocity.Unit)
 local ball_Speed = ball_Velocity.Magnitude
-
--- Penghitungan sudut dan lainnya
 local angle_degrees = math.deg(math.acos(ball_Dot_New))
 local delta_angle = math.abs(data.last_angle_degrees - angle_degrees)
-local pingFactor = ping / 100  -- Menghitung faktor ping
-local adjustedParryRange = math.max(data.parry_Range + (pingFactor * 0.5), 10) -- Menyesuaikan jarak parry
+
+-- Mengatur pengaturan untuk parry
+local pingFactor = ping / 100
+local adjustedParryRange = math.max(data.parry_Range + (pingFactor * 0.5), 10)
+
+-- Cek nilai untuk debugging
+print("Ball is Target: " .. tostring(ball_is_target))
+print("Adjusted Parry Range: " .. adjustedParryRange)
+print("Target Ball Distance: " .. target_ball_distance)
+print("Angle Degrees: " .. angle_degrees)
+print("Delta Angle: " .. delta_angle)
 
 -- Menentukan apakah parry dapat dilakukan
 if ball_is_target and data.canParry then
-    if (target_ball_distance <= adjustedParryRange) and (angle_degrees < 45) then  -- 45 derajat sebagai batas
-        if delta_angle < 15 then  -- Misalkan sudut toleransi adalah 15 derajat
+    if (target_ball_distance <= adjustedParryRange) and (angle_degrees < 45) then
+        if delta_angle < 15 then
             -- Eksekusi parry
             originalParryRemote:FireServer(
                 0,
@@ -334,9 +341,9 @@ if ball_is_target and data.canParry then
                 { closest_Entity_To_mouse.HumanoidRootPart.Position.X, closest_Entity_To_mouse.HumanoidRootPart.Position.Y },
                 false
             )
-            print("Parry executed!")  -- Menunjukkan bahwa parry berhasil dilakukan
             data.canParry = false
-            task.delay(1, function() data.canParry = true end)  -- Mengatur ulang kemampuan parry setelah 1 detik
+            print("Parry executed!") 
+            task.delay(1, function() data.canParry = true end) 
         else
             print("Parry not executed: angle too steep.")
         end
