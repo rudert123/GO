@@ -1,4 +1,3 @@
--- Memuat ImGui Library dari URL yang benar
 local ImGui = loadstring(game:HttpGet("https://raw.githubusercontent.com/depthso/Roblox-ImGUI/main/ImGui.lua"))()
 
 if not ImGui then
@@ -7,10 +6,8 @@ end
 
 print("ImGui loaded successfully.")
 
--- Membuat window GUI utama
 local window = ImGui:New({Title = "Blade Ball AutoParry & AutoSpam", Size = Vector2.new(300, 200)})
 
--- Tombol untuk AutoParry dan AutoSpam
 local isAutoParryEnabled = false
 local isAutoSpamEnabled = false
 
@@ -24,16 +21,14 @@ window:AddButton("Toggle Auto Spam", function()
     print("Auto Spam: ", isAutoSpamEnabled and "ON" or "OFF")
 end)
 
--- Menambahkan slider untuk mengatur kecepatan serangan
 local attackSpeed = 0.1
 window:AddSlider("Spam Speed", 0.05, 1, function(value)
     attackSpeed = value
     print("Attack Speed: ", attackSpeed)
 end)
 
-window:Ready() -- Memulai GUI
+window:Ready()
 
--- Event parry dan attack dari ReplicatedStorage
 local parryEvent = game.ReplicatedStorage:WaitForChild("ParryEvent")
 local attackEvent = game.ReplicatedStorage:WaitForChild("AttackEvent")
 
@@ -41,12 +36,10 @@ if not parryEvent or not attackEvent then
     error("ParryEvent or AttackEvent not found in ReplicatedStorage.")
 end
 
--- Data entitas terdekat
 local local_player = game.Players.LocalPlayer
 local lastParryTime = tick()
-local parryThrottle = 0.1 -- Throttle untuk Parry
+local parryThrottle = 0.1
 
--- Fungsi untuk menemukan entitas terdekat
 local function getClosestEntity()
     local closest
     local max_distance = math.huge
@@ -62,10 +55,9 @@ local function getClosestEntity()
     return closest
 end
 
--- Fungsi untuk Auto Parry dengan throttle
 local function autoParry()
     while isAutoParryEnabled do
-        local closest_Entity = getClosestEntity() -- Mendapatkan entitas terdekat
+        local closest_Entity = getClosestEntity()
         if closest_Entity and tick() - lastParryTime >= parryThrottle then
             parryEvent:FireServer(
                 0.5,
@@ -74,25 +66,23 @@ local function autoParry()
             )
             lastParryTime = tick()
         end
-        wait(0.1) -- Tunggu sejenak sebelum mencoba lagi
+        wait(0.1)
     end
 end
 
--- Fungsi untuk Auto Spam
 local function autoSpam()
     while isAutoSpamEnabled do
-        attackEvent:FireServer() -- Mengirim serangan
-        wait(attackSpeed) -- Menggunakan slider yang diatur oleh pemain
+        attackEvent:FireServer()
+        wait(attackSpeed)
     end
 end
 
--- Menjalankan fungsi AutoParry dan AutoSpam dalam coroutine terpisah
 coroutine.wrap(function()
     while true do
         if isAutoParryEnabled then
             autoParry()
         end
-        wait(0.1) -- Tunggu sebelum memeriksa lagi
+        wait(0.1)
     end
 end)()
 
@@ -101,6 +91,6 @@ coroutine.wrap(function()
         if isAutoSpamEnabled then
             autoSpam()
         end
-        wait(0.1) -- Tunggu sebelum memeriksa lagi
+        wait(0.1)
     end
 end)()
