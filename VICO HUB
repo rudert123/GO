@@ -1,34 +1,58 @@
-local ImGui = loadstring(game:HttpGet("https://raw.githubusercontent.com/depthso/Roblox-ImGUI/main/ImGui.lua"))()
+-- Memuat Orion Library
+local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/shlexware/Orion/main/source.lua"))()
 
-if not ImGui then
-    error("Failed to load ImGui library.")
-end
+-- Membuat window GUI utama
+local Window = OrionLib:MakeWindow({Name = "Blade Ball AutoParry & AutoSpam", HidePremium = false})
 
-print("ImGui loaded successfully.")
-
-local window = ImGui:New({Title = "Blade Ball AutoParry & AutoSpam", Size = Vector2.new(300, 200)})
-
+-- Tombol untuk AutoParry dan AutoSpam
 local isAutoParryEnabled = false
 local isAutoSpamEnabled = false
-
-window:AddButton("Toggle Auto Parry", function()
-    isAutoParryEnabled = not isAutoParryEnabled
-    print("Auto Parry: ", isAutoParryEnabled and "ON" or "OFF")
-end)
-
-window:AddButton("Toggle Auto Spam", function()
-    isAutoSpamEnabled = not isAutoSpamEnabled
-    print("Auto Spam: ", isAutoSpamEnabled and "ON" or "OFF")
-end)
-
 local attackSpeed = 0.1
-window:AddSlider("Spam Speed", 0.05, 1, function(value)
-    attackSpeed = value
-    print("Attack Speed: ", attackSpeed)
-end)
 
-window:Ready()
+-- Menambahkan tab dan elemen GUI
+local Tab = Window:MakeTab({
+    Name = "Auto Features",
+    Icon = "rbxassetid://6035002451",  -- Ganti dengan asset ID yang diinginkan
+    Premium = false
+})
 
+Tab:AddToggle({
+    Name = "Toggle Auto Parry",
+    Default = false,
+    Callback = function(Value)
+        isAutoParryEnabled = Value
+        print("Auto Parry: ", isAutoParryEnabled and "ON" or "OFF")
+        if isAutoParryEnabled then
+            autoParry()
+        end
+    end
+})
+
+Tab:AddToggle({
+    Name = "Toggle Auto Spam",
+    Default = false,
+    Callback = function(Value)
+        isAutoSpamEnabled = Value
+        print("Auto Spam: ", isAutoSpamEnabled and "ON" or "OFF")
+        if isAutoSpamEnabled then
+            autoSpam()
+        end
+    end
+})
+
+Tab:AddSlider({
+    Name = "Spam Speed",
+    Min = 0.05,
+    Max = 1,
+    Default = 0.1,
+    Increment = 0.05,
+    Callback = function(Value)
+        attackSpeed = Value
+        print("Attack Speed: ", attackSpeed)
+    end
+})
+
+-- Event parry dan attack dari ReplicatedStorage
 local parryEvent = game.ReplicatedStorage:WaitForChild("ParryEvent")
 local attackEvent = game.ReplicatedStorage:WaitForChild("AttackEvent")
 
@@ -40,6 +64,7 @@ local local_player = game.Players.LocalPlayer
 local lastParryTime = tick()
 local parryThrottle = 0.1
 
+-- Fungsi untuk menemukan entitas terdekat
 local function getClosestEntity()
     local closest
     local max_distance = math.huge
@@ -55,6 +80,7 @@ local function getClosestEntity()
     return closest
 end
 
+-- Fungsi untuk Auto Parry
 local function autoParry()
     while isAutoParryEnabled do
         local closest_Entity = getClosestEntity()
@@ -70,6 +96,7 @@ local function autoParry()
     end
 end
 
+-- Fungsi untuk Auto Spam
 local function autoSpam()
     while isAutoSpamEnabled do
         attackEvent:FireServer()
@@ -77,20 +104,9 @@ local function autoSpam()
     end
 end
 
+-- Menjalankan fungsi AutoParry dan AutoSpam
 coroutine.wrap(function()
     while true do
-        if isAutoParryEnabled then
-            autoParry()
-        end
-        wait(0.1)
-    end
-end)()
-
-coroutine.wrap(function()
-    while true do
-        if isAutoSpamEnabled then
-            autoSpam()
-        end
         wait(0.1)
     end
 end)()
