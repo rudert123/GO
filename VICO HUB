@@ -319,8 +319,10 @@ local player_isMoving = player_Velocity.Magnitude > 0
 local player_dot = player_isMoving and math.max(player_Dir:Dot(player_Velocity.Unit), 0)
 local ball_speed_Limited = math.min(ball_Speed / 1000, 0.1)
 
-local ball_predicted_Distance = (ball_Distance - (ping / 15.5)) - (ball_Speed / 3.5)
-local ball_predicted_Distance_target = (target_ball_distance - (ping / 15.5)) - (ball_Speed / 3.5)
+-- Update prediction distance considering sudden ping drops
+local ping_adjustment = (ping < 50) and (ping / 7.5) or (ping / 15.5) -- Adjust for sudden ping drops
+local ball_predicted_Distance = (ball_Distance - ping_adjustment) - (ball_Speed / 3.5)
+local ball_predicted_Distance_target = (target_ball_distance - ping_adjustment) - (ball_Speed / 3.5)
 local predictionTime = 0.25 + (ping / 100)
 
 local ball_PredictedPosition = ball_Position + (ball_Velocity * predictionTime)
@@ -354,14 +356,11 @@ local ball_is_target = self:GetAttribute('target') == local_player.Name
 local previous_angle_degrees = data.last_angle_degrees or angle_degrees
 local delta_angle = math.abs(previous_angle_degrees - angle_degrees)
 
--- Check autospam Disctance and Detected The Player.
+-- Check autospam Distance and Detected The Player.
 if target_Distance <= data.spam_Range and target_Ball_Distance <= ball_PredictedDistance then
     if target_Ball_Distance < ball_PredictedDistance then
         takentimestart = true
     end
-elseif target_Distance >= data.spam_Range + 7.5 then
-    takentimestart = false
-    data.taken_time = 1
 end
 data.can_spam = true
 local curve = (1 - ball_Dot_New) / 2
