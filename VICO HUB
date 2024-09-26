@@ -66,15 +66,6 @@ local function detectNearestEntity()
     end
     return closest_Entity
 end
-local function autoParry()
-    local target = detectNearestEntity()
-    if target then
-        print("Performing auto parry on: " .. target.Name)
-    end
-end
-RunService:BindToRenderStep("Auto Parry", Enum.RenderPriority.First.Value, function()
-    autoParry()
-end)
 function resolve_parry_Remote()
 	for _, value in pairs(Services) do
 		local temp_remote = value:FindFirstChildOfClass('RemoteEvent')
