@@ -304,72 +304,59 @@ task.spawn(function()
 		if self:FindFirstChild("zoomies") then
 			ball_Velocity = self.zoomies.VectorVelocity
 		end
-		local ball_Direction = (local_player.Character.PrimaryPart.Position - ball_Position).Unit
+local ball_Direction = (local_player.Character.PrimaryPart.Position - ball_Position).Unit
 local ball_Distance = (local_player.Character.PrimaryPart.Position - ball_Position).Magnitude
 local target_ball_distance = (closest_Entity.HumanoidRootPart.Position - ball_Position).Magnitude
 data.distance_player_to_ball = ball_Distance
-
 local targetPosition = (self:GetAttribute('target') == local_player.Name and local_player.Character.PrimaryPart.Position or closest_Entity.HumanoidRootPart.Position)
 local ball_DirectionNew = (targetPosition - ball_Position).Unit
 local ball_DistanceNew = (targetPosition - ball_Position).Magnitude
-
 local ball_Dot = ball_Direction:Dot(ball_Velocity.Unit)
 ball_Dot = math.clamp(ball_Dot, -1, 1)
 local ball_Dot_New = ball_DirectionNew:Dot(ball_Velocity.Unit)
 local ball_Speed = ball_Velocity.Magnitude
 
-local player_Position = local_player.Character.PrimaryPart.Position
-local player_Dir = (local_player.Character.PrimaryPart.Position - closest_Entity.HumanoidRootPart.Position).Unit
-local player_Velocity = local_player.Character.HumanoidRootPart.AssemblyLinearVelocity
-local player_isMoving = player_Velocity.Magnitude > 0
-local player_dot = player_isMoving and math.max(player_Dir:Dot(player_Velocity.Unit), 0)
-local ball_speed_Limited = math.min(ball_Speed / 1000, 0.1)
-
--- Update prediction distance considering sudden ping drops
-local ping_adjustment = (ping < 50) and (ping / 7.5) or (ping / 15.5) -- Adjust for sudden ping drops
-local ball_predicted_Distance = (ball_Distance - ping_adjustment) - (ball_Speed / 3.5)
-local ball_predicted_Distance_target = (target_ball_distance - ping_adjustment) - (ball_Speed / 3.5)
-local predictionTime = 0.25 + (ping / 100)
-
-local ball_PredictedPosition = ball_Position + (ball_Velocity * predictionTime)
-local ball_PredictedDistance = (local_player.Character.PrimaryPart.Position - ball_PredictedPosition).Magnitude 
-
-local target_Position = closest_Entity.HumanoidRootPart.Position
-local target_Distance = local_player:DistanceFromCharacter(target_Position)
-local closest_target_Distance = local_player:DistanceFromCharacter(closest_Entity.HumanoidRootPart.Position)
-
-local target_distance_Limited = math.min(target_Distance / 10000, 0.1)
-local target_Direction = (local_player.Character.PrimaryPart.Position - closest_Entity.HumanoidRootPart.Position).Unit
-local target_Ball_Distance = (targetPosition - ball_Position).Magnitude
-
-local target_Velocity = closest_Entity.HumanoidRootPart.AssemblyLinearVelocity
-local target_isMoving = target_Velocity.Magnitude > 0
-local target_Dot = target_isMoving and math.max(target_Direction:Dot(target_Velocity.Unit), 0)
-
-local baseMoveAmount = 0.5
-local moveAmount = baseMoveAmount * (1 / (closest_target_Distance + 0.01)) * 1000
-local maxDistance = 1000
-
-local moveAmountNew = math.max(0, math.min(0.6 * closest_target_Distance, 1))
-data.spam_delay = moveAmountNew
-data.spam_Range = math.min(moveAmount + (ball_Speed / 7.15), (150 + moveAmount)) + math.max(ping / 2, 3.5)
-
-local L = ball_Speed / 2000
-local time_since_last_angle_check = tick() - (data.last_check_time or 0)
-local min_time_between_checks = 0.1
+-- Penghitungan sudut dan lainnya
 local angle_degrees = math.deg(math.acos(ball_Dot_New))
-local ball_is_target = self:GetAttribute('target') == local_player.Name
-local previous_angle_degrees = data.last_angle_degrees or angle_degrees
-local delta_angle = math.abs(previous_angle_degrees - angle_degrees)
+local delta_angle = math.abs(data.last_angle_degrees - angle_degrees)
+local pingFactor = ping / 100  -- Menghitung faktor ping
+local adjustedParryRange = math.max(data.parry_Range + (pingFactor * 0.5), 10) -- Menyesuaikan jarak parry
 
--- Check autospam Distance and Detected The Player.
+-- Menentukan apakah parry dapat dilakukan
+if ball_is_target and data.canParry then
+    if (target_ball_distance <= adjustedParryRange) and (angle_degrees < 45) then  -- 45 derajat sebagai batas
+        if delta_angle < 15 then  -- Misalkan sudut toleransi adalah 15 derajat
+            -- Eksekusi parry
+            originalParryRemote:FireServer(
+                0,
+                CFrame.new(player_Position),
+                { [closest_Entity_To_mouse.Name] = closest_Entity_To_mouse.HumanoidRootPart.Position },
+                { closest_Entity_To_mouse.HumanoidRootPart.Position.X, closest_Entity_To_mouse.HumanoidRootPart.Position.Y },
+                false
+            )
+            print("Parry executed!")  -- Menunjukkan bahwa parry berhasil dilakukan
+            data.canParry = false
+            task.delay(1, function() data.canParry = true end)  -- Mengatur ulang kemampuan parry setelah 1 detik
+        else
+            print("Parry not executed: angle too steep.")
+        end
+    else
+        print("Parry not executed: Target Ball Distance too far.")
+    end
+end
+
+-- Update terakhir untuk sudut
+data.last_angle_degrees = angle_degrees
+
+-- Cek jarak autospam dan deteksi pemain
 print("Target Distance: " .. target_Distance)
 print("Spam Range: " .. data.spam_Range)
-print("Target Ball Distance: " .. target_Ball_Distance)
+print("Target Ball Distance: " .. target_ball_distance)
 print("Ball Predicted Distance: " .. ball_PredictedDistance)
 
-if target_Distance <= data.spam_Range and target_Ball_Distance <= ball_PredictedDistance then
-    if target_Ball_Distance < ball_PredictedDistance then
+-- Cek untuk autospam
+if target_Distance <= data.spam_Range and target_ball_distance <= ball_PredictedDistance then
+    if target_ball_distance < ball_PredictedDistance then
         takentimestart = true
         print("Spam started!")
     else
@@ -567,7 +554,7 @@ ImageButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 ImageButton.BorderSizePixel = 0
 ImageButton.Position = UDim2.new(0.120833337, 0, 0.0952890813, 0)
 ImageButton.Size = UDim2.new(0, 45, 0, 45)
-ImageButton.Image = "rbxassetid://9605261863" -- Set the image using the decal ID
+ImageButton.Image = "rbxassetid://9125402735" -- Set the image using the decal ID
 ImageButton.Draggable = true
 
 -- Add UICorner for rounded corners
