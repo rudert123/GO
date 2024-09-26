@@ -363,7 +363,6 @@ elseif target_Distance >= data.spam_Range + 7.5 then
     takentimestart = false
     data.taken_time = 1
 end
-
 data.can_spam = true
 local curve = (1 - ball_Dot_New) / 2
 local num = 6.25 - (ping / 10)
@@ -375,23 +374,19 @@ elseif ball_Speed >= 500 then
 elseif ball_Speed >= 750 then
     num = 50 - (ping / 10)
 end
-
 if delta_angle > 31 + (ball_Speed / num) then
     data.can_spam = false
 else
     data.can_spam = true
 end
-
 data.last_angle_degrees = angle_degrees
 data.last_check_time = tick()
-
 local speedFactor = 3.3
 local speedFactorPingBased = 7.15
 
 if ball_Speed >= 750 then
     speedFactor = 2.55
 end
-
 data.parry_Range = math.max(math.max(ping / 2, 3.5) + ball_Speed / speedFactor, speedFactorPingBased)
 
 if target_isMoving then
@@ -399,11 +394,9 @@ if target_isMoving then
 else
     data.is_Spamming = data.taken_time < (0.7 + (ping / 1000)) or (target_Distance < 13.5 and ball_Distance < 20) and ball_Velocity.Y > -50
 end
-
 if ball_Dot < -0.2 then
     data.ball_Warping = tick()
 end
-
 task.spawn(function()
     if (tick() - data.ball_Warping) >= 0.15 + target_distance_Limited - ball_speed_Limited or ball_Distance <= 10 then
         data.is_ball_Warping = false
@@ -416,7 +409,46 @@ task.spawn(function()
     end
     data.is_ball_Warping = true
 end)
-
+if ball_Velocity.Y < -200 and self:FindFirstChild("AeroDynamicSlash") then
+    data.aero_find = true
+    data.parry_Range /= 2
+else
+    data.aero_find = false
+end
+if not ball_is_target or not data.canParry then
+    return
+end
+local ping_based_ball_distance
+if Stats.Network.ServerStatsItem["Data Ping"]:GetValue() > 150 then
+    ping_based_ball_distance = ball_predicted_Distance
+else
+    ping_based_ball_distance = ball_Distance
+end
+if (ping_based_ball_distance <= data.parry_Range) and not data.is_ball_Warping and delta_angle < 31 and angle_degrees < 69 then
+    local cf = camera.CFrame
+    local x, y, z, R00, R01, R02, R10, R11, R12, R20, R21, R22 = cf:GetComponents()
+    originalParryRemote:FireServer(
+        0,
+        CFrame.new(x, y, z, R00, R01, R02, R10, R11, R12, R20, R21, R22),
+        {[closest_Entity_To_mouse.Name] = closest_Entity_To_mouse.HumanoidRootPart.Position},
+        {closest_Entity_To_mouse.HumanoidRootPart.Position.X, closest_Entity_To_mouse.HumanoidRootPart.Position.Y},
+        false
+    )
+    data.hit_Count = data.hit_Count + 1
+    task.delay(0.2 + (ping / 100), function()
+        data.hit_Count = data.hit_Count - 1
+    end)
+    data.hit_Time = tick()
+    data.canParry = false
+end
+task.spawn(function()
+    repeat
+        RunService.Heartbeat:Wait()
+    until (tick() - data.hit_Time) >= 1
+    data.canParry = true
+    end)
+  end)
+end)
 initializate("nurysium_temp")
 local function optimizePerformance()
     -- Boost FPS by disabling unnecessary features and reducing settings
