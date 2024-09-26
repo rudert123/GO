@@ -75,7 +75,7 @@ end
 RunService:BindToRenderStep("Auto Parry", Enum.RenderPriority.First.Value, function()
     autoParry()
 end)
-resolve_parry_Remote()
+function resolve_parry_Remote()
 	for _, value in pairs(Services) do
 		local temp_remote = value:FindFirstChildOfClass('RemoteEvent')
 		if not temp_remote then
