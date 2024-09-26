@@ -79,8 +79,8 @@ local data = {
 	canParry = true,
 	modeParry = nil,
 	is_Spamming = false,
-	parry_Range = 15,
-	spam_Range = 9,  
+	parry_Range = 30,
+	spam_Range = 10,  
 	hit_Count = 0,
 	target_Count = 0,
 	hit_Time = tick(),
@@ -298,65 +298,59 @@ task.spawn(function()
 		if self:FindFirstChild("zoomies") then
 			ball_Velocity = self.zoomies.VectorVelocity
 		end
-local ball_Direction = (local_player.Character.PrimaryPart.Position - ball_Position).Unit
-local ball_Distance = (local_player.Character.PrimaryPart.Position - ball_Position).Magnitude
-local target_ball_distance = (closest_Entity.HumanoidRootPart.Position - ball_Position).Magnitude
-data.distance_player_to_ball = ball_Distance
-local ball_DirectionNew
-local ball_DistanceNew
-local targetPosition = (self:GetAttribute('target') == local_player.Name and local_player.Character.PrimaryPart.Position or closest_Entity.HumanoidRootPart.Position)
-ball_DirectionNew = (targetPosition - ball_Position).Unit
-ball_DistanceNew = (targetPosition - ball_Position).Magnitude
--- Hitung dot product untuk prediksi arah bola
-local ball_Dot = ball_Direction:Dot(ball_Velocity.Unit)
-ball_Dot = math.clamp(ball_Dot, -1, 1)
-local ball_Dot_New = ball_DirectionNew:Dot(ball_Velocity.Unit)
-local ball_Speed = ball_Velocity.Magnitude
-local player_Position = local_player.Character.PrimaryPart.Position
-local player_Dir = (local_player.Character.PrimaryPart.Position - closest_Entity.HumanoidRootPart.Position).Unit
-local player_Velocity = local_player.Character.HumanoidRootPart.AssemblyLinearVelocity
-local player_isMoving = player_Velocity.Magnitude > 0
-local player_dot = player_isMoving and math.max(player_Dir:Dot(player_Velocity.Unit), 0)
--- Penyesuaian kecepatan bola
-local ball_speed_Limited = math.min(ball_Speed / 1000, 0.1)
-local ball_predicted_Distance = (ball_Distance - ping / 15.5) - (ball_Speed / 3.5)
-local ball_predicted_Distance_target = (target_ball_distance - ping / 15.5) - (ball_Speed / 3.5)
-local predictionTime = 0.25 + (ping / 100)
-local ball_PredictedPosition = ball_Position + (ball_Velocity * predictionTime)
--- Hitung jarak target
-local ball_PredictedDistance = (local_player.Character.PrimaryPart.Position - ball_PredictedPosition).Magnitude 
-local target_Position = closest_Entity.HumanoidRootPart.Position
-local target_Distance = local_player:DistanceFromCharacter(target_Position)
-local closest_target_Distance = local_player:DistanceFromCharacter(closest_Entity.HumanoidRootPart.Position)
-local target_distance_Limited = math.min(target_Distance / 10000, 0.1)
-local target_Direction = (local_player.Character.PrimaryPart.Position - closest_Entity.HumanoidRootPart.Position).Unit
-local target_Ball_Distance = (targetPosition - ball_Position).Magnitude
-local target_Velocity = closest_Entity.HumanoidRootPart.AssemblyLinearVelocity
-local target_isMoving = target_Velocity.Magnitude > 0
-local target_Dot = target_isMoving and math.max(target_Direction:Dot(target_Velocity.Unit), 0)
--- Mengatur moveAmount berdasarkan jarak
-local baseMoveAmount = 0.5
-local moveAmount = baseMoveAmount * (1 / (closest_target_Distance + 0.01)) * 1000
-local maxDistance = 1000
-local moveAmountNew = math.max(0, math.min(0.6 * closest_target_Distance, 1))
--- Atur delay spam dan rentang spam
-data.spam_delay = math.clamp(moveAmountNew, 0.1, 0.5)  -- Membatasi spam delay
-data.spam_Range = math.min(moveAmount + (ball_Speed / 10), (150 + moveAmount)) + math.max(ping / 2, 3.5)
--- Mengatur waktu pemeriksaan sudut
-local L = ball_Speed / 2000
-local time_since_last_angle_check = tick() - (data.last_check_time or 0)
-local min_time_between_checks = 0.1
-local angle_degrees = math.deg(math.acos(ball_Dot_New))
-local ball_is_target = self:GetAttribute('target') == local_player.Name
-local previous_angle_degrees = data.last_angle_degrees or angle_degrees
-local delta_angle = math.abs(previous_angle_degrees - angle_degrees)
--- Logika untuk memulai parry
-if target_Distance <= data.spam_Range and ball_is_target and ball_DistanceNew <= data.spam_Range then
-    takentimestart = true
-elseif target_Distance >= data.spam_Range + 7.5 then
-    takentimestart = false
-    data.taken_time = 1
-             end
+		local ball_Direction = (local_player.Character.PrimaryPart.Position - ball_Position).Unit
+		local ball_Distance = (local_player.Character.PrimaryPart.Position - ball_Position).Magnitude
+		local target_ball_distance = (closest_Entity.HumanoidRootPart.Position - ball_Position).Magnitude
+		data.distance_player_to_ball = ball_Distance
+		local ball_DirectionNew
+		local ball_DistanceNew
+		local targetPosition = (self:GetAttribute('target') == local_player.Name and local_player.Character.PrimaryPart.Position or closest_Entity.HumanoidRootPart.Position)
+		ball_DirectionNew = (targetPosition - ball_Position).Unit
+		ball_DistanceNew = (targetPosition - ball_Position).Magnitude
+		local ball_Dot = ball_Direction:Dot(ball_Velocity.Unit)
+		ball_Dot = math.clamp(ball_Dot, -1, 1)
+		local ball_Dot_New = ball_DirectionNew:Dot(ball_Velocity.Unit)
+		local ball_Speed = ball_Velocity.Magnitude
+		local player_Position = local_player.Character.PrimaryPart.Position
+		local player_Dir = (local_player.Character.PrimaryPart.Position - closest_Entity.HumanoidRootPart.Position).Unit
+		local player_Velocity = local_player.Character.HumanoidRootPart.AssemblyLinearVelocity
+		local player_isMoving = player_Velocity.Magnitude > 0
+		local player_dot = player_isMoving and math.max(player_Dir:Dot(player_Velocity.Unit), 0)
+		local ball_speed_Limited = math.min(ball_Speed / 1000, 0.1)
+		local ball_predicted_Distance = (ball_Distance - ping / 15.5) - (ball_Speed / 3.5)
+		local ball_predicted_Distance_target = (target_ball_distance - ping / 15.5) - (ball_Speed / 3.5)
+		local predictionTime = 0.25 + (ping / 100)
+		local ball_PredictedPosition = ball_Position + (ball_Velocity * predictionTime)
+		local ball_PredictedDistance = (local_player.Character.PrimaryPart.Position - ball_PredictedPosition).Magnitude 
+		local target_Position = closest_Entity.HumanoidRootPart.Position
+		local target_Distance = local_player:DistanceFromCharacter(target_Position)
+		local closest_target_Distance = local_player:DistanceFromCharacter(closest_Entity.HumanoidRootPart.Position)
+		local target_distance_Limited = math.min(target_Distance / 10000, 0.1)
+		local target_Direction = (local_player.Character.PrimaryPart.Position - closest_Entity.HumanoidRootPart.Position).Unit
+		local target_Ball_Distance = (targetPosition - ball_Position).Magnitude
+		local target_Velocity = closest_Entity.HumanoidRootPart.AssemblyLinearVelocity
+		local target_isMoving = target_Velocity.Magnitude > 0
+		local target_Dot = target_isMoving and math.max(target_Direction:Dot(target_Velocity.Unit), 0)
+		local baseMoveAmount = 0.5
+		local moveAmount = baseMoveAmount * (1 / (closest_target_Distance + 0.01)) * 1000
+		local maxDistance = 1000
+		local moveAmountNew = math.max(0, math.min(0.6 * closest_target_Distance, 1))
+		data.spam_delay = moveAmountNew
+		data.spam_Range = math.min(moveAmount + (ball_Speed / 7.15), (150 + moveAmount)) + math.max(ping / 2, 3.5)
+		local L = ball_Speed / 2000
+		local time_since_last_angle_check = tick() - (data.last_check_time or 0)
+		local min_time_between_checks = 0.1
+		local angle_degrees = math.deg(math.acos(ball_Dot_New))
+		local ball_is_target
+		ball_is_target = self:GetAttribute('target') == local_player.Name
+		local previous_angle_degrees = data.last_angle_degrees or angle_degrees
+		local delta_angle = math.abs(previous_angle_degrees - angle_degrees)
+		if target_Distance <= data.spam_Range then
+			takentimestart = true
+		elseif target_Distance >= data.spam_Range + 7.5 then
+			takentimestart = false
+			data.taken_time = 1
+		end
 		data.can_spam = true
 		local curve = (1 - ball_Dot_New) / 2
 		local num = 6.25 - (ping / 10)
@@ -409,71 +403,36 @@ elseif target_Distance >= data.spam_Range + 7.5 then
 		if not ball_is_target or not data.canParry then
 			return
 		end
-local ping_based_ball_distance
-if Stats.Network.ServerStatsItem["Data Ping"]:GetValue() > 100 and ball_predicted_Distance or ball_Distance then
-    ping_based_ball_distance = ball_predicted_Distance
-else
-    ping_based_ball_distance = ball_Distance
-end
-
--- Memastikan jarak dan sudut parry yang lebih responsif
-if (ping_based_ball_distance <= data.parry_Range) and not data.is_ball_Warping and delta_angle < 20 and angle_degrees < 60 then		
-    local cf = camera.CFrame
-    local x, y, z, R00, R01, R02, R10, R11, R12, R20, R21, R22 = cf:GetComponents()
-    originalParryRemote:FireServer(
-        0,
-        CFrame.new(x, y, z, R00, R01, R02, R10, R11, R12, R20, R21, R22),
-        {[closest_Entity_To_mouse.Name] = closest_Entity_To_mouse.HumanoidRootPart.Position},
-        {closest_Entity_To_mouse.HumanoidRootPart.Position.X, closest_Entity_To_mouse.HumanoidRootPart.Position.Y},
-        false
-    )
-    data.hit_Count = data.hit_Count + 1
-    task.delay(0.1 + (ping / 120), function()  -- Mengurangi divisor untuk meningkatkan responsifitas
-        data.hit_Count = data.hit_Count - 1
-    end)
-    data.hit_Time = tick()
-    data.canParry = false
-end
-
-task.spawn(function()
-    repeat
-        RunService.Heartbeat:Wait()
-    until (tick() - data.hit_Time) >= 0.8
-
-    data.canParry = true
-end)
-local ping_based_ball_distance
-if Stats.Network.ServerStatsItem["Data Ping"]:GetValue() > 100 and ball_predicted_Distance or ball_Distance then
-    ping_based_ball_distance = ball_predicted_Distance
-else
-    ping_based_ball_distance = ball_Distance
-end
-
--- Memastikan jarak dan sudut parry yang lebih responsif
-if (ping_based_ball_distance <= data.parry_Range) and not data.is_ball_Warping and delta_angle < 20 and angle_degrees < 60 then		
-    local cf = camera.CFrame
-    local x, y, z, R00, R01, R02, R10, R11, R12, R20, R21, R22 = cf:GetComponents()
-    originalParryRemote:FireServer(
-        0,
-        CFrame.new(x, y, z, R00, R01, R02, R10, R11, R12, R20, R21, R22),
-        {[closest_Entity_To_mouse.Name] = closest_Entity_To_mouse.HumanoidRootPart.Position},
-        {closest_Entity_To_mouse.HumanoidRootPart.Position.X, closest_Entity_To_mouse.HumanoidRootPart.Position.Y},
-        false
-    )
-    data.hit_Count = data.hit_Count + 1
-    task.delay(0.1 + (ping / 120), function()  -- Mengurangi divisor untuk meningkatkan responsifitas
-        data.hit_Count = data.hit_Count - 1
-    end)
-    data.hit_Time = tick()
-    data.canParry = false
-end
-
-task.spawn(function()
-    repeat
-        RunService.Heartbeat:Wait()
-    until (tick() - data.hit_Time) >= 0.8
-
-    data.canParry = true
+		local ping_based_ball_distance
+		if Stats.Network.ServerStatsItem["Data Ping"]:GetValue() > 150 and ball_predicted_Distance or ball_Distance then
+			ping_based_ball_distance = ball_predicted_Distance
+		else
+			ping_based_ball_distance = ball_Distance
+		end
+		if (ping_based_ball_distance <= data.parry_Range) and not data.is_ball_Warping and delta_angle < 31 and angle_degrees < 69 then		
+			local cf = camera.CFrame
+			local x, y, z, R00, R01, R02, R10, R11, R12, R20, R21, R22 = cf:GetComponents()
+			originalParryRemote:FireServer(
+				0,
+				CFrame.new(x, y, z, R00, R01, R02, R10, R11, R12, R20, R21, R22),
+				{[closest_Entity_To_mouse.Name] = closest_Entity_To_mouse.HumanoidRootPart.Position},
+				{closest_Entity_To_mouse.HumanoidRootPart.Position.X, closest_Entity_To_mouse.HumanoidRootPart.Position.Y},
+				false
+			)
+			data.hit_Count = data.hit_Count + 1
+			task.delay(0.2 + (ping / 100), function()
+				data.hit_Count = data.hit_Count - 1
+			end)
+			data.hit_Time = tick()
+			data.canParry = false
+		end
+		task.spawn(function()
+			repeat
+				RunService.Heartbeat:Wait()
+			until (tick() - data.hit_Time) >= 1
+			data.canParry = true
+		end)
+	end)
 end)
 initializate("nurysium_temp")
 local function optimizePerformance()
