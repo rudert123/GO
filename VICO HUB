@@ -176,21 +176,17 @@ local function getClosestEntityToMouse()
     local shortestDistance = math.huge
     local mouse = Players.LocalPlayer:GetMouse()
 
-    -- Pastikan workspace.Alive ada
     if not workspace:FindFirstChild("Alive") then
         return nil
     end
 
-    -- Loop melalui semua entitas
     for _, entity in pairs(workspace.Alive:GetChildren()) do
         if entity:IsA("Model") then
             local humanoidRootPart = entity:FindFirstChild("HumanoidRootPart")
             if humanoidRootPart then
-                -- Hitung jarak ke mouse
                 local screenPoint = camera:WorldToViewportPoint(humanoidRootPart.Position)
                 local distanceToMouse = (Vector2.new(screenPoint.X, screenPoint.Y) - Vector2.new(mouse.X, mouse.Y)).Magnitude
 
-                -- Periksa apakah ini adalah entitas terdekat
                 if distanceToMouse < shortestDistance then
                     closest = entity
                     shortestDistance = distanceToMouse
@@ -202,46 +198,69 @@ local function getClosestEntityToMouse()
     return closest
 end
 
--- Contoh penggunaan fungsi
+local function isBallHeadingTowardsLocalPlayer(ballPosition, localPlayerPosition)
+    local distanceToLocalPlayer = (ballPosition - localPlayerPosition).Magnitude
+    -- Misalkan bola memiliki radius tertentu, kita bisa menyesuaikan nilai ini
+    local ballRadius = 5
+    return distanceToLocalPlayer <= ballRadius
+end
+
 local closestEntity = getClosestEntityToMouse()
+local localPlayer = Players.LocalPlayer
+local ballPosition = Vector3.new(0, 0, 0) -- Ganti dengan posisi bola yang sebenarnya
+
 if closestEntity then
     print("Closest entity found:", closestEntity.Name)
 
-    -- Ambil nilai dari variabel yang mungkin terlibat dalam operasi
-    local ball_Dot_New = 0.5 -- Ganti dengan nilai yang sesuai dari logika kamu
-    local ball_Speed = 300 -- Ganti dengan nilai yang sesuai dari logika kamu
+    -- Cek apakah bola mengarah ke pemain lokal
+    if isBallHeadingTowardsLocalPlayer(ballPosition, localPlayer.Character.PrimaryPart.Position) then
+        print("Ball is heading towards the local player.")
 
-    -- Pastikan data dapat diakses
-    local data = {
-        can_spam = true,
-        spam_Range = 100, -- Atur sesuai dengan logika game
-        hit_Time = tick(),
-    }
+        -- Memastikan bahwa sistem hanya aktif jika entitas terdekat bukan pemain lokal
+        if closestEntity.Name ~= localPlayer.Name then
+            -- Melanjutkan dengan logika spam dan penargetan
+            local ball_Dot_New = 0.5
+            local ball_Speed = 300
+            local delta_angle = 30
 
-    -- Menghitung nilai spam range
-    local curve = (1 - ball_Dot_New) / 2
-    local num = 5
+            local data = {
+                can_spam = true,
+                spam_Range = 100,
+                hit_Time = tick(),
+            }
 
-    -- Pastikan ball_Speed valid
-    if ball_Speed >= 200 then
-        num = 10
-    elseif ball_Speed >= 400 then
-        num = 20
-    elseif ball_Speed >= 600 then
-        num = 40
-    end
+            local curve = (1 - ball_Dot_New) / 2
+            local num = 5
 
-    -- Mengatur can_spam berdasarkan delta_angle yang harus didefinisikan
-    local delta_angle = 30 -- Ganti dengan nilai yang sesuai
-    if delta_angle > 31 + (ball_Speed / 15) then
-        data.can_spam = false
+            if ball_Speed >= 200 then
+                num = 10
+            elseif ball_Speed >= 400 then
+                num = 20
+            elseif ball_Speed >= 600 then
+                num = 40
+            end
+
+            if delta_angle > 31 + (ball_Speed / 15) then
+                data.can_spam = false
+            else
+                data.can_spam = true
+            end
+
+            if data.can_spam then
+                -- Tambahkan logika untuk menargetkan bola ke closestEntity
+                print("System activated for:", closestEntity.Name)
+            else
+                print("Spam disabled due to angle.")
+            end
+        else
+            print("Cannot target self or invalid entity.")
+        end
     else
-        data.can_spam = true
+        print("Ball is not heading towards the local player. System will not activate.")
     end
-
 else
     print("No closest entity found.")
-end
+end   
 local closest_Entity_To_mouse = nil
 task.defer(function()
 	RunService.Heartbeat:Connect(function()
