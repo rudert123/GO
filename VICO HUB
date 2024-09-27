@@ -47,20 +47,20 @@ function initializate(dataaFolder_name)
 	hit_Sound.Volume = 5
 end
 local function get_closest_entity(Object)
-  task.spawn(function()
-    local closest
-    local max_distance = math.huge
-    for index, entity in workspace.Alive:GetChildren() do
-      if entity.Name ~= Players.LocalPlayer.Name then
-        local distance = (Object.Position - entity.HumanoidRootPart.Position).Magnitude
-        if distance < max_distance then
-          closest_Entity = entity
-          max_distance = distance
-        end
-      end
-    end
-    return closest_Entity
-  end)
+	task.spawn(function()
+		local closest
+		local max_distance = math.huge
+		for index, entity in workspace.Alive:GetChildren() do
+			if entity.Name ~= Players.LocalPlayer.Name then
+				local distance = (Object.Position - entity.HumanoidRootPart.Position).Magnitude
+				if distance < max_distance then
+					closest_Entity = entity
+					max_distance = distance
+				end
+			end
+		end
+		return closest_Entity
+	end)
 end
 function resolve_parry_Remote()
 	for _, value in pairs(Services) do
@@ -77,39 +77,33 @@ end
 resolve_parry_Remote()
 local data = {
 	canParry = true,
-modeParry = nil,
-is_Spamming = false,
-parry_Range = 9,          
-spam_Range = 15,          
-hit_Count = 0,
-target_Count = 0,
-hit_Time = tick(),
-ball_Warping = tick(),
-is_ball_Warping = false,
-last_target = nil,
-is_target = false,
-taken_time = 1,
-aero_taken_times = 0,
-not_target_time = tick(),
-distance_player_to_ball = 0,
-aero_find = false,
-can_spam = true,
-last_angle_degrees = 0,
-last_ball_position = Vector3.new(0, 0, 0),
-is_curving = false,
-telesink_start_time = nil,
-is_telesinking = false,
-pull_start_time = nil,
-is_pulled = false,
-last_ball_speed = 0,
-spam_delay = 0,
-last_check_time = 0,
-
--- Angka untuk prediksi
-ball_Speed = 260,          -- Kecepatan bola
-ping = 50,                 -- Latensi ping
-baseMoveAmount = 0.5,     -- Pengaturan dasar untuk jarak gerakan
-maxDistance = 1000,        -- Jarak maksimum
+	modeParry = nil,
+	is_Spamming = false,
+	parry_Range = 30,
+	spam_Range = 10,  
+	hit_Count = 0,
+	target_Count = 0,
+	hit_Time = tick(),
+	ball_Warping = tick(),
+	is_ball_Warping = false,
+	last_target = nil,
+	is_target = false,
+	taken_time = 1,
+	aero_taken_times = 0,
+	not_target_time = tick(),
+	distance_player_to_ball = 0,
+	aero_find = false,
+	can_spam = true,
+	last_angle_degrees = 0,
+	last_ball_position = Vector3.new(0,0,0),
+	is_curving = false,
+	telesink_start_time = nil,
+	is_telesinking = false,
+	pull_start_time = nil,
+	is_pulled = false,
+	last_ball_speed = 0,
+	spam_delay = 0,
+	last_check_time = 0,
 }
 ReplicatedStorage.Remotes.ParrySuccess.OnClientEvent:Connect(function()
 	if takentimestart then
@@ -167,6 +161,7 @@ task.defer(function()
 		end	
 	end)
 end)
+
 function getClosestEntityToMouse()
 	local closest = nil
 	local shortestDistance = math.huge
@@ -290,9 +285,9 @@ task.spawn(function()
 		elseif self:GetAttribute('target') ~= local_player.Name then
 			skibidi = true
 		end
-		task.delay(0.1 + (ping / 100), function() -- Mengurangi delay dari 0.2 menjadi 0.1
-    data.target_Count = data.target_Count - 1
-end)
+		task.delay(0.2 + (ping / 100),function()
+			data.target_Count = data.target_Count - 1
+		end)
 		self:GetAttributeChangedSignal('from'):Once(function()
 			data.last_target = workspace.Alive:FindFirstChild(self:GetAttribute('from'))
 		end)
@@ -303,7 +298,7 @@ end)
 		if self:FindFirstChild("zoomies") then
 			ball_Velocity = self.zoomies.VectorVelocity
 		end
-local ball_Direction = (local_player.Character.PrimaryPart.Position - ball_Position).Unit
+		local ball_Direction = (local_player.Character.PrimaryPart.Position - ball_Position).Unit
 		local ball_Distance = (local_player.Character.PrimaryPart.Position - ball_Position).Magnitude
 		local target_ball_distance = (closest_Entity.HumanoidRootPart.Position - ball_Position).Magnitude
 		data.distance_player_to_ball = ball_Distance
@@ -356,7 +351,7 @@ local ball_Direction = (local_player.Character.PrimaryPart.Position - ball_Posit
 			takentimestart = false
 			data.taken_time = 1
 		end
-data.can_spam = true
+		data.can_spam = true
 		local curve = (1 - ball_Dot_New) / 2
 		local num = 6.25 - (ping / 10)
 		if ball_Speed >= 250 then
@@ -403,41 +398,41 @@ data.can_spam = true
 			data.aero_find = true
 			data.parry_Range /= 2
 		else
-    data.aero_find = false
-end
-    if not ball_is_target or not data.canParry then
-      return
-    end
-    local ping_based_ball_distance
-    if Stats.Network.ServerStatsItem["Data Ping"]:GetValue() > 200 and ball_predicted_Distance or ball_Distance then
-      ping_based_ball_distance = ball_predicted_Distance
-    else
-      ping_based_ball_distance = ball_Distance
-    end
-    if (ping_based_ball_distance <= data.parry_Range) and not data.is_ball_Warping and delta_angle < 31 and angle_degrees < 69 then    
-      local cf = camera.CFrame
-      local x, y, z, R00, R01, R02, R10, R11, R12, R20, R21, R22 = cf:GetComponents()
-      originalParryRemote:FireServer(
-        0,
-        CFrame.new(x, y, z, R00, R01, R02, R10, R11, R12, R20, R21, R22),
-        {[closest_Entity_To_mouse.Name] = closest_Entity_To_mouse.HumanoidRootPart.Position},
-        {closest_Entity_To_mouse.HumanoidRootPart.Position.X, closest_Entity_To_mouse.HumanoidRootPart.Position.Y},
-        false
-      )
-      data.hit_Count = data.hit_Count + 1
-      task.delay(0.2 + (ping / 100), function()
-        data.hit_Count = data.hit_Count - 1
-      end)
-      data.hit_Time = tick()
-      data.canParry = false
-    end
-    task.spawn(function()
-      repeat
-        RunService.Heartbeat:Wait()
-      until (tick() - data.hit_Time) >= 1
-      data.canParry = true
-    end)
-  end)
+			data.aero_find = false
+		end
+		if not ball_is_target or not data.canParry then
+			return
+		end
+		local ping_based_ball_distance
+		if Stats.Network.ServerStatsItem["Data Ping"]:GetValue() > 150 and ball_predicted_Distance or ball_Distance then
+			ping_based_ball_distance = ball_predicted_Distance
+		else
+			ping_based_ball_distance = ball_Distance
+		end
+		if (ping_based_ball_distance <= data.parry_Range) and not data.is_ball_Warping and delta_angle < 31 and angle_degrees < 69 then		
+			local cf = camera.CFrame
+			local x, y, z, R00, R01, R02, R10, R11, R12, R20, R21, R22 = cf:GetComponents()
+			originalParryRemote:FireServer(
+				0,
+				CFrame.new(x, y, z, R00, R01, R02, R10, R11, R12, R20, R21, R22),
+				{[closest_Entity_To_mouse.Name] = closest_Entity_To_mouse.HumanoidRootPart.Position},
+				{closest_Entity_To_mouse.HumanoidRootPart.Position.X, closest_Entity_To_mouse.HumanoidRootPart.Position.Y},
+				false
+			)
+			data.hit_Count = data.hit_Count + 1
+			task.delay(0.2 + (ping / 100), function()
+				data.hit_Count = data.hit_Count - 1
+			end)
+			data.hit_Time = tick()
+			data.canParry = false
+		end
+		task.spawn(function()
+			repeat
+				RunService.Heartbeat:Wait()
+			until (tick() - data.hit_Time) >= 1
+			data.canParry = true
+		end)
+	end)
 end)
 initializate("nurysium_temp")
 local function optimizePerformance()
@@ -474,9 +469,9 @@ local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/d
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 ----------------------------------------------------------------------------------------------------------------------------------------------
 local Window = Fluent:CreateWindow({
-    Title = "Vico Hub",
-    SubTitle = "https://discord.gg/EJB93G3jGe",
-    TabWidth = 160,
+    Title = "Vico Hub [Beta Version]",
+    SubTitle = "Vico Hub selalu Di depan Gaspol 😼",
+    TabWidth = 150,
     Size = UDim2.fromOffset(500, 320),
     Acrylic = true,
     Theme = "Light",
@@ -492,30 +487,29 @@ local Options = Fluent.Options
 do
     local MainTab = Tabs.Main
     local Toggle = MainTab:AddToggle("Auto Parry", {
-        Title = "|Auto Parry|",
-        Description = "• Main parry that will help you to parry legitly!",
+        Title = "😈|Auto Parry|💥",
+        Description = "• Main Parry",
         Default = false,
         Callback = function(state)
             auto_parry = state
         end
     })
 	local Toggle1 = MainTab:AddToggle("Visualizer", {
-        Title = "|Visualizer|",
-        Description = "• see the parry part will be notified by the system",
+        Title = "🗣️|Visualizer|👈",
+        Description = "• View Part",
         Default = false,
         Callback = function(state)
             visualize_Enabled = state
         end
     })
     local Toggle = MainTab:AddToggle("Auto Parry", {
-    local Toggle = MainTab:AddToggle("Auto Parry", {
-    Title = "|Auto Spam|",
-    Description = "• main auto spam that will help you to clash brutally!",
-    Default = false,
-    Callback = function(state)
-        auto_spam = state
-    end
-})
+        Title = "☠️|Auto Spam|🤾",
+        Description = "• Main Spam",
+        Default = false,
+        Callback = function(state)
+            auto_spam = state
+        end
+    })
 local ScreenGui = Instance.new("ScreenGui")
 local ImageButton = Instance.new("ImageButton")
 local UICorner = Instance.new("UICorner")
@@ -529,9 +523,9 @@ ImageButton.Parent = ScreenGui
 ImageButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 ImageButton.BorderSizePixel = 0
 ImageButton.Position = UDim2.new(0.120833337, 0, 0.0952890813, 0)
-ImageButton.Size = UDim2.new(0, 45, 0, 45)
-ImageButton.Image = "rbxassetid://9125402735" -- Set the image using the decal ID
-ImageButton.Draggable = true 
+ImageButton.Size = UDim2.new(0, 50, 0, 50)
+ImageButton.Image = "rbxassetid://83582647628443" -- Set the image using the decal ID
+ImageButton.Draggable = true
 
 -- Add UICorner for rounded corners
 UICorner.Parent = ImageButton
