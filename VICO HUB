@@ -457,7 +457,6 @@ if data.can_spam then
     local spam_interval = math.max(1 - curve, 0.1)
     task.spawn(function()
         while data.can_spam do
-            -- Lakukan tindakan spam di sini
             wait(spam_interval)
         end
     end)
@@ -470,23 +469,10 @@ if ball_Speed >= 750 then
   speedFactor = 3.0
 end
     data.parry_Range = math.max(math.max(ping / 2, 3.5) + ball_Speed / speedFactor, speedFactorPingBased)
-    if target_isMoving then
-      data.is_Spamming = data.taken_time < (0.7 + (ping / 1000))  or (target_Distance < 12 and ball_Distance < 20) and ball_Velocity.Y > -50
-    else
-      data.is_Spamming = data.taken_time < (0.7 + (ping / 1000))  or (target_Distance < 13.5 and ball_Distance < 20) and ball_Velocity.Y > -50
-    end
-      data.is_Spamming = false
-if data.taken_time and data.taken_time < (0.7 + (ping / 1000)) then
-    data.is_Spamming = true
-elseif target_Distance and ball_Distance and ball_Velocity then
-    if target_Distance < 13.5 and ball_Distance < 20 and ball_Velocity.Y > -50 then
-        -- Tambahkan pengecekan apakah bola mengarah ke pemain lain
-        local isBallAimedAtOtherPlayer = -- [masukkan logika untuk mengecek arah bola]
-        if not isBallAimedAtOtherPlayer then
-            data.is_Spamming = true
-        end
-    end
-end
+
+local distanceThreshold = target_isMoving and 12 or 13.5
+data.is_Spamming = data.taken_time < (0.7 + (ping / 1000)) or 
+                    (target_Distance < distanceThreshold and ball_Distance < 20 and ball_Velocity.Y > -50)
 if ball_Dot < -0.2 then
     data.ball_Warping = tick()
 end
