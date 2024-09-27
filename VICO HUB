@@ -79,8 +79,8 @@ local data = {
 	canParry = true,
 	modeParry = nil,
 	is_Spamming = false,
-	parry_Range = 30,
-	spam_Range = 10,  
+	parry_Range = 25,
+	spam_Range = 13,  
 	hit_Count = 0,
 	target_Count = 0,
 	hit_Time = tick(),
@@ -136,9 +136,9 @@ end
 task.defer(function()
 	local self = Nurysium_Util.getBall()
 	local Visualize = Instance.new("Part",workspace)
-	Visualize.Color = Color3.new(0, 1, 1)
+	Visualize.Color = Color3.new(0, 2, 1)
 	Visualize.Material = Enum.Material.ForceField
-	Visualize.Transparency = 0.5
+	Visualize.Transparency = 0.4
 	Visualize.Anchored = true
 	Visualize.CanCollide = false
 	Visualize.CastShadow = false
@@ -368,10 +368,10 @@ task.spawn(function()
 		end
 		data.last_angle_degrees = angle_degrees
 		data.last_check_time = tick()
-		local speedFactor = 3.3
-		local speedFactorPingBased = 7.15
+		local speedFactor = 3.0
+		local speedFactorPingBased = 7.10
 		if ball_Speed >= 750 then
-			speedFactor = 2.55
+			speedFactor = 2.50
 		end
 		data.parry_Range = math.max(math.max(ping / 2, 3.5) + ball_Speed / speedFactor, speedFactorPingBased)
 		if target_isMoving then
@@ -420,7 +420,7 @@ task.spawn(function()
 				false
 			)
 			data.hit_Count = data.hit_Count + 1
-			task.delay(0.2 + (ping / 100), function()
+			task.delay(0.1 + (ping / 100), function()
 				data.hit_Count = data.hit_Count - 1
 			end)
 			data.hit_Time = tick()
