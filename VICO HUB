@@ -106,7 +106,7 @@ spam_delay = 0,
 last_check_time = 0,
 
 -- Angka untuk prediksi
-ball_Speed = 500,          -- Kecepatan bola
+ball_Speed = 350,          -- Kecepatan bola
 ping = 50,                 -- Latensi ping
 baseMoveAmount = 0.5,     -- Pengaturan dasar untuk jarak gerakan
 maxDistance = 1000,        -- Jarak maksimum
@@ -360,9 +360,9 @@ task.spawn(function()
 		elseif self:GetAttribute('target') ~= local_player.Name then
 			skibidi = true
 		end
-		task.delay(0.2 + (ping / 100),function()
-			data.target_Count = data.target_Count - 1
-		end)
+		task.delay(0.1 + (ping / 100), function() -- Mengurangi delay dari 0.2 menjadi 0.1
+    data.target_Count = data.target_Count - 1
+end)
 		self:GetAttributeChangedSignal('from'):Once(function()
 			data.last_target = workspace.Alive:FindFirstChild(self:GetAttribute('from'))
 		end)
@@ -465,8 +465,8 @@ if data.can_spam then
 end
     data.last_angle_degrees = angle_degrees
 data.last_check_time = tick()
-local speedFactor = 4.0
-local speedFactorPingBased = 8.5
+local speedFactor = 2.0
+local speedFactorPingBased = 5.0
 if ball_Speed >= 750 then
   speedFactor = 3.0
 end
