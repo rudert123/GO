@@ -167,38 +167,42 @@ task.defer(function()
 		end	
 	end)
 end)
+local Players = game:GetService("Players")
+local workspace = game:GetService("Workspace")
+local camera = workspace.CurrentCamera
 
 function getClosestEntityToMouse()
-	local closest = nil
-	local shortestDistance = math.huge
-	local mouse = game.Players.LocalPlayer:GetMouse()
-	-- Ensure workspace.Alive exists
-	if not workspace:FindFirstChild("Alive") then
-		return nil
-	end
-	-- Loop through all entities
-	for _, entity in pairs(workspace.Alive:GetChildren()) do
-		if entity:IsA("Model") then
-			local humanoidRootPart = entity:FindFirstChild("HumanoidRootPart")
-			if humanoidRootPart then
-				-- Convert world position to screen position
-				local screenPoint = camera:WorldToViewportPoint(humanoidRootPart.Position)
-				local distanceToMouse = (Vector2.new(screenPoint.X, screenPoint.Y) - Vector2.new(mouse.X, mouse.Y)).Magnitude
-				-- Check if this is the closest entity so far
-				if distanceToMouse < shortestDistance then
-					closest = entity
-					shortestDistance = distanceToMouse
-				end
-			else
-			end
-		else
-		end
-	end
-	-- If no closest entity is found, warn the user
-	if not closest then
-	else
-	end
-	return closest
+    local closest = nil
+    local shortestDistance = math.huge
+    local mouse = Players.LocalPlayer:GetMouse()
+
+    if not workspace:FindFirstChild("Alive") then
+        return nil
+    end
+
+    for _, entity in pairs(workspace.Alive:GetChildren()) do
+        if entity:IsA("Model") then
+            local humanoidRootPart = entity:FindFirstChild("HumanoidRootPart")
+            if humanoidRootPart then
+                local screenPoint = camera:WorldToViewportPoint(humanoidRootPart.Position)
+                local distanceToMouse = (Vector2.new(screenPoint.X, screenPoint.Y) - Vector2.new(mouse.X, mouse.Y)).Magnitude
+                
+                if distanceToMouse < shortestDistance then
+                    closest = entity
+                    shortestDistance = distanceToMouse
+                end
+            end
+        end
+    end
+
+    return closest
+end
+
+local closestEntity = getClosestEntityToMouse()
+if closestEntity then
+    print("Closest entity found:", closestEntity.Name)
+else
+    print("No closest entity found.")
 end
 local closest_Entity_To_mouse = nil
 task.defer(function()
