@@ -486,30 +486,71 @@ local Options = Fluent.Options
 
 do
     local MainTab = Tabs.Main
-    local Toggle = MainTab:AddToggle("Auto Parry", {
-        Title = "😈|Auto Parry|💥",
-        Description = "• Main Parry",
-        Default = false,
-        Callback = function(state)
-            auto_parry = state
+local Toggle = MainTab:AddToggle("Auto Parry", {
+    Title = "😈|Auto Parry|💥",
+    Description = "• Main parry is good for you, the system will work as hard as possible and detect.",
+    Default = false,
+    Callback = function(state)
+        auto_parry = state
+        if auto_parry then
+            game:GetService("StarterGui"):SetCore("SendNotification", {
+                Title = "Auto Parry",
+                Text = "[Auto Parry] Successfully executed and good luck trying 😽",
+                Duration = 5
+            })
+        else
+            game:GetService("StarterGui"):SetCore("SendNotification", {
+                Title = "Auto Parry",
+                Text = "Execute has been forced to death and will not run 😾",
+                Duration = 5
+            })
         end
-    })
-	local Toggle1 = MainTab:AddToggle("Visualizer", {
-        Title = "🗣️|Visualizer|👈",
-        Description = "• View Part",
-        Default = false,
-        Callback = function(state)
-            visualize_Enabled = state
+    end
+})
+
+local Toggle1 = MainTab:AddToggle("Visualizer", {
+    Title = "🗣️|Visualizer|👈",
+    Description = "• View the Parry Part that will be shown by the system!",
+    Default = false,
+    Callback = function(state)
+        visualize_Enabled = state
+        if visualize_Enabled then
+            game:GetService("StarterGui"):SetCore("SendNotification", {
+                Title = "Visualizer",
+                Text = "[Visualizer] Successfully executed and good luck trying 😻",
+                Duration = 5
+            })
+        else
+            game:GetService("StarterGui"):SetCore("SendNotification", {
+                Title = "Visualizer",
+                Text = "Execute has been forced to death and will not run 😿",
+                Duration = 5
+            })
         end
-    })
-    local Toggle = MainTab:AddToggle("Auto Parry", {
-        Title = "☠️|Auto Spam|🤾",
-        Description = "• Main Spam",
-        Default = false,
-        Callback = function(state)
-            auto_spam = state
+    end
+})
+
+local Toggle = MainTab:AddToggle("Auto Parry", {
+    Title = "☠️|Auto Spam|🤾",
+    Description = "• Main Auto Spam that allows you to clash brutally, but also detects.",
+    Default = false,
+    Callback = function(state)
+        auto_spam = state
+        if auto_spam then
+            game:GetService("StarterGui"):SetCore("SendNotification", {
+                Title = "Auto Spam",
+                Text = "[Auto Spam] Successfully executed and good luck trying 😸",
+                Duration = 5
+            })
+        else
+            game:GetService("StarterGui"):SetCore("SendNotification", {
+                Title = "Auto Spam",
+                Text = "Execute has been forced to death and will not run 🙀",
+                Duration = 5
+            })
         end
-    })
+    end
+})
 local players = game:GetService("Players")
 game:GetService("StarterGui"):SetCore("SendNotification", {
     Title = "💥 Welcome My Man!! 😼";
