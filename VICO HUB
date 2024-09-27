@@ -79,8 +79,8 @@ local data = {
 	canParry = true,
 	modeParry = nil,
 	is_Spamming = false,
-	parry_Range = 25/30,
-	spam_Range = 9,  
+	parry_Range = 30,
+	spam_Range = 15,  
 	hit_Count = 0,
 	target_Count = 0,
 	hit_Time = tick(),
@@ -299,63 +299,69 @@ task.spawn(function()
 			ball_Velocity = self.zoomies.VectorVelocity
 		end
 		local ball_Direction = (local_player.Character.PrimaryPart.Position - ball_Position).Unit
-		local ball_Distance = (local_player.Character.PrimaryPart.Position - ball_Position).Magnitude
-		local target_ball_distance = (closest_Entity.HumanoidRootPart.Position - ball_Position).Magnitude
-		data.distance_player_to_ball = ball_Distance
-		local ball_DirectionNew
-		local ball_DistanceNew
-		local targetPosition = (self:GetAttribute('target') == local_player.Name and local_player.Character.PrimaryPart.Position or closest_Entity.HumanoidRootPart.Position)
-		ball_DirectionNew = (targetPosition - ball_Position).Unit
-		ball_DistanceNew = (targetPosition - ball_Position).Magnitude
-		local ball_Dot = ball_Direction:Dot(ball_Velocity.Unit)
-		ball_Dot = math.clamp(ball_Dot, -1, 1)
-		local ball_Dot_New = ball_DirectionNew:Dot(ball_Velocity.Unit)
-		local ball_Speed = ball_Velocity.Magnitude
-		local player_Position = local_player.Character.PrimaryPart.Position
-		local player_Dir = (local_player.Character.PrimaryPart.Position - closest_Entity.HumanoidRootPart.Position).Unit
-		local player_Velocity = local_player.Character.HumanoidRootPart.AssemblyLinearVelocity
-		local player_isMoving = player_Velocity.Magnitude > 0
-		local player_dot = player_isMoving and math.max(player_Dir:Dot(player_Velocity.Unit), 0)
-		local ball_speed_Limited = math.min(ball_Speed / 1000, 0.1)
-		local ball_predicted_Distance = (ball_Distance - ping / 15.5) - (ball_Speed / 3.5)
-		local ball_predicted_Distance_target = (target_ball_distance - ping / 15.5) - (ball_Speed / 3.5)
-		local predictionTime = 0.25 + (ping / 100)
-		local ball_PredictedPosition = ball_Position + (ball_Velocity * predictionTime)
-		local ball_PredictedDistance = (local_player.Character.PrimaryPart.Position - ball_PredictedPosition).Magnitude 
-		local target_Position = closest_Entity.HumanoidRootPart.Position
-		local target_Distance = local_player:DistanceFromCharacter(target_Position)
-		local closest_target_Distance = local_player:DistanceFromCharacter(closest_Entity.HumanoidRootPart.Position)
-		local target_distance_Limited = math.min(target_Distance / 10000, 0.1)
-		local target_Direction = (local_player.Character.PrimaryPart.Position - closest_Entity.HumanoidRootPart.Position).Unit
-		local target_Ball_Distance = (targetPosition - ball_Position).Magnitude
-		local target_Velocity = closest_Entity.HumanoidRootPart.AssemblyLinearVelocity
-		local target_isMoving = target_Velocity.Magnitude > 0
-		local target_Dot = target_isMoving and math.max(target_Direction:Dot(target_Velocity.Unit), 0)
-		local baseMoveAmount = 0.5
-		local moveAmount = baseMoveAmount * (1 / (closest_target_Distance + 0.01)) * 1000
-		local maxDistance = 1000
-		local moveAmountNew = math.max(0, math.min(0.6 * closest_target_Distance, 1))
-		data.spam_delay = moveAmountNew
-		data.spam_Range = math.min(moveAmount + (ball_Speed / 7.15), (150 + moveAmount)) + math.max(ping / 2, 3.5)
-		local L = ball_Speed / 2000
-		local time_since_last_angle_check = tick() - (data.last_check_time or 0)
-		local min_time_between_checks = 0.1
-		local angle_degrees = math.deg(math.acos(ball_Dot_New))
-		local ball_is_target
-		ball_is_target = self:GetAttribute('target') == local_player.Name
-		local previous_angle_degrees = data.last_angle_degrees or angle_degrees
-		local delta_angle = math.abs(previous_angle_degrees - angle_degrees)
-		if target_Distance <= data.spam_Range then
-			takentimestart = true
-		elseif target_Distance >= data.spam_Range + 7.5 then
-			takentimestart = false
-			data.taken_time = 1
-		end
+local ball_Distance = (local_player.Character.PrimaryPart.Position - ball_Position).Magnitude
+local target_ball_distance = (closest_Entity.HumanoidRootPart.Position - ball_Position).Magnitude
+
+data.distance_player_to_ball = ball_Distance
+
+local targetPosition = (self:GetAttribute('target') == local_player.Name and local_player.Character.PrimaryPart.Position or closest_Entity.HumanoidRootPart.Position)
+local ball_DirectionNew = (targetPosition - ball_Position).Unit
+local ball_DistanceNew = (targetPosition - ball_Position).Magnitude
+
+local ball_Dot = math.clamp(ball_Direction:Dot(ball_Velocity.Unit), -1, 1)
+local ball_Dot_New = ball_DirectionNew:Dot(ball_Velocity.Unit)
+local ball_Speed = ball_Velocity.Magnitude
+
+local player_Position = local_player.Character.PrimaryPart.Position
+local player_Velocity = local_player.Character.HumanoidRootPart.AssemblyLinearVelocity
+local player_isMoving = player_Velocity.Magnitude > 0
+local player_Dir = (local_player.Character.PrimaryPart.Position - closest_Entity.HumanoidRootPart.Position).Unit
+local player_dot = player_isMoving and math.max(player_Dir:Dot(player_Velocity.Unit), 0)
+
+local ball_speed_Limited = math.min(ball_Speed / 1000, 0.1)
+local adjustedPing = math.max(ping, 50)
+
+local ball_predicted_Distance = (ball_Distance - adjustedPing / 15.5) - (ball_Speed / 3.5)
+local ball_predicted_Distance_target = (target_ball_distance - adjustedPing / 15.5) - (ball_Speed / 3.5)
+
+local predictionTime = 0.25 + (adjustedPing / 100)
+local ball_PredictedPosition = ball_Position + (ball_Velocity * predictionTime)
+local ball_PredictedDistance = (local_player.Character.PrimaryPart.Position - ball_PredictedPosition).Magnitude 
+
+local target_Position = closest_Entity.HumanoidRootPart.Position
+local closest_target_Distance = local_player:DistanceFromCharacter(target_Position)
+local target_distance_Limited = math.min(closest_target_Distance / 10000, 0.1)
+
+local target_Direction = (local_player.Character.PrimaryPart.Position - closest_Entity.HumanoidRootPart.Position).Unit
+local target_Velocity = closest_Entity.HumanoidRootPart.AssemblyLinearVelocity
+local target_isMoving = target_Velocity.Magnitude > 0
+local target_Dot = target_isMoving and math.max(target_Direction:Dot(target_Velocity.Unit), 0)
+
+local baseMoveAmount = 0.5
+local moveAmount = baseMoveAmount * (1 / (closest_target_Distance + 0.01)) * 1000
+local moveAmountNew = math.max(0, math.min(0.6 * closest_target_Distance, 1))
+
+data.spam_delay = moveAmountNew
+data.spam_Range = math.min(moveAmount + (ball_Speed / 7.15), (150 + moveAmount)) + math.max(adjustedPing / 2, 3.5)
+
+local L = ball_Speed / 2000
+local time_since_last_angle_check = tick() - (data.last_check_time or 0)
+local min_time_between_checks = 0.1
+local angle_degrees = math.deg(math.acos(ball_Dot_New))
+local ball_is_target = self:GetAttribute('target') == local_player.Name
+local previous_angle_degrees = data.last_angle_degrees or angle_degrees
+local delta_angle = math.abs(previous_angle_degrees - angle_degrees)
+
+data.last_angle_degrees = angle_degrees
+data.last_check_time = tick()
+
+if ball_is_target and delta_angle < 30 then
+end
 		data.can_spam = true
 		local curve = (1 - ball_Dot_New) / 2
-		local num = 7.0 - (ping / 10)
+		local num = 6.5 - (ping / 10)
 		if ball_Speed >= 250 then
-		num = 13.5 - (ping / 10)
+		num = 13.0 - (ping / 10)
 		elseif ball_Speed >= 500 then
 		num = 25 - (ping / 10)
 		elseif ball_Speed >= 750 then
@@ -367,18 +373,40 @@ task.spawn(function()
 			data.can_spam = true
 		end
 		data.last_angle_degrees = angle_degrees
-		data.last_check_time = tick()
-		local speedFactor = 4.0
-		local speedFactorPingBased = 7.40
-		if ball_Speed >= 750 then
-			speedFactor = 2.25
-		end
+data.last_check_time = tick()
+local speedFactor = 3.0
+local speedFactorPingBased = 7.30
+
+if ball_Speed >= 750 then
+    speedFactor = 2.50
+end
+
+local angle_threshold = 15 
+local angle_difference = math.abs(previous_angle_degrees - angle_degrees)
+
+if angle_difference <= angle_threshold then
+    local effective_speed = ball_Speed / (speedFactor + (ping / 100)) 
+    local parry_range = effective_speed * 0.5 
+
+    if ball_Distance <= parry_range then
+        -- Lakukan parry
+    end
+end
 		data.parry_Range = math.max(math.max(ping / 2, 3.5) + ball_Speed / speedFactor, speedFactorPingBased)
-		if target_isMoving then
-			data.is_Spamming = data.taken_time < (0.7 + (ping / 1000))  or (target_Distance < 12 and ball_Distance < 20) and ball_Velocity.Y > -50
-		else
-			data.is_Spamming = data.taken_time < (0.7 + (ping / 1000))  or (target_Distance < 13.5 and ball_Distance < 20) and ball_Velocity.Y > -50
-		end
+
+if target_isMoving then
+    local spamming_threshold = 0.7 + (ping / 1000)
+    local close_range_condition = (target_Distance < 12 and ball_Distance < 20)
+    local vertical_velocity_condition = (ball_Velocity.Y > -50)
+
+    data.is_Spamming = data.taken_time < spamming_threshold or (close_range_condition and vertical_velocity_condition)
+
+    if data.is_Spamming then
+        data.is_Spamming = math.min(data.is_Spamming, 1)
+    end
+else
+    data.is_Spamming = false
+end
 		if ball_Dot < -0.2 then
 			data.ball_Warping = tick()
 		end
