@@ -262,24 +262,19 @@ if closestEntity then
 else
     print("No closest entity found.")
 end 
-local closest_Entity_To_mouse = getClosestEntityToMouse()
-if closest_Entity_To_mouse and closest_Entity_To_mouse:IsA("Model") then
-    local ballDirection = (ball.Position - local_player.Character.PrimaryPart.Position).unit
-    local playerDirection = (closest_Entity_To_mouse.HumanoidRootPart.Position - local_player.Character.PrimaryPart.Position).unit
-
-    if (ballDirection - playerDirection).Magnitude < someThreshold then
-        data.can_spam = true
-    else
-        data.can_spam = false
-    end
+local closest_Entity_To_mouse = getClosestEntityToMouse()  -- Mendapatkan entitas terdekat
+if closest_Entity_To_mouse then  -- Memeriksa apakah ada entitas terdekat
+    print("Closest entity found:", closest_Entity_To_mouse.Name)  -- Menampilkan nama entitas terdekat
 else
-    data.can_spam = false -- Tidak ada entitas terdekat yang valid
+    print("No closest entity found.")  -- Menampilkan pesan jika tidak ada entitas
 end
 
-print("Closest Entity:", closest_Entity_To_mouse)
-print("Can Spam:", data.can_spam)
-	end)
-end)
+-- Pastikan objek valid sebelum memanggil metode
+if closest_Entity_To_mouse and closest_Entity_To_mouse:IsA("Model") then
+    -- Operasi lebih lanjut di sini
+else
+    print("Closest entity is nil or not a model.")
+end
 local Takentime = tick() - data.hit_Time
 RunService.Heartbeat:Connect(function()
 	Takentime = tick() - data.hit_Time
