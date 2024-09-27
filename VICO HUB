@@ -80,7 +80,7 @@ local data = {
 modeParry = nil,
 is_Spamming = false,
 parry_Range = 10,          
-spam_Range = 8,          
+spam_Range = 14,          
 hit_Count = 0,
 target_Count = 0,
 hit_Time = tick(),
@@ -106,7 +106,7 @@ spam_delay = 0,
 last_check_time = 0,
 
 -- Angka untuk prediksi
-ball_Speed = 300,          -- Kecepatan bola
+ball_Speed = 500,          -- Kecepatan bola
 ping = 50,                 -- Latensi ping
 baseMoveAmount = 0.5,     -- Pengaturan dasar untuk jarak gerakan
 maxDistance = 1000,        -- Jarak maksimum
@@ -221,7 +221,7 @@ if closestEntity then
         if closestEntity.Name ~= localPlayer.Name then
             -- Melanjutkan dengan logika spam dan penargetan
             local ball_Dot_New = 0.5
-            local ball_Speed = 300
+            local ball_Speed = 500
             local delta_angle = 30
 
             local data = {
