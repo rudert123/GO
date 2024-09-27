@@ -374,22 +374,28 @@ end
 		end
 		data.last_angle_degrees = angle_degrees
 data.last_check_time = tick()
-local speedFactor = 3.0
+local speedFactor = 2.0
 local speedFactorPingBased = 7.30
 
 if ball_Speed >= 750 then
-    speedFactor = 2.50
+    speedFactor = 1.50
 end
 
-local angle_threshold = 15 
+local proximity_factor = 0.5
+local distance_to_target = local_player:DistanceFromCharacter(closest_Entity.HumanoidRootPart.Position)
+
+if distance_to_target < 10 then
+    speedFactor = speedFactor * proximity_factor
+end
+
+local angle_threshold = 15
 local angle_difference = math.abs(previous_angle_degrees - angle_degrees)
 
 if angle_difference <= angle_threshold then
-    local effective_speed = ball_Speed / (speedFactor + (ping / 100)) 
-    local parry_range = effective_speed * 0.5 
+    local effective_speed = ball_Speed / (speedFactor + (ping / 100))
+    local parry_range = effective_speed * 0.5
 
     if ball_Distance <= parry_range then
-        -- Lakukan parry
     end
 end
 		data.parry_Range = math.max(math.max(ping / 2, 3.5) + ball_Speed / speedFactor, speedFactorPingBased)
@@ -524,13 +530,13 @@ local Toggle = MainTab:AddToggle("Auto Parry", {
             game:GetService("StarterGui"):SetCore("SendNotification", {
                 Title = "Auto Parry",
                 Text = "[Auto Parry] Successfully executed and good luck trying 😽",
-                Duration = 5
+                Duration = 4
             })
         else
             game:GetService("StarterGui"):SetCore("SendNotification", {
                 Title = "Auto Parry",
                 Text = "Execute has been forced to death and will not run 😾",
-                Duration = 5
+                Duration = 4
             })
         end
     end
@@ -546,13 +552,13 @@ local Toggle1 = MainTab:AddToggle("Visualizer", {
             game:GetService("StarterGui"):SetCore("SendNotification", {
                 Title = "Visualizer",
                 Text = "[Visualizer] Successfully executed and good luck trying 😻",
-                Duration = 5
+                Duration = 4
             })
         else
             game:GetService("StarterGui"):SetCore("SendNotification", {
                 Title = "Visualizer",
                 Text = "Execute has been forced to death and will not run 😿",
-                Duration = 5
+                Duration = 4
             })
         end
     end
@@ -568,7 +574,7 @@ local Toggle = MainTab:AddToggle("Auto Parry", {
             game:GetService("StarterGui"):SetCore("SendNotification", {
                 Title = "Auto Spam",
                 Text = "[Auto Spam] Successfully executed and good luck trying 😸",
-                Duration = 5
+                Duration = 4
             })
         else
             game:GetService("StarterGui"):SetCore("SendNotification", {
