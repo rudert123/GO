@@ -201,6 +201,15 @@ end
 local closestEntity = getClosestEntityToMouse()
 if closestEntity then
     print("Closest entity found:", closestEntity.Name)
+    if data.can_spam then
+        local spam_interval = math.max(1 - curve, 0.1)
+        task.spawn(function()
+            while data.can_spam do
+                -- Lakukan tindakan spam di sini
+                wait(spam_interval)
+            end
+        end)
+    end
 else
     print("No closest entity found.")
 end
