@@ -1,3 +1,4 @@
+getgenv().AutoDetectSpam = getgenv().AutoDetectSpam or false
 getgenv().AutoDetectSpam = true
 
 --///////////////////////////////////////////////////////////////////--
@@ -48,11 +49,14 @@ local function SuperClick()
 end
 
 task.spawn(function()
-  while task.wait() do
-    if getgenv().SpamClickA and getgenv().AutoDetectSpam then
-      SuperClick()
+task.spawn(function()
+    while task.wait() do
+        if getgenv().AutoDetectSpam then
+            SuperClick()
+        else
+            print("AutoDetectSpam is disabled or not initialized.")
+        end
     end
-  end
 end)
 
 local ParryCounter = 0
@@ -819,14 +823,14 @@ do
         end
     })
     local Toggle = MainTab:AddToggle("Auto Parry", {
+    local Toggle = MainTab:AddToggle("Auto Parry", {
     Title = "|Auto Spam|",
     Description = "• main auto spam that will help you to clash brutally!",
     Default = false,
     Callback = function(state)
-        getgenv().AutoDetectSpam = state  -- Pastikan ini ada
-        auto_spam = state  -- Pastikan auto_spam dideklarasikan di atas
-       end
-    })
+        getgenv().AutoDetectSpam = state
+    end
+})
 local ScreenGui = Instance.new("ScreenGui")
 local ImageButton = Instance.new("ImageButton")
 local UICorner = Instance.new("UICorner")
