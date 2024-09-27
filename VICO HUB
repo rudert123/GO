@@ -280,6 +280,8 @@ task.defer(function()
 		end	
 	end)
 end)
+getgenv().AutoDetectSpam = true
+
 local Players = game:GetService("Players")
 local workspace = game:GetService("Workspace")
 local camera = workspace.CurrentCamera
@@ -318,70 +320,74 @@ local function isBallHeadingTowardsLocalPlayer(ballPosition, localPlayerPosition
     return angle < 45 -- Ganti nilai sudut jika perlu
 end
 
-local closestEntity = getClosestEntityToMouse()
-local localPlayer = Players.LocalPlayer
-local ballPosition = Vector3.new(0, 0, 0) -- Ganti dengan posisi bola yang sebenarnya
-local targetPlayerPosition = Vector3.new(0, 0, 0) -- Ganti dengan posisi pemain yang memparry
+-- AutoSpam logic
+local function checkAutoSpam()
+    local closestEntity = getClosestEntityToMouse()
+    local localPlayer = Players.LocalPlayer
 
-if closestEntity then
-    print("Closest entity found:", closestEntity.Name)
+    -- Replace with actual ball and player positions
+    local ballPosition = Vector3.new(0, 0, 0) -- Ganti dengan posisi bola yang sebenarnya
+    local targetPlayerPosition = Vector3.new(0, 0, 0) -- Ganti dengan posisi pemain yang memparry
 
-    -- Cek apakah bola mengarah ke pemain lokal
-    if isBallHeadingTowardsLocalPlayer(ballPosition, localPlayer.Character.PrimaryPart.Position, targetPlayerPosition) then
-        print("Ball is heading towards the local player.")
+    if closestEntity then
+        print("Closest entity found:", closestEntity.Name)
 
-        -- Memastikan bahwa sistem hanya aktif jika entitas terdekat bukan pemain lokal
-        if closestEntity.Name ~= localPlayer.Name then
-            -- Melanjutkan dengan logika spam dan penargetan
-            local ball_Dot_New = 0.5
-            local ball_Speed = 300
-            local delta_angle = 30
+        -- Check if ball is heading towards the local player
+        if isBallHeadingTowardsLocalPlayer(ballPosition, localPlayer.Character.PrimaryPart.Position, targetPlayerPosition) then
+            print("Ball is heading towards the local player.")
 
-            local data = {
-                can_spam = true,
-                spam_Range = 100,
-                hit_Time = tick(),
-            }
+            -- Ensure the closest entity is not the local player
+            if closestEntity.Name ~= localPlayer.Name then
+                -- Continue with the spam and targeting logic
+                local ball_Dot_New = 0.5
+                local ball_Speed = 300
+                local delta_angle = 30
 
-            local curve = (1 - ball_Dot_New) / 2
-            local num = 5
+                local data = {
+                    can_spam = true,
+                    spam_Range = 100,
+                    hit_Time = tick(),
+                }
+                local curve = (1 - ball_Dot_New) / 2
+                local num = 5
 
-            if ball_Speed >= 200 then
-                num = 10
-            elseif ball_Speed >= 400 then
-                num = 20
-            elseif ball_Speed >= 600 then
-                num = 40
-            end
+                if ball_Speed >= 200 then
+                    num = 10
+                elseif ball_Speed >= 400 then
+                    num = 20
+                elseif ball_Speed >= 600 then
+                    num = 40
+                end
 
-            if delta_angle > 31 + (ball_Speed / 15) then
-                data.can_spam = false
+                if delta_angle > 31 + (ball_Speed / 15) then
+                    data.can_spam = false
+                else
+                    data.can_spam = true
+                end
+
+                if data.can_spam and getgenv().AutoDetectSpam then
+                    -- Logic to target the ball to closestEntity
+                    print("System activated for:", closestEntity.Name)
+                else
+                    print("Spam disabled due to angle or AutoDetectSpam.")
+                end
             else
-                data.can_spam = true
-            end
-
-            if data.can_spam then
-                -- Tambahkan logika untuk menargetkan bola ke closestEntity
-                print("System activated for:", closestEntity.Name)
-            else
-                print("Spam disabled due to angle.")
+                print("Cannot target self or invalid entity.")
             end
         else
-            print("Cannot target self or invalid entity.")
+            print("Ball is not heading towards the local player. System will not activate.")
         end
     else
-        print("Ball is not heading towards the local player. System will not activate.")
+        print("No closest entity found.")
     end
-else
-    print("No closest entity found.")
-end 
-local closest_Entity_To_mouse = getClosestEntityToMouse()  -- Mendapatkan entitas terdekat
-if closest_Entity_To_mouse then  -- Memeriksa apakah ada entitas terdekat
-    print("Closest entity found:", closest_Entity_To_mouse.Name)  -- Menampilkan nama entitas terdekat
-elselocal Players = game:GetService("Players")
-local workspace = game:GetService("Workspace")
-local camera = workspace.CurrentCamera
+end
 
+-- Example usage of AutoSpam
+task.spawn(function()
+    while task.wait(1) do
+        checkAutoSpam()
+    end
+end)
 local function getClosestEntityToMouse()
     local closest = nil
     local shortestDistance = math.huge
