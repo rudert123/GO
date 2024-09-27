@@ -93,7 +93,7 @@ spam_delay = 0,
 last_check_time = 0,
 
 -- Angka untuk prediksi
-ball_Speed = 350,          -- Kecepatan bola
+ball_Speed = 300,          -- Kecepatan bola
 ping = 50,                 -- Latensi ping
 baseMoveAmount = 0.5,     -- Pengaturan dasar untuk jarak gerakan
 maxDistance = 1000,        -- Jarak maksimum
@@ -360,13 +360,12 @@ end
 
     print("No closest entity found.")  -- Menampilkan pesan jika tidak ada entitas
 end
-
--- Pastikan objek valid sebelum memanggil metode
-if closest_Entity_To_mouse and closest_Entity_To_mouse:IsA("Model") then
-    -- Operasi lebih lanjut di sini
-else
-    print("Closest entity is nil or not a model.")
-end
+local closest_Entity_To_mouse = nil
+task.defer(function()
+	RunService.Heartbeat:Connect(function()
+		closest_Entity_To_mouse = getClosestEntityToMouse()
+	end)
+end)
 local Takentime = tick() - data.hit_Time
 RunService.Heartbeat:Connect(function()
 	Takentime = tick() - data.hit_Time
@@ -523,7 +522,7 @@ local previous_angle_degrees = data.last_angle_degrees or angle_degrees
 local delta_angle = math.abs(previous_angle_degrees - angle_degrees)
 
 if target_Distance <= data.spam_Range then
-    takentimestart = true -- Memulai waktu jika dalam rentang
+    takentimestart = true 
 else
     takentimestart = false 
     data.taken_time = 1
