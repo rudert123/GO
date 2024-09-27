@@ -168,9 +168,18 @@ task.defer(function()
 	end)
 end)
 local Players = game:GetService("Players")
+local Players = game:GetService("Players")
 local workspace = game:GetService("Workspace")
 local camera = workspace.CurrentCamera
 
+-- Definisikan data dan variabel lainnya
+local data = {
+    can_spam = true,
+    hit_Time = tick(),
+    spam_Range = 100, -- contoh nilai, sesuaikan dengan kebutuhan
+}
+
+-- Fungsi untuk mendapatkan entitas terdekat ke mouse
 function getClosestEntityToMouse()
     local closest = nil
     local shortestDistance = math.huge
@@ -198,9 +207,13 @@ function getClosestEntityToMouse()
     return closest
 end
 
+-- Contoh penggunaan fungsi
 local closestEntity = getClosestEntityToMouse()
 if closestEntity then
     print("Closest entity found:", closestEntity.Name)
+
+    -- Mengatur variabel untuk autospam
+    local curve = (1 - ball_Dot_New) / 2
     if data.can_spam then
         local spam_interval = math.max(1 - curve, 0.1)
         task.spawn(function()
