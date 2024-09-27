@@ -1,3 +1,16 @@
+local Stats = game:GetService("Stats")
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TweenService = game:GetService("TweenService")
+local Nurysium_Util = loadstring(game:HttpGet("https://raw.githubusercontent.com/flezzpe/Nurysium/main/nurysium_helper.lua"))()
+local function getTrainingBall()
+	for index, ball in workspace:WaitForChild("TrainingBalls"):GetChildren() do
+		if ball:IsA("BasePart") and ball:GetAttribute("realBall") then
+			return ball
+		end
+	end
+end
 local local_player = Players.LocalPlayer
 local camera = workspace.CurrentCamera
 local originalParryRemote
