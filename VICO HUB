@@ -407,6 +407,15 @@ if target_isMoving then
 
     data.is_Spamming = data.taken_time < spamming_threshold or (close_range_condition and vertical_velocity_condition)
 
+    if ball_Speed >= 1000 and ball_Direction:Dot((local_player.Character.PrimaryPart.Position - ball_Position).Unit) > 0 then
+        local target_player_distance = (closest_Entity.HumanoidRootPart.Position - ball_Position).Magnitude
+        if target_player_distance < 15 then
+            data.is_Spamming = true
+        end
+    else
+        data.is_Spamming = false
+    end
+
     if data.is_Spamming then
         data.is_Spamming = math.min(data.is_Spamming, 1)
     end
@@ -580,7 +589,7 @@ local Toggle = MainTab:AddToggle("Auto Parry", {
             game:GetService("StarterGui"):SetCore("SendNotification", {
                 Title = "Auto Spam",
                 Text = "Execute has been forced to death and will not run 🙀",
-                Duration = 5
+                Duration = 4
             })
         end
     end
