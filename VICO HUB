@@ -344,7 +344,13 @@ local moveAmountNew = math.max(0, math.min(0.6 * closest_target_Distance, 1))
 data.spam_delay = moveAmountNew
 
 
-data.spam_Range = math.min(moveAmount + (ball_Speed / 7.15), (150 + moveAmount)) + math.max(ping / 2, 3.5)
+data.spam_Range = math.min(
+    moveAmount + (ball_Speed / 7.15), 
+    150 + moveAmount
+) + math.max(
+    ping / 2, 
+    3.5
+)
 
 local L = ball_Speed / 2000
 local time_since_last_angle_check = tick() - (data.last_check_time or 0)
@@ -356,25 +362,37 @@ local previous_angle_degrees = data.last_angle_degrees or angle_degrees
 local delta_angle = math.abs(previous_angle_degrees - angle_degrees)
 
 if target_Distance <= data.spam_Range then
-    takentimestart = true
+    takentimestart = true -- Memulai waktu jika dalam rentang
 else
-    takentimestart = false
+    takentimestart = false 
     data.taken_time = 1
 end
 data.can_spam = true
-    local curve = (1 - ball_Dot_New) / 2
+local curve = (1 - ball_Dot_New) / 2
 local num = 5
-if ball_Speed >= 200 then
-    num = 10
+
+if ball_Speed >= 600 then
+    num = 40
 elseif ball_Speed >= 400 then
     num = 20
-elseif ball_Speed >= 600 then
-    num = 40
+elseif ball_Speed >= 200 then
+    num = 10
 end
-    if delta_angle > 31 + (ball_Speed / 15) then
+
+if delta_angle > 31 + (ball_Speed / 15) then
     data.can_spam = false
 else
     data.can_spam = true
+end
+
+if data.can_spam then
+    local spam_interval = math.max(1 - curve, 0.1)
+    task.spawn(function()
+        while data.can_spam do
+            -- Lakukan tindakan spam di sini
+            wait(spam_interval)
+        end
+    end)
 end
     data.last_angle_degrees = angle_degrees
 data.last_check_time = tick()
