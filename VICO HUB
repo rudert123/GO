@@ -357,63 +357,52 @@ local ball_Direction = (local_player.Character.PrimaryPart.Position - ball_Posit
 			data.taken_time = 1
 		end
 data.can_spam = true
-local curve = (1 - ball_Dot_New) / 2
-local num = 5
-
-if ball_Speed >= 600 then
-    num = 40
-elseif ball_Speed >= 400 then
-    num = 20
-elseif ball_Speed >= 200 then
-    num = 10
-end
-
-if delta_angle > 31 + (ball_Speed / 15) then
-    data.can_spam = false
-else
-    data.can_spam = true
-end
-if data.can_spam then
-    local spam_interval = math.max(1 - curve, 0.1)
-    task.spawn(function()
-        while data.can_spam do
-            wait(spam_interval)
-        end
-    end)
-end
-    data.last_angle_degrees = angle_degrees
-data.last_check_time = tick()
-local speedFactor = 6.0
-local speedFactorPingBased = 8.5
-if ball_Speed >= 750 then
-  speedFactor = 3.0
-end
-    data.parry_Range = math.max(math.max(ping / 2, 3.5) + ball_Speed / speedFactor, speedFactorPingBased)
-
-local distanceThreshold = target_isMoving and 12 or 13.5
-data.is_Spamming = data.taken_time < (0.7 + (ping / 1000)) or 
-                    (target_Distance < distanceThreshold and ball_Distance < 20 and ball_Velocity.Y > -50)
-if ball_Dot < -0.2 then
-    data.ball_Warping = tick()
-end
-    task.spawn(function()
-      if (tick() - data.ball_Warping) >= 0.15 + target_distance_Limited - ball_speed_Limited or ball_Distance <= 10 then
-        data.is_ball_Warping = false
-        return
-      end
-      if data.last_target then
-    if (ball_Position - data.last_target.HumanoidRootPart.Position).Magnitude > 35.5 or target_Distance <= 12 then
-        data.is_ball_Warping = false
-    else
-        data.is_ball_Warping = true
-    end
-else
-    data.is_ball_Warping = false  
-end
-    if ball_Velocity.Y < -250 and self:FindFirstChild("AeroDynamicSlash") then
-    data.aero_find = true
-    data.parry_Range /= 3
-else
+		local curve = (1 - ball_Dot_New) / 2
+		local num = 6.25 - (ping / 10)
+		if ball_Speed >= 250 then
+		num = 12.5 - (ping / 10)
+		elseif ball_Speed >= 500 then
+		num = 25 - (ping / 10)
+		elseif ball_Speed >= 750 then
+		num = 50 - (ping / 10)
+		end
+		if delta_angle > 31 + (ball_Speed / num) then
+			data.can_spam = false
+		else
+			data.can_spam = true
+		end
+		data.last_angle_degrees = angle_degrees
+		data.last_check_time = tick()
+		local speedFactor = 3.3
+		local speedFactorPingBased = 7.15
+		if ball_Speed >= 750 then
+			speedFactor = 2.55
+		end
+		data.parry_Range = math.max(math.max(ping / 2, 3.5) + ball_Speed / speedFactor, speedFactorPingBased)
+		if target_isMoving then
+			data.is_Spamming = data.taken_time < (0.7 + (ping / 1000))  or (target_Distance < 12 and ball_Distance < 20) and ball_Velocity.Y > -50
+		else
+			data.is_Spamming = data.taken_time < (0.7 + (ping / 1000))  or (target_Distance < 13.5 and ball_Distance < 20) and ball_Velocity.Y > -50
+		end
+		if ball_Dot < -0.2 then
+			data.ball_Warping = tick()
+		end
+		task.spawn(function()
+			if (tick() - data.ball_Warping) >= 0.15 + target_distance_Limited - ball_speed_Limited or ball_Distance <= 10 then
+				data.is_ball_Warping = false
+				return
+			end
+			if data.last_target then
+				if (ball_Position - data.last_target.HumanoidRootPart.Position).Magnitude > 35.5 or target_Distance <= 12 then
+					data.is_ball_Warping = false
+				end
+			end
+			data.is_ball_Warping = true
+		end)
+		if ball_Velocity.Y < -200 and self:FindFirstChild("AeroDynamicSlash") then
+			data.aero_find = true
+			data.parry_Range /= 2
+		else
     data.aero_find = false
 end
     if not ball_is_target or not data.canParry then
