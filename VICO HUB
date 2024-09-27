@@ -79,7 +79,7 @@ local data = {
 	canParry = true,
 modeParry = nil,
 is_Spamming = false,
-parry_Range = 10,          
+parry_Range = 9,          
 spam_Range = 15,          
 hit_Count = 0,
 target_Count = 0,
@@ -359,13 +359,12 @@ local ball_is_target
 ball_is_target = self:GetAttribute('target') == local_player.Name
 local previous_angle_degrees = data.last_angle_degrees or angle_degrees
 local delta_angle = math.abs(previous_angle_degrees - angle_degrees)
-
 if target_Distance <= data.spam_Range then
-    takentimestart = true 
-else
-    takentimestart = false 
-    data.taken_time = 1
-end
+    takentimestart = true
+		elseif target_Distance >= data.spam_Range + 7.5 then
+			takentimestart = false
+			data.taken_time = 1
+		end
 data.can_spam = true
 local curve = (1 - ball_Dot_New) / 2
 local num = 5
