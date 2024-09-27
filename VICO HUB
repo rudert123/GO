@@ -154,8 +154,6 @@ task.defer(function()
 		end	
 	end)
 end)
-getgenv().AutoDetectSpam = true
-
 local Players = game:GetService("Players")
 local workspace = game:GetService("Workspace")
 local camera = workspace.CurrentCamera
@@ -698,7 +696,7 @@ do
     Description = "• main auto spam that will help you to clash brutally!",
     Default = false,
     Callback = function(state)
-        getgenv().AutoDetectSpam = state
+        auto_spam = state
     end
 })
 local ScreenGui = Instance.new("ScreenGui")
