@@ -453,7 +453,6 @@ if delta_angle > 31 + (ball_Speed / 15) then
 else
     data.can_spam = true
 end
-
 if data.can_spam then
     local spam_interval = math.max(1 - curve, 0.1)
     task.spawn(function()
@@ -474,8 +473,9 @@ end
     if target_isMoving then
       data.is_Spamming = data.taken_time < (0.7 + (ping / 1000))  or (target_Distance < 12 and ball_Distance < 20) and ball_Velocity.Y > -50
     else
+      data.is_Spamming = data.taken_time < (0.7 + (ping / 1000))  or (target_Distance < 13.5 and ball_Distance < 20) and ball_Velocity.Y > -50
+    end
       data.is_Spamming = false
-
 if data.taken_time and data.taken_time < (0.7 + (ping / 1000)) then
     data.is_Spamming = true
 elseif target_Distance and ball_Distance and ball_Velocity then
@@ -487,7 +487,6 @@ elseif target_Distance and ball_Distance and ball_Velocity then
         end
     end
 end
-
 if ball_Dot < -0.2 then
     data.ball_Warping = tick()
 end
