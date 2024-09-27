@@ -817,10 +817,9 @@ do
     Description = "• main auto spam that will help you to clash brutally!",
     Default = false,
     Callback = function(state)
-        auto_spam = state
-        getgenv().AutoDetectSpam = state 
-    end
-})
+        getgenv().AutoDetectSpam = state  -- Pastikan ini ada
+        auto_spam = state  -- Pastikan auto_spam dideklarasikan di atas
+       end
     })
 local ScreenGui = Instance.new("ScreenGui")
 local ImageButton = Instance.new("ImageButton")
