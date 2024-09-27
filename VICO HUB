@@ -198,22 +198,23 @@ local function getClosestEntityToMouse()
     return closest
 end
 
-local function isBallHeadingTowardsLocalPlayer(ballPosition, localPlayerPosition)
-    local distanceToLocalPlayer = (ballPosition - localPlayerPosition).Magnitude
-    -- Misalkan bola memiliki radius tertentu, kita bisa menyesuaikan nilai ini
-    local ballRadius = 5
-    return distanceToLocalPlayer <= ballRadius
+local function isBallHeadingTowardsLocalPlayer(ballPosition, localPlayerPosition, targetPlayerPosition)
+    local ballDirection = (ballPosition - targetPlayerPosition).Unit
+    local toLocalPlayer = (localPlayerPosition - targetPlayerPosition).Unit
+    local angle = math.acos(ballDirection:Dot(toLocalPlayer)) * (180 / math.pi)
+    return angle < 45 -- Ganti nilai sudut jika perlu
 end
 
 local closestEntity = getClosestEntityToMouse()
 local localPlayer = Players.LocalPlayer
 local ballPosition = Vector3.new(0, 0, 0) -- Ganti dengan posisi bola yang sebenarnya
+local targetPlayerPosition = Vector3.new(0, 0, 0) -- Ganti dengan posisi pemain yang memparry
 
 if closestEntity then
     print("Closest entity found:", closestEntity.Name)
 
     -- Cek apakah bola mengarah ke pemain lokal
-    if isBallHeadingTowardsLocalPlayer(ballPosition, localPlayer.Character.PrimaryPart.Position) then
+    if isBallHeadingTowardsLocalPlayer(ballPosition, localPlayer.Character.PrimaryPart.Position, targetPlayerPosition) then
         print("Ball is heading towards the local player.")
 
         -- Memastikan bahwa sistem hanya aktif jika entitas terdekat bukan pemain lokal
@@ -260,11 +261,23 @@ if closestEntity then
     end
 else
     print("No closest entity found.")
-end   
-local closest_Entity_To_mouse = nil
-task.defer(function()
-	RunService.Heartbeat:Connect(function()
-		closest_Entity_To_mouse = getClosestEntityToMouse()
+end 
+local closest_Entity_To_mouse = getClosestEntityToMouse()
+if closest_Entity_To_mouse and closest_Entity_To_mouse:IsA("Model") then
+    local ballDirection = (ball.Position - local_player.Character.PrimaryPart.Position).unit
+    local playerDirection = (closest_Entity_To_mouse.HumanoidRootPart.Position - local_player.Character.PrimaryPart.Position).unit
+
+    if (ballDirection - playerDirection).Magnitude < someThreshold then
+        data.can_spam = true
+    else
+        data.can_spam = false
+    end
+else
+    data.can_spam = false -- Tidak ada entitas terdekat yang valid
+end
+
+print("Closest Entity:", closest_Entity_To_mouse)
+print("Can Spam:", data.can_spam)
 	end)
 end)
 local Takentime = tick() - data.hit_Time
