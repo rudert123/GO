@@ -497,24 +497,24 @@ local Options = Fluent.Options
 do
     local MainTab = Tabs.Main
     local Toggle = MainTab:AddToggle("Auto Parry", {
-        Title = "Auto Parry",
-        Description = "• Main Parry",
+        Title = "|Auto Parry|",
+        Description = "• Main parry that will help you to parry legitly!",
         Default = false,
         Callback = function(state)
             auto_parry = state
         end
     })
 	local Toggle1 = MainTab:AddToggle("Visualizer", {
-        Title = "Visualizer",
-        Description = "• View Part",
+        Title = "|Visualizer|",
+        Description = "• see the parry part will be notified by the system",
         Default = false,
         Callback = function(state)
             visualize_Enabled = state
         end
     })
     local Toggle = MainTab:AddToggle("Auto Parry", {
-        Title = "Auto Spam",
-        Description = "• Main Spam",
+        Title = "|Auto Spam|",
+        Description = "• main auto spam that will help you to clash brutally!",
         Default = false,
         Callback = function(state)
             auto_spam = state
@@ -535,7 +535,7 @@ ImageButton.BorderSizePixel = 0
 ImageButton.Position = UDim2.new(0.120833337, 0, 0.0952890813, 0)
 ImageButton.Size = UDim2.new(0, 45, 0, 45)
 ImageButton.Image = "rbxassetid://9125402735" -- Set the image using the decal ID
-ImageButton.Draggable = true
+ImageButton.Draggable = true 
 
 -- Add UICorner for rounded corners
 UICorner.Parent = ImageButton
