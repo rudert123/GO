@@ -221,7 +221,7 @@ if closestEntity then
         if closestEntity.Name ~= localPlayer.Name then
             -- Melanjutkan dengan logika spam dan penargetan
             local ball_Dot_New = 0.5
-            local ball_Speed = 500
+            local ball_Speed = 300
             local delta_angle = 30
 
             local data = {
@@ -465,8 +465,8 @@ if data.can_spam then
 end
     data.last_angle_degrees = angle_degrees
 data.last_check_time = tick()
-local speedFactor = 2.0
-local speedFactorPingBased = 5.0
+local speedFactor = 5.0
+local speedFactorPingBased = 8.0
 if ball_Speed >= 750 then
   speedFactor = 3.0
 end
