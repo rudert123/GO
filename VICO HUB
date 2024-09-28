@@ -576,7 +576,6 @@ local Toggle = MainTab:AddToggle("Auto Parry", {
         end
     end
 })
-
 local Toggle1 = MainTab:AddToggle("Visualizer", {
     Title = "🗣️|Visualizer|👈",
     Description = "• View the Parry Part that will be shown by the system!",
@@ -629,7 +628,16 @@ game:GetService("StarterGui"):SetCore("SendNotification", {
 })
 local ScreenGui = Instance.new("ScreenGui")
 local ImageButton = Instance.new("ImageButton")
-local UICorner = Instance.new("UICorner")
+local UICorner = Inlocal Window = Fluent:CreateWindow({
+    Title = "Vico Hub [Beta Version]",
+    SubTitle = "Vico Hub selalu Di depan Gaspol 😼",
+    TabWidth = 150,
+    Size = UDim2.fromOffset(500, 320),
+    Acrylic = true,
+    Theme = "Light",
+    MinimizeKey = Enum.KeyCode.End
+})
+stance.new("UICorner")
 
 -- Configure the ScreenGui
 ScreenGui.Parent = game.CoreGui
