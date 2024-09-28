@@ -1021,17 +1021,21 @@ do
     local InfoTab = Tabs.Info
     local Button = InfoTab:AddButton("Show Info", {
         Title = "ℹ️|Game Information|📝",
-        Description = "• Press to see detailed information about the game",
+        Description = "• Press to see detailed information about the Creator 👤,
         Callback = function()
-            game:GetService("StarterGui"):SetCore("SendNotification", {
-                Title = "Information",
-                Text = "Game developed by XYZ. Auto Parry system ensures effective defense!",
-                Duration = 6
-            })
+            local success, err = pcall(function()
+                game:GetService("StarterGui"):SetCore("SendNotification", {
+                    Title = "Information",
+                    Text = "Script Develop/Modified By Rudert. Auto Parry system ensures effective defense!",
+                    Duration = 6
+                })
+            end)
+            if not success then
+                warn("Error sending notification: " .. tostring(err))
+            end
         end
     })
 end
-})
 local Tabs = {
     Main = Window:AddTab({ Title = "Main", Icon = "home" }),
 }
