@@ -359,9 +359,9 @@ if ball_is_target and delta_angle < 30 then
 end
 		data.can_spam = true
 		local curve = (1 - ball_Dot_New) / 2
-		local num = 6.5 - (ping / 10)
+		local num = 6.25 - (ping / 10)
 		if ball_Speed >= 250 then
-		num = 13.0 - (ping / 10)
+		num = 12.5 - (ping / 10)
 		elseif ball_Speed >= 500 then
 		num = 25 - (ping / 10)
 		elseif ball_Speed >= 750 then
@@ -373,14 +373,13 @@ end
 			data.can_spam = true
 		end
 		data.last_angle_degrees = angle_degrees
-data.last_check_time = tick()
-local speedFactor = 2.0
-local speedFactorPingBased = 7.30
-
-if ball_Speed >= 750 then
-    speedFactor = 1.50
-end
-
+data.last_angle_degrees = angle_degrees
+		data.last_check_time = tick()
+		local speedFactor = 3.3
+		local speedFactorPingBased = 7.15
+		if ball_Speed >= 750 then
+			speedFactor = 2.55
+		end
 local proximity_factor = 0.5
 local distance_to_target = local_player:DistanceFromCharacter(closest_Entity.HumanoidRootPart.Position)
 
@@ -527,7 +526,27 @@ local Window = Fluent:CreateWindow({
     Theme = "Light",
     MinimizeKey = Enum.KeyCode.End
 })
+local Tabs = {
+    Info = Window:AddTab({ Title = "Information", Icon = "info" }), -- Tab baru untuk informasi
+}
 
+local Options = Fluent.Options
+
+do
+    local InfoTab = Tabs.Info
+    local Button = InfoTab:AddButton("Show Info", {
+        Title = "ℹ️|Credit Information|📝",
+        Description = "• Press to see detailed information about the Credit 👤",
+        Callback = function()
+            game:GetService("StarterGui"):SetCore("SendNotification", {
+                Title = "Information",
+                Text = "Script developed/modified by Rudert. Auto Parry system ensures effective defense!",
+                Duration = 6
+            })
+        end
+    })
+end
+})
 local Tabs = {
     Main = Window:AddTab({ Title = "Main", Icon = "home" }),
 }
