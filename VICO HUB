@@ -604,17 +604,6 @@ game:GetService("StarterGui"):SetCore("SendNotification", {
     Icon = "rbxthumb://type=AvatarHeadShot&id=" .. players.LocalPlayer.UserId .. "&w=180&h=180 true";
     Duration = 5
 })
-local ScreenGui = Instance.new("ScreenGui")
-local ImageButton = Instance.new("ImageButton")
-local UICorner = Inlocal Window = Fluent:CreateWindow({
-    Title = "Vico Hub [Beta Version]",
-    SubTitle = "Vico Hub selalu Di depan Gaspol 😼",
-    TabWidth = 150,
-    Size = UDim2.fromOffset(500, 320),
-    Acrylic = true,
-    Theme = "Light",
-    MinimizeKey = Enum.KeyCode.End
-})
 stance.new("UICorner")
 
 -- Configure the ScreenGui
