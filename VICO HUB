@@ -488,14 +488,14 @@ local function createLoadingNotification(title, loadingText, completionText, dur
     frame.AnchorPoint = Vector2.new(0.5, 0.5)
     frame.Size = UDim2.new(0, 0, 0.05, 0)
     frame.Position = UDim2.new(0.5, 0, 0.85, 0)
-    frame.BackgroundColor3 = Color3.fromRGB(255, 165, 0) -- Ubah warna sesuai toggle
+    frame.BackgroundColor3 = Color3.fromRGB(255, 165, 0)
 
     local corner = Instance.new("UICorner", frame)
     corner.CornerRadius = UDim.new(0, 8)
 
     local tweenService = game:GetService("TweenService")
     local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-    local goal = {Size = UDim2.new(0.6, 0, 0.05, 0)}
+    local goal = { Size = UDim2.new(0.6, 0, 0.05, 0) }
     local tween = tweenService:Create(frame, tweenInfo, goal)
 
     local notificationFrame = Instance.new("Frame", gui)
@@ -503,6 +503,7 @@ local function createLoadingNotification(title, loadingText, completionText, dur
     notificationFrame.Position = UDim2.new(0.5, 0, 0.75, 0)
     notificationFrame.AnchorPoint = Vector2.new(0.5, 0.5)
     notificationFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+
     local notifCorner = Instance.new("UICorner", notificationFrame)
     notifCorner.CornerRadius = UDim.new(0, 8)
 
@@ -521,6 +522,28 @@ local function createLoadingNotification(title, loadingText, completionText, dur
         wait(duration)
         gui:Destroy()
     end)
+end
+
+local function notifyWelcome()
+    local players = game:GetService("Players")
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "💥 Welcome My Man!! 😼",
+        Text = "Welcome To Vico Hub, Version Beta " .. players.LocalPlayer.DisplayName,
+        Icon = "rbxthumb://type=AvatarHeadShot&id=" .. players.LocalPlayer.UserId .. "&w=180&h=180 true",
+        Duration = 5
+    })
+end
+
+local function checkPing()
+    local player = game.Players.LocalPlayer
+    local ping = player:GetNetworkPing()
+    local pingThreshold = 100
+
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "Ping Status",
+        Text = ping < pingThreshold and "Ping is too high!" or "Ping is acceptable.",
+        Duration = 4
+    })
 end
 
 local Toggle = MainTab:AddToggle("Auto Parry", {
@@ -576,50 +599,14 @@ local Toggle2 = MainTab:AddToggle("Auto Spam", {
         end
     end
 })
-local players = game:GetService("Players")
-game:GetService("StarterGui"):SetCore("SendNotification", {
-    Title = "💥 Welcome My Man!! 😼";
-    Text = "Welcome To Vico Hub, Version Beta" .. players.LocalPlayer.DisplayName;
-    Icon = "rbxthumb://type=AvatarHeadShot&id=" .. players.LocalPlayer.UserId .. "&w=180&h=180 true";
-    Duration = 5
-})
-local pingThreshold = 100 -- Ambang batas ping dalam ms
-local player = game.Players.LocalPlayer
 
-local function checkPing()
-    local ping = player:GetNetworkPing() -- Mendapatkan nilai ping
-    local notificationFrame = Instance.new("Frame", player.PlayerGui)
-    notificationFrame.Size = UDim2.new(0.6, 0, 0.1, 0)
-    notificationFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-    notificationFrame.AnchorPoint = Vector2.new(0.5, 0.5)
-    notificationFrame.BackgroundColor3 = ping < pingThreshold and Color3.fromRGB(255, 0, 0) or Color3.fromRGB(0, 255, 0)
-    local notifCorner = Instance.new("UICorner", notificationFrame)
-    notifCorner.CornerRadius = UDim.new(0, 8)
-
-    local notifText = Instance.new("TextLabel", notificationFrame)
-    notifText.Size = UDim2.new(1, 0, 1, 0)
-    notifText.BackgroundTransparency = 1
-    notifText.TextColor3 = Color3.new(1, 1, 1)
-    notifText.Font = Enum.Font.SourceSansBold
-    notifText.TextScaled = true
-    notifText.Text = "Ping: " .. ping .. " ms"
-
-    -- Notifikasi berdasarkan ping
-    game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "Ping Status",
-        Text = ping < pingThreshold and "Ping is too high!" or "Ping is acceptable.",
-        Duration = 4
-    })
-
-    wait(3)
-    notificationFrame:Destroy()
-end
+notifyWelcome()
 
 while true do
     checkPing()
     wait(5)
 end
-})
+
 local ScreenGui = Instance.new("ScreenGui")
 local ImageButton = Instance.new("ImageButton")
 local UICorner = Instance.new("UICorner")
@@ -634,7 +621,7 @@ ImageButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 ImageButton.BorderSizePixel = 0
 ImageButton.Position = UDim2.new(0.120833337, 0, 0.0952890813, 0)
 ImageButton.Size = UDim2.new(0, 50, 0, 50)
-ImageButton.Image = "rbxassetid://83582647628443" -- Set the image using the decal ID
+ImageButton.Image = "rbxassetid://83582647628443" 
 ImageButton.Draggable = true
 
 -- Add UICorner for rounded corners
@@ -644,5 +631,3 @@ UICorner.Parent = ImageButton
 ImageButton.MouseButton1Click:Connect(function()
     game:GetService("VirtualInputManager"):SendKeyEvent(true, Enum.KeyCode.End, false, game)
 end)
-end
-optimizePerformance()
