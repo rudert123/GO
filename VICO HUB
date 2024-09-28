@@ -356,6 +356,11 @@ data.last_angle_degrees = angle_degrees
 data.last_check_time = tick()
 
 if ball_is_target and delta_angle < 30 then
+if target_Distance <= data.spam_Range then
+			takentimestart = true
+		elseif target_Distance >= data.spam_Range + 7.5 then
+			takentimestart = false
+			data.taken_time = 1
 end
 		data.can_spam = true
 		local curve = (1 - ball_Dot_New) / 2
@@ -380,31 +385,6 @@ data.last_angle_degrees = angle_degrees
 		if ball_Speed >= 750 then
 			speedFactor = 2.55
 		end
-local proximity_factor = 0.5
-local distance_to_target = local_player:DistanceFromCharacter(closest_Entity.HumanoidRootPart.Position)
-
-if distance_to_target < 10 then
-    speedFactor = speedFactor * proximity_factor
-end
-
-local angle_threshold = 15
-local angle_difference = math.abs(previous_angle_degrees - angle_degrees)
-
-if angle_difference <= angle_threshold then
-    local effective_speed = ball_Speed / (speedFactor + (ping / 100))
-    local parry_range = effective_speed * 0.75
-
-    if ball_Distance <= parry_range then
-        -- Logika untuk melakukan parry
-    end
-else
-    if ball_Distance < 20 and ball_Speed > 500 then
-        local emergency_parry_range = 1.5
-        if ball_Distance <= emergency_parry_range then
-            -- Logika untuk memparry bola dalam kondisi darurat
-        end
-    end
-end
 		data.parry_Range = math.max(math.max(ping / 2, 3.5) + ball_Speed / speedFactor, speedFactorPingBased)
 if target_isMoving then
     local spamming_threshold = 0.7 + (ping / 1000)
