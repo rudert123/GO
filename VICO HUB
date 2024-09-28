@@ -485,6 +485,7 @@ local Tabs = {
 local Options = Fluent.Options
 
 do
+
     local MainTab = Tabs.Main
     local Toggle = MainTab:AddToggle("Auto Parry", {
     Title = "😈|Auto Parry|💥",
@@ -493,11 +494,27 @@ do
     Callback = function(state)
         auto_parry = state
         if auto_parry then
-            game:GetService("StarterGui"):SetCore("SendNotification", {
-                Title = "Auto Parry",
-                Text = "[Auto Parry] Successfully executed and good luck trying 😽",
-                Duration = 4
-            })
+            local player = game.Players.LocalPlayer
+            local gui = Instance.new("ScreenGui", player.PlayerGui)
+            local frame = Instance.new("Frame", gui)
+            frame.Size = UDim2.new(0, 0, 0.05, 0)
+            frame.Position = UDim2.new(0.5, -150, 0.85, 0)
+            frame.BackgroundColor3 = Color3.new(1, 0.5, 0)
+            
+            local tweenService = game:GetService("TweenService")
+            local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
+            local goal = {Size = UDim2.new(0.6, 0, 0.05, 0)}
+            local tween = tweenService:Create(frame, tweenInfo, goal)
+            tween:Play()
+            
+            tween.Completed:Connect(function()
+                game:GetService("StarterGui"):SetCore("SendNotification", {
+                    Title = "Auto Parry",
+                    Text = "[Auto Parry] Successfully executed and good luck trying 😽",
+                    Duration = 4
+                })
+                gui:Destroy()
+            end)
         else
             game:GetService("StarterGui"):SetCore("SendNotification", {
                 Title = "Auto Parry",
@@ -514,11 +531,27 @@ local Toggle1 = MainTab:AddToggle("Visualizer", {
     Callback = function(state)
         visualize_Enabled = state
         if visualize_Enabled then
-            game:GetService("StarterGui"):SetCore("SendNotification", {
-                Title = "Visualizer",
-                Text = "[Visualizer] Successfully executed and good luck trying 😻",
-                Duration = 4
-            })
+            local player = game.Players.LocalPlayer
+            local gui = Instance.new("ScreenGui", player.PlayerGui)
+            local frame = Instance.new("Frame", gui)
+            frame.Size = UDim2.new(0, 0, 0.05, 0)
+            frame.Position = UDim2.new(0.5, -150, 0.85, 0)
+            frame.BackgroundColor3 = Color3.new(0, 0.5, 1)
+            
+            local tweenService = game:GetService("TweenService")
+            local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
+            local goal = {Size = UDim2.new(0.6, 0, 0.05, 0)}
+            local tween = tweenService:Create(frame, tweenInfo, goal)
+            tween:Play()
+            
+            tween.Completed:Connect(function()
+                game:GetService("StarterGui"):SetCore("SendNotification", {
+                    Title = "Visualizer",
+                    Text = "[Visualizer] Successfully executed and good luck trying 😻",
+                    Duration = 4
+                })
+                gui:Destroy()
+            end)
         else
             game:GetService("StarterGui"):SetCore("SendNotification", {
                 Title = "Visualizer",
@@ -535,11 +568,27 @@ local Toggle = MainTab:AddToggle("Auto Parry", {
     Callback = function(state)
         auto_spam = state
         if auto_spam then
-            game:GetService("StarterGui"):SetCore("SendNotification", {
-                Title = "Auto Spam",
-                Text = "[Auto Spam] Successfully executed and good luck trying 😸",
-                Duration = 4
-            })
+            local player = game.Players.LocalPlayer
+            local gui = Instance.new("ScreenGui", player.PlayerGui)
+            local frame = Instance.new("Frame", gui)
+            frame.Size = UDim2.new(0, 0, 0.05, 0)
+            frame.Position = UDim2.new(0.5, -150, 0.9, 0)
+            frame.BackgroundColor3 = Color3.new(0, 1, 0)
+            
+            local tweenService = game:GetService("TweenService")
+            local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
+            local goal = {Size = UDim2.new(0.6, 0, 0.05, 0)}
+            local tween = tweenService:Create(frame, tweenInfo, goal)
+            tween:Play()
+            
+            tween.Completed:Connect(function()
+                game:GetService("StarterGui"):SetCore("SendNotification", {
+                    Title = "Auto Spam",
+                    Text = "[Auto Spam] Successfully executed and good luck trying 😸",
+                    Duration = 4
+                })
+                gui:Destroy()
+            end)
         else
             game:GetService("StarterGui"):SetCore("SendNotification", {
                 Title = "Auto Spam",
