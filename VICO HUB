@@ -527,27 +527,6 @@ local Window = Fluent:CreateWindow({
     MinimizeKey = Enum.KeyCode.End
 })
 local Tabs = {
-    Info = Window:AddTab({ Title = "Information", Icon = "info" }), -- Tab baru untuk informasi
-}
-
-local Options = Fluent.Options
-
-do
-    local InfoTab = Tabs.Info
-    local Button = InfoTab:AddButton("Show Info", {
-        Title = "ℹ️|Credit Information|📝",
-        Description = "• Press to see detailed information about the Credit 👤",
-        Callback = function()
-            game:GetService("StarterGui"):SetCore("SendNotification", {
-                Title = "Information",
-                Text = "Script developed/modified by Rudert. Auto Parry system ensures effective defense!",
-                Duration = 6
-            })
-        end
-    })
-end
-})
-local Tabs = {
     Main = Window:AddTab({ Title = "Main", Icon = "home" }),
 }
 
@@ -597,7 +576,6 @@ local Toggle1 = MainTab:AddToggle("Visualizer", {
         end
     end
 })
-
 local Toggle = MainTab:AddToggle("Auto Parry", {
     Title = "☠️|Auto Spam|🤾",
     Description = "• Main Auto Spam that allows you to clash brutally, but also detects.",
