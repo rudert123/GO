@@ -697,6 +697,7 @@ while true do
     checkPing()
     wait(5)
 end
+})
 local ScreenGui = Instance.new("ScreenGui")
 local ImageButton = Instance.new("ImageButton")
 local UICorner = Instance.new("UICorner")
