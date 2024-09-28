@@ -477,6 +477,7 @@ local Window = Fluent:CreateWindow({
     Theme = "Light",
     MinimizeKey = Enum.KeyCode.End
 })
+
 local Tabs = {
     Main = Window:AddTab({ Title = "Main", Icon = "home" }),
 }
@@ -485,7 +486,7 @@ local Options = Fluent.Options
 
 do
     local MainTab = Tabs.Main
-local Toggle = MainTab:AddToggle("Auto Parry", {
+    local Toggle = MainTab:AddToggle("Auto Parry", {
     Title = "😈|Auto Parry|💥",
     Description = "• Main parry is good for you, the system will work as hard as possible and detect.",
     Default = false,
