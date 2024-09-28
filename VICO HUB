@@ -1010,33 +1010,7 @@ local Window = Fluent:CreateWindow({
     Acrylic = true,
     Theme = "Light",
     MinimizeKey = Enum.KeyCode.End
-
-local Tabs = {
-    Info = Window:AddTab({ Title = "Information", Icon = "info" }), -- Tab baru untuk informasi
-}
-
-local Options = Fluent.Options
-
-do
-    local InfoTab = Tabs.Info
-    local Button = InfoTab:AddButton("Show Info", {
-        Title = "ℹ️|Game Information|📝",
-        Description = "• Press to see detailed information about the Creator 👤,
-        Callback = function()
-            local success, err = pcall(function()
-                game:GetService("StarterGui"):SetCore("SendNotification", {
-                    Title = "Information",
-                    Text = "Script Develop/Modified By Rudert. Auto Parry system ensures effective defense!",
-                    Duration = 6
-                })
-            end)
-            if not success then
-                warn("Error sending notification: " .. tostring(err))
-            end
-        end
-    })
-end
-
+})
 local Tabs = {
     Main = Window:AddTab({ Title = "Main", Icon = "home" }),
 }
