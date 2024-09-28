@@ -380,28 +380,11 @@ if target_Distance <= data.spam_Range then
 			speedFactor = 2.55
 		end
 		data.parry_Range = math.max(math.max(ping / 2, 3.5) + ball_Speed / speedFactor, speedFactorPingBased)
-if target_isMoving then
-    local spamming_threshold = 0.7 + (ping / 1000)
-    local close_range_condition = (target_Distance < 12 and ball_Distance < 20)
-    local vertical_velocity_condition = (ball_Velocity.Y > -50)
-
-    data.is_Spamming = data.taken_time < spamming_threshold or (close_range_condition and vertical_velocity_condition)
-
-    if ball_Speed >= 1000 and ball_Direction:Dot((local_player.Character.PrimaryPart.Position - ball_Position).Unit) > 0 then
-        local target_player_distance = (closest_Entity.HumanoidRootPart.Position - ball_Position).Magnitude
-        if target_player_distance < 15 then
-            data.is_Spamming = true
-        end
-    else
-        data.is_Spamming = false
-    end
-
-    if data.is_Spamming then
-        data.is_Spamming = math.min(data.is_Spamming, 1)
-    end
-else
-    data.is_Spamming = false
-end
+		if target_isMoving then
+			data.is_Spamming = data.taken_time < (0.7 + (ping / 1000))  or (target_Distance < 12 and ball_Distance < 20) and ball_Velocity.Y > -50
+		else
+			data.is_Spamming = data.taken_time < (0.7 + (ping / 1000))  or (target_Distance < 13.5 and ball_Distance < 20) and ball_Velocity.Y > -50
+		end
 		if ball_Dot < -0.2 then
 			data.ball_Warping = tick()
 		end
@@ -410,6 +393,13 @@ end
 				data.is_ball_Warping = false
 				return
 			end
+			if data.last_target then
+				if (ball_Position - data.last_target.HumanoidRootPart.Position).Magnitude > 35.5 or target_Distance <= 12 then
+					data.is_ball_Warping = false
+				end
+			end
+			data.is_ball_Warping = true
+		end)	
 			if data.last_target then
 				if (ball_Position - data.last_target.HumanoidRootPart.Position).Magnitude > 35.5 or target_Distance <= 12 then
 					data.is_ball_Warping = false
