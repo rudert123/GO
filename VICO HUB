@@ -1010,7 +1010,7 @@ local Window = Fluent:CreateWindow({
     Acrylic = true,
     Theme = "Light",
     MinimizeKey = Enum.KeyCode.End
-})
+
 local Tabs = {
     Info = Window:AddTab({ Title = "Information", Icon = "info" }), -- Tab baru untuk informasi
 }
@@ -1036,6 +1036,7 @@ do
         end
     })
 end
+
 local Tabs = {
     Main = Window:AddTab({ Title = "Main", Icon = "home" }),
 }
