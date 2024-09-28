@@ -351,17 +351,12 @@ local angle_degrees = math.deg(math.acos(ball_Dot_New))
 local ball_is_target = self:GetAttribute('target') == local_player.Name
 local previous_angle_degrees = data.last_angle_degrees or angle_degrees
 local delta_angle = math.abs(previous_angle_degrees - angle_degrees)
-
-data.last_angle_degrees = angle_degrees
-data.last_check_time = tick()
-
-if ball_is_target and delta_angle < 30 then
 if target_Distance <= data.spam_Range then
 			takentimestart = true
 		elseif target_Distance >= data.spam_Range + 7.5 then
 			takentimestart = false
 			data.taken_time = 1
-end
+		end
 		data.can_spam = true
 		local curve = (1 - ball_Dot_New) / 2
 		local num = 6.25 - (ping / 10)
@@ -378,7 +373,6 @@ end
 			data.can_spam = true
 		end
 		data.last_angle_degrees = angle_degrees
-data.last_angle_degrees = angle_degrees
 		data.last_check_time = tick()
 		local speedFactor = 3.3
 		local speedFactorPingBased = 7.15
