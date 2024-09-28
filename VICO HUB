@@ -480,6 +480,7 @@ local Window = Fluent:CreateWindow({
 
 local MainTab = Window:AddTab({ Title = "Main", Icon = "home" })
 
+-- Fungsi untuk membuat loading notification
 local function createLoadingNotification(title, loadingText, completionText, duration)
     local player = game.Players.LocalPlayer
     local gui = Instance.new("ScreenGui", player.PlayerGui)
@@ -524,23 +525,25 @@ local function createLoadingNotification(title, loadingText, completionText, dur
 end
 
 local function notifyWelcome()
-    local players = game:GetService("Players")
+    local player = game.Players.LocalPlayer
     game:GetService("StarterGui"):SetCore("SendNotification", {
         Title = "💥 Welcome My Man!! 😼",
-        Text = "Welcome To Vico Hub, Version Beta " .. players.LocalPlayer.DisplayName,
-        Icon = "rbxthumb://type=AvatarHeadShot&id=" .. players.LocalPlayer.UserId .. "&w=180&h=180",
+        Text = "Welcome To Vico Hub, Version Beta " .. player.DisplayName,
+        Icon = "rbxthumb://type=AvatarHeadShot&id=" .. player.UserId .. "&w=180&h=180",
         Duration = 5
     })
 end
 
-local pingThreshold = 100 
+local pingThreshold = 100 -- Ambang batas ping dalam ms
 
 local function checkPing()
     local player = game.Players.LocalPlayer
-    local ping = player:GetNetworkPing() 
+    local ping = player:GetNetworkPing() -- Mendapatkan nilai ping
 
-    local pingColor = ping < pingThreshold and Color3.fromRGB(255, 0, 0) or Color3.fromRGB(0, 255, 0) 
+    -- Menentukan warna berdasarkan nilai ping
+    local pingColor = ping < pingThreshold and Color3.fromRGB(255, 0, 0) or Color3.fromRGB(0, 255, 0) -- Merah jika tinggi, hijau jika rendah
     
+    -- Membuat frame notifikasi
     local notificationFrame = Instance.new("Frame", player.PlayerGui)
     notificationFrame.Size = UDim2.new(0.6, 0, 0.1, 0)
     notificationFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
@@ -555,22 +558,24 @@ local function checkPing()
     notifText.TextColor3 = Color3.new(1, 1, 1)
     notifText.Font = Enum.Font.SourceSansBold
     notifText.TextScaled = true
-    notifText.Text = "Ping: " .. ping .. " ms" 
+    notifText.Text = "Ping: " .. ping .. " ms" -- Menampilkan angka ping
 
+    -- Notifikasi berdasarkan ping
     game:GetService("StarterGui"):SetCore("SendNotification", {
         Title = "Ping Status",
         Text = ping < pingThreshold and "Ping is too high!" or "Ping is acceptable.",
         Duration = 4
     })
 
+    -- Menghapus notifikasi setelah beberapa detik
     wait(3)
     notificationFrame:Destroy()
 end
 
-while true do
-    checkPing()
-    wait(5) 
-end
+-- Toggle untuk fitur
+local auto_parry = false
+local visualize_Enabled = false
+local auto_spam = false
 
 local Toggle = MainTab:AddToggle("Auto Parry", {
     Title = "😈|Auto Parry|💥",
@@ -628,13 +633,20 @@ local Toggle2 = MainTab:AddToggle("Auto Spam", {
 
 notifyWelcome()
 
+while true do
+    checkPing()
+    wait(5) -- Menunggu 5 detik sebelum memeriksa ping lagi
+end
+
 local ScreenGui = Instance.new("ScreenGui")
 local ImageButton = Instance.new("ImageButton")
 local UICorner = Instance.new("UICorner")
 
+-- Configure the ScreenGui
 ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
+-- Configure the ImageButton
 ImageButton.Parent = ScreenGui
 ImageButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 ImageButton.BorderSizePixel = 0
@@ -643,8 +655,10 @@ ImageButton.Size = UDim2.new(0, 50, 0, 50)
 ImageButton.Image = "rbxassetid://83582647628443" 
 ImageButton.Draggable = true
 
+-- Add UICorner for rounded corners
 UICorner.Parent = ImageButton
 
+-- Menyembunyikan dan menampilkan GUI saat tombol diklik
 local isGuiVisible = true
 ImageButton.MouseButton1Click:Connect(function()
     isGuiVisible = not isGuiVisible
