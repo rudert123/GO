@@ -534,16 +534,47 @@ local function notifyWelcome()
     })
 end
 
+local pingThreshold = 100 -- Ambang batas ping dalam ms
+
 local function checkPing()
     local player = game.Players.LocalPlayer
-    local ping = player:GetNetworkPing()
-    local pingThreshold = 100
+    local ping = player:GetNetworkPing() -- Mendapatkan nilai ping
 
+    -- Menentukan warna berdasarkan nilai ping
+    local pingColor = ping < pingThreshold and Color3.fromRGB(255, 0, 0) or Color3.fromRGB(0, 255, 0) -- Merah jika tinggi, hijau jika rendah
+    
+    -- Membuat frame notifikasi
+    local notificationFrame = Instance.new("Frame", player.PlayerGui)
+    notificationFrame.Size = UDim2.new(0.6, 0, 0.1, 0)
+    notificationFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+    notificationFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+    notificationFrame.BackgroundColor3 = pingColor
+    local notifCorner = Instance.new("UICorner", notificationFrame)
+    notifCorner.CornerRadius = UDim.new(0, 8)
+
+    local notifText = Instance.new("TextLabel", notificationFrame)
+    notifText.Size = UDim2.new(1, 0, 1, 0)
+    notifText.BackgroundTransparency = 1
+    notifText.TextColor3 = Color3.new(1, 1, 1)
+    notifText.Font = Enum.Font.SourceSansBold
+    notifText.TextScaled = true
+    notifText.Text = "Ping: " .. ping .. " ms" -- Menampilkan angka ping
+
+    -- Notifikasi berdasarkan ping
     game:GetService("StarterGui"):SetCore("SendNotification", {
         Title = "Ping Status",
         Text = ping < pingThreshold and "Ping is too high!" or "Ping is acceptable.",
         Duration = 4
     })
+
+    -- Menghapus notifikasi setelah beberapa detik
+    wait(3)
+    notificationFrame:Destroy()
+end
+
+while true do
+    checkPing()
+    wait(5) -- Menunggu 5 detik sebelum memeriksa ping lagi
 end
 
 local Toggle = MainTab:AddToggle("Auto Parry", {
@@ -601,10 +632,6 @@ local Toggle2 = MainTab:AddToggle("Auto Spam", {
 })
 
 notifyWelcome()
-
-while true do
-    checkPing()
-    wait(5)
 end
 
 local ScreenGui = Instance.new("ScreenGui")
@@ -612,7 +639,7 @@ local ImageButton = Instance.new("ImageButton")
 local UICorner = Instance.new("UICorner")
 
 -- Configure the ScreenGui
-ScreenGui.Parent = game.CoreGui
+ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
 -- Configure the ImageButton
@@ -630,4 +657,11 @@ UICorner.Parent = ImageButton
 -- Function to handle click event
 ImageButton.MouseButton1Click:Connect(function()
     game:GetService("VirtualInputManager"):SendKeyEvent(true, Enum.KeyCode.End, false, game)
+end)
+
+-- Menyembunyikan dan menampilkan GUI saat tombol diklik (opsional)
+local isGuiVisible = true
+ImageButton.MouseButton1Click:Connect(function()
+    isGuiVisible = not isGuiVisible
+    ScreenGui.Enabled = isGuiVisible
 end)
