@@ -486,7 +486,6 @@ local Options = Fluent.Options
 
 do
 
-    local MainTab = Tabs.Main
     local Toggle = MainTab:AddToggle("Auto Parry", {
     Title = "😈|Auto Parry|💥",
     Description = "• Main parry is good for you, the system will work as hard as possible and detect.",
@@ -497,22 +496,41 @@ do
             local player = game.Players.LocalPlayer
             local gui = Instance.new("ScreenGui", player.PlayerGui)
             local frame = Instance.new("Frame", gui)
+            frame.AnchorPoint = Vector2.new(0.5, 0.5)
             frame.Size = UDim2.new(0, 0, 0.05, 0)
-            frame.Position = UDim2.new(0.5, -150, 0.85, 0)
-            frame.BackgroundColor3 = Color3.new(1, 0.5, 0)
+            frame.Position = UDim2.new(0.5, 0, 0.85, 0)
+            frame.BackgroundColor3 = Color3.fromRGB(255, 165, 0)
+            frame.BorderSizePixel = 0
+            
+            local corner = Instance.new("UICorner", frame)
+            corner.CornerRadius = UDim.new(0, 8)
             
             local tweenService = game:GetService("TweenService")
-            local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
+            local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
             local goal = {Size = UDim2.new(0.6, 0, 0.05, 0)}
             local tween = tweenService:Create(frame, tweenInfo, goal)
+            
+            local notificationFrame = Instance.new("Frame", gui)
+            notificationFrame.Size = UDim2.new(0.6, 0, 0.1, 0)
+            notificationFrame.Position = UDim2.new(0.5, 0, 0.75, 0)
+            notificationFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+            notificationFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+            local notifCorner = Instance.new("UICorner", notificationFrame)
+            notifCorner.CornerRadius = UDim.new(0, 8)
+            
+            local notifText = Instance.new("TextLabel", notificationFrame)
+            notifText.Size = UDim2.new(1, 0, 1, 0)
+            notifText.BackgroundTransparency = 1
+            notifText.TextColor3 = Color3.new(1, 1, 1)
+            notifText.Font = Enum.Font.SourceSansBold
+            notifText.TextScaled = true
+            notifText.Text = "Loading Auto Parry..."
+            
             tween:Play()
             
             tween.Completed:Connect(function()
-                game:GetService("StarterGui"):SetCore("SendNotification", {
-                    Title = "Auto Parry",
-                    Text = "[Auto Parry] Successfully executed and good luck trying 😽",
-                    Duration = 4
-                })
+                notifText.Text = "[Auto Parry] Successfully executed and good luck trying 😽"
+                wait(4)
                 gui:Destroy()
             end)
         else
@@ -534,22 +552,41 @@ local Toggle1 = MainTab:AddToggle("Visualizer", {
             local player = game.Players.LocalPlayer
             local gui = Instance.new("ScreenGui", player.PlayerGui)
             local frame = Instance.new("Frame", gui)
+            frame.AnchorPoint = Vector2.new(0.5, 0.5)
             frame.Size = UDim2.new(0, 0, 0.05, 0)
-            frame.Position = UDim2.new(0.5, -150, 0.85, 0)
-            frame.BackgroundColor3 = Color3.new(0, 0.5, 1)
-            
+            frame.Position = UDim2.new(0.5, 0, 0.85, 0)
+            frame.BackgroundColor3 = Color3.fromRGB(0, 255, 255)
+            frame.BorderSizePixel = 0
+
+            local corner = Instance.new("UICorner", frame)
+            corner.CornerRadius = UDim.new(0, 8)
+
             local tweenService = game:GetService("TweenService")
-            local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
+            local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
             local goal = {Size = UDim2.new(0.6, 0, 0.05, 0)}
             local tween = tweenService:Create(frame, tweenInfo, goal)
+
+            local notificationFrame = Instance.new("Frame", gui)
+            notificationFrame.Size = UDim2.new(0.6, 0, 0.1, 0)
+            notificationFrame.Position = UDim2.new(0.5, 0, 0.75, 0)
+            notificationFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+            notificationFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+            local notifCorner = Instance.new("UICorner", notificationFrame)
+            notifCorner.CornerRadius = UDim.new(0, 8)
+
+            local notifText = Instance.new("TextLabel", notificationFrame)
+            notifText.Size = UDim2.new(1, 0, 1, 0)
+            notifText.BackgroundTransparency = 1
+            notifText.TextColor3 = Color3.new(1, 1, 1)
+            notifText.Font = Enum.Font.SourceSansBold
+            notifText.TextScaled = true
+            notifText.Text = "Loading Visualizer..."
+
             tween:Play()
-            
+
             tween.Completed:Connect(function()
-                game:GetService("StarterGui"):SetCore("SendNotification", {
-                    Title = "Visualizer",
-                    Text = "[Visualizer] Successfully executed and good luck trying 😻",
-                    Duration = 4
-                })
+                notifText.Text = "[Visualizer] Successfully executed and good luck trying 😻"
+                wait(4)
                 gui:Destroy()
             end)
         else
@@ -561,7 +598,7 @@ local Toggle1 = MainTab:AddToggle("Visualizer", {
         end
     end
 })
-local Toggle = MainTab:AddToggle("Auto Parry", {
+local Toggle = MainTab:AddToggle("Auto Spam", {
     Title = "☠️|Auto Spam|🤾",
     Description = "• Main Auto Spam that allows you to clash brutally, but also detects.",
     Default = false,
@@ -571,22 +608,41 @@ local Toggle = MainTab:AddToggle("Auto Parry", {
             local player = game.Players.LocalPlayer
             local gui = Instance.new("ScreenGui", player.PlayerGui)
             local frame = Instance.new("Frame", gui)
+            frame.AnchorPoint = Vector2.new(0.5, 0.5)
             frame.Size = UDim2.new(0, 0, 0.05, 0)
-            frame.Position = UDim2.new(0.5, -150, 0.9, 0)
-            frame.BackgroundColor3 = Color3.new(0, 1, 0)
-            
+            frame.Position = UDim2.new(0.5, 0, 0.85, 0)
+            frame.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+            frame.BorderSizePixel = 0
+
+            local corner = Instance.new("UICorner", frame)
+            corner.CornerRadius = UDim.new(0, 8)
+
             local tweenService = game:GetService("TweenService")
-            local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
+            local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
             local goal = {Size = UDim2.new(0.6, 0, 0.05, 0)}
             local tween = tweenService:Create(frame, tweenInfo, goal)
+
+            local notificationFrame = Instance.new("Frame", gui)
+            notificationFrame.Size = UDim2.new(0.6, 0, 0.1, 0)
+            notificationFrame.Position = UDim2.new(0.5, 0, 0.75, 0)
+            notificationFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+            notificationFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+            local notifCorner = Instance.new("UICorner", notificationFrame)
+            notifCorner.CornerRadius = UDim.new(0, 8)
+
+            local notifText = Instance.new("TextLabel", notificationFrame)
+            notifText.Size = UDim2.new(1, 0, 1, 0)
+            notifText.BackgroundTransparency = 1
+            notifText.TextColor3 = Color3.new(1, 1, 1)
+            notifText.Font = Enum.Font.SourceSansBold
+            notifText.TextScaled = true
+            notifText.Text = "Loading Auto Spam..."
+
             tween:Play()
-            
+
             tween.Completed:Connect(function()
-                game:GetService("StarterGui"):SetCore("SendNotification", {
-                    Title = "Auto Spam",
-                    Text = "[Auto Spam] Successfully executed and good luck trying 😸",
-                    Duration = 4
-                })
+                notifText.Text = "[Auto Spam] Successfully executed and good luck trying 😸"
+                wait(4)
                 gui:Destroy()
             end)
         else
@@ -605,6 +661,42 @@ game:GetService("StarterGui"):SetCore("SendNotification", {
     Icon = "rbxthumb://type=AvatarHeadShot&id=" .. players.LocalPlayer.UserId .. "&w=180&h=180 true";
     Duration = 5
 })
+local pingThreshold = 100 -- Ambang batas ping dalam ms
+local player = game.Players.LocalPlayer
+
+local function checkPing()
+    local ping = player:GetNetworkPing() -- Mendapatkan nilai ping
+    local notificationFrame = Instance.new("Frame", player.PlayerGui)
+    notificationFrame.Size = UDim2.new(0.6, 0, 0.1, 0)
+    notificationFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+    notificationFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+    notificationFrame.BackgroundColor3 = ping < pingThreshold and Color3.fromRGB(255, 0, 0) or Color3.fromRGB(0, 255, 0)
+    local notifCorner = Instance.new("UICorner", notificationFrame)
+    notifCorner.CornerRadius = UDim.new(0, 8)
+
+    local notifText = Instance.new("TextLabel", notificationFrame)
+    notifText.Size = UDim2.new(1, 0, 1, 0)
+    notifText.BackgroundTransparency = 1
+    notifText.TextColor3 = Color3.new(1, 1, 1)
+    notifText.Font = Enum.Font.SourceSansBold
+    notifText.TextScaled = true
+    notifText.Text = "Ping: " .. ping .. " ms"
+
+    -- Notifikasi berdasarkan ping
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "Ping Status",
+        Text = ping < pingThreshold and "Ping is too high!" or "Ping is acceptable.",
+        Duration = 4
+    })
+
+    wait(3)
+    notificationFrame:Destroy()
+end
+
+while true do
+    checkPing()
+    wait(5)
+end
 local ScreenGui = Instance.new("ScreenGui")
 local ImageButton = Instance.new("ImageButton")
 local UICorner = Instance.new("UICorner")
