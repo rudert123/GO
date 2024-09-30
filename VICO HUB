@@ -1,4 +1,3 @@
-local Stats = game:GetService("Stats")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -79,8 +78,8 @@ local data = {
 	canParry = true,
 	modeParry = nil,
 	is_Spamming = false,
-	parry_Range = 30,
-	spam_Range = 10,  
+	parry_Range = 15,
+	spam_Range = 9,  
 	hit_Count = 0,
 	target_Count = 0,
 	hit_Time = tick(),
