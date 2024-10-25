@@ -813,6 +813,7 @@ autoparryvar = RunService.Heartbeat:Connect(function()
     local ping = Stats.Network.ServerStatsItem["Data Ping"]:GetValue() / 10
     local self
 
+    -- Mendapatkan bola yang aktif, apakah dalam mode latihan atau tidak
     if training_mode then
         self = getTrainingBall()
     else
@@ -829,24 +830,30 @@ autoparryvar = RunService.Heartbeat:Connect(function()
         return
     end
 
+    -- Mengatur signal untuk target
     self:GetAttributeChangedSignal('target'):Once(function()
         aura_table.canParry = true
     end)
 
+    -- Memeriksa apakah target adalah pemain lokal dan parry diizinkan
     if self:GetAttribute('target') ~= local_player.Name or not aura_table.canParry then
         return
     end
 
+    -- Mengatur signal untuk 'from' untuk mendapatkan target terakhir
     self:GetAttributeChangedSignal('from'):Once(function()
         aura_table.last_target = workspace.Alive:FindFirstChild(self:GetAttribute('from'))
     end)
 
+    -- Mendapatkan entitas terdekat
     get_closest_entity(local_player.Character.PrimaryPart)
 
+    -- Mendapatkan posisi pemain dan bola
     local player_Position = local_player.Character.PrimaryPart.Position
     local ball_Position = self.Position
     local ball_Velocity = self.AssemblyLinearVelocity
 
+    -- Memeriksa apakah bola memiliki atribut 'zoomies'
     if self:FindFirstChild("zoomies") then
         ball_Velocity = self.zoomies.VectorVelocity
     end
@@ -857,10 +864,12 @@ autoparryvar = RunService.Heartbeat:Connect(function()
     local ball_Speed = ball_Velocity.Magnitude
 
     -- Peningkatan logika deteksi
+    local optimalParryDistance = 20
     local adjustedParryTiming = (ball_Distance / ball_Speed) - (ping / 100)
 
+    -- Pastikan semua variabel telah didefinisikan sebelum digunakan
     if ball_Dot > 0.7 and ball_Distance <= optimalParryDistance and adjustedParryTiming <= 0.5 then
-        if not aura_table.hit_Count then
+        if aura_table.hit_Count == nil then
             aura_table.hit_Count = 1
         else
             aura_table.hit_Count = aura_table.hit_Count + 1
