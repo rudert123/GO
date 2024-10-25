@@ -878,8 +878,7 @@ autoparryvar = RunService.Heartbeat:Connect(function()
         -- Tanda bahwa parry berhasil terdeteksi
         aura_table.canParry = false
         aura_table.hit_Time = tick() * 10
-    end
-end)
+    
 
     -- Detection Ball properti
     local ball_properties = {}
