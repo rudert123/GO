@@ -21,7 +21,7 @@ local ismyautoparryspamming
 local local_player = Players.LocalPlayer
 local camera = workspace.CurrentCamera
 local standalone = false
-print("Crate By Lunar(break) & CodeE4X  n/ New Changelogs📦: If you have pin System you need to solve it, Why? n/ Cause we use Execute checker With Webhook And It Need PIN n/ if u dont use pin, u dont need to do any :)")
+print("Create By Rudert (Vico) n/ New Changelogs📦: If you have pin System you need to solve it, Why? n/ Cause we use Execute checker With Webhook And It Need PIN n/ if u dont use pin, u dont need to do any :)")
 
 local originalParryRemote
 local originalResolveParryRemote 
@@ -856,7 +856,23 @@ autoparryvar = RunService.Heartbeat:Connect(function()
     local ball_Dot = ball_Direction:Dot(ball_Velocity.Unit)
     local ball_Speed = ball_Velocity.Magnitude
 
-    -- Detección de la bola
+    -- Peningkatan logika deteksi
+    local adjustedParryTiming = (ball_Distance / ball_Speed) - (ping / 100)
+
+    if ball_Dot > 0.7 and ball_Distance <= optimalParryDistance and adjustedParryTiming <= 0.5 then
+        if not aura_table.hit_Count then
+            aura_table.hit_Count = 1
+        else
+            aura_table.hit_Count = aura_table.hit_Count + 1
+        end
+
+        -- Tanda bahwa parry berhasil terdeteksi
+        aura_table.canParry = false
+        aura_table.hit_Time = tick() * 10
+    end
+end)
+
+    -- Detection Ball properti
     local ball_properties = {}
     ball_properties.position = ball_Position
     ball_properties.velocity = ball_Velocity
@@ -914,7 +930,7 @@ autoparryvar = RunService.Heartbeat:Connect(function()
         aura_table.is_ball_Warping = true
     end)
 
-    -- Predecir la posición de la pelota
+    -- Prediction Ball position
     local predicted_ball_Position = linear_predict(ball_Position, ball_Position + ball_Velocity * (ping / 100), 0.5)
 
     if ball_Distance <= aura_table.parry_Range and not aura_table.is_ball_Warping and ball_Speed > 0 and ball_Dot > 0.1 then
@@ -998,9 +1014,9 @@ local UserInputService = game:GetService("UserInputService");
 local NoHyper = loadstring(game:HttpGet(("https://raw.githubusercontent.com/3345-c-a-t-s-u-s/NoHyperLib/refs/heads/main/source.dll")))()
 
 
-NoHyper.set_theme('neverlose') -- [[nohyper , bedol , neverlose, green]]
+NoHyper.set_theme('bedol') -- [[nohyper , bedol , neverlose, green]]
 
-local Window = NoHyper.new('Star X - Blade ball',"rbxassetid://93079131828771",'The Smootest, Nicest Blade Ball Script(Check New Changelogs Pls:)') -- My Logo you can replace it
+local Window = NoHyper.new('VicoHub - Blade ball',"rbxassetid://93079131828771",'Vico will continue to grow.. 😈') -- My Logo you can replace it
 Window:NewSize(UDim2.new(0.1,430,0.1,300))
 
 Window:AddYoutube('https://youtube.com/@starx575')
