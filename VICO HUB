@@ -838,17 +838,32 @@ autoparryanalys = RunService.Heartbeat:Connect(function()
 -- Menyesuaikan spam Range dengan lebih hati-hati
 aura_table.spam_Range = math.clamp(math.max(math.max(ping / 8.5, 15) + ball_Speed / 7.5, 8.4), 25, 1200)
 
--- Memastikan faktor kecepatan tidak terlalu kecil
-speedFactor = math.max(3 - (ping / 100), 0.5) -- Pastikan tidak negatif
-speedFactorPingBased = math.max(6.1 - (ping / 100), 0.5) -- Jaga nilai tetap positif
+-- Menghitung faktor kecepatan dan jarak bola
+local speedFactor = math.max(3 - (ping / 100), 0.5) -- Pastikan tidak negatif
+local speedFactorPingBased = math.max(6.1 - (ping / 100), 0.5) -- Jaga nilai tetap positif
 
--- Menyesuaikan jangkauan parry dengan pertimbangan kecepatan bola lebih realistis
+-- Menggunakan ball_Speed dan ball_predicted_Distance untuk menghitung jangkauan parry lebih realistis
+local ball_Speed = ball_Speed or 0
+local ball_Distance = ball_Distance or 0
+local ball_predicted_Distance = ball_predicted_Distance or 0
+
+-- Menyesuaikan jangkauan parry dengan pertimbangan kecepatan bola
 aura_table.parry_Range = math.max(math.max(ping, 3.5) + ball_Speed / speedFactor, speedFactorPingBased)
 
--- Penyesuaian untuk bola sangat cepat
+-- Jika ball_Speed lebih tinggi, sesuaikan parry range
 if ball_Speed > 20 then
     aura_table.parry_Range = aura_table.parry_Range * 1.1 -- Menyesuaikan range dengan lebih halus untuk bola cepat
 end
+
+-- Menggabungkan ball_Direction dan ball_predicted_Distance untuk prediksi jangkauan yang lebih tepat
+local predicted_range_adjustment = ball_predicted_Distance * 0.5  -- Sesuaikan faktor berdasarkan kebutuhan
+local direction_factor = ball_Direction:Dot(Vector3.new(1, 0, 0)) -- Misalnya, kita asumsikan ball_Direction adalah vektor arah
+
+-- Menyesuaikan range berdasarkan prediksi arah bola
+aura_table.parry_Range = aura_table.parry_Range + predicted_range_adjustment * direction_factor
+
+-- Tampilkan hasil jangkauan parry yang disesuaikan
+print("Jangkauan Parry yang disesuaikan:", aura_table.parry_Range)
 
 -- Deteksi spam dengan pengaturan lebih realistis
 aura_table.is_Spamming = (target_Distance <= aura_table.spam_Range and ball_Distance < 18 and ball_Speed > 8)
