@@ -838,32 +838,13 @@ autoparryanalys = RunService.Heartbeat:Connect(function()
 -- Menyesuaikan spam Range dengan lebih hati-hati
 aura_table.spam_Range = math.max(ping / 10, 10.5) + ball_Speed / 6.15
 
--- Menghitung faktor kecepatan dan jarak bola berdasarkan ping yang dinamis
-local speedFactor = math.max(3 - (ping / 100), 0.5) 
-local speedFactorPingBased = math.max(6.1 - (ping / 100), 0.5) 
+local speedFactor = 3 - (ping / 100)
+local speedFactorPingBased = 6.1 - (ping / 100)
 
--- Memastikan variabel bola untuk kalkulasi jangkauan
-local ball_Speed = ball_Speed or 0
-local ball_Distance = ball_Distance or 0
-local ball_predicted_Distance = ball_predicted_Distance or 0
-
--- Penyesuaian sensitivitas jangkauan parry berdasarkan kecepatan dan arah bola
-local base_range = math.max(ping, 3.5) + ball_Speed / speedFactor
-local range_increase_factor = math.clamp(ball_Speed / 15, 1, 1.5) -- Menambah range untuk bola cepat
-local direction_factor = ball_Direction:Dot(Vector3.new(1, 0, 0)) -- Contoh: Mengarahkan ke X, bisa disesuaikan
-
--- Parry range dasar yang meningkat dengan prediksi jarak dan arah bola
-aura_table.parry_Range = math.max(base_range, speedFactorPingBased) + ball_predicted_Distance * 0.7 * range_increase_factor
-
--- Penyesuaian untuk arah bola ke pemain (jika Dot > 0, bola bergerak ke arah pemain)
-if direction_factor > 0 then
-    aura_table.parry_Range = aura_table.parry_Range * (1 + direction_factor * 0.5) -- Menambah jangkauan bila mendekat
-end
-
--- Jika bola sangat cepat, sesuaikan jangkauan
-if ball_Speed > 20 then
-    aura_table.parry_Range = aura_table.parry_Range * 1.15 -- Meningkatkan sensitivitas untuk bola cepat
-end
+-- Menggabungkan ball_Distance dengan bobot kecil agar tetap terukur
+aura_table.parry_Range = math.max(math.max(ping, 3.5) + ball_Speed / speedFactor, speedFactorPingBased) 
+                        + (ball_predicted_Distance * 0.5) 
+                        + (ball_Distance * 0.2)
 
 -- Output range untuk keperluan debugging
 print("Parry Range yang disesuaikan:", aura_table.parry_Range)
