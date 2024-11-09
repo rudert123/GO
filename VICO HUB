@@ -704,7 +704,7 @@ task.spawn(function()
 
                     -- Task.spawn yang akan berhenti jika `stopSpamming` aktif
                     spamTask = task.spawn(function()
-                        for count = 1, 400 do
+                        for count = 1, 500 do
                             -- Cek apakah perlu berhenti
                             if stopSpamming then break end
 
@@ -836,7 +836,7 @@ autoparryanalys = RunService.Heartbeat:Connect(function()
     local target_Dot = target_isMoving and math.max(target_Direction:Dot(target_Velocity.Unit), 0)
 
 -- Menyesuaikan spam Range dengan lebih hati-hati
-aura_table.spam_Range = math.clamp(math.max(math.max(ping / 8.5, 15) + ball_Speed / 7.5, 8.4), 25, 1200)
+aura_table.spam_Range = math.max(ping / 10, 10.5) + ball_Speed / 6.15
 
 -- Menghitung faktor kecepatan dan jarak bola
 local speedFactor = math.max(3 - (ping / 100), 0.5) -- Pastikan tidak negatif
@@ -867,7 +867,7 @@ print("Jangkauan Parry yang disesuaikan:", aura_table.parry_Range)
 
 -- Deteksi spam dengan pengaturan lebih realistis
 aura_table.is_Spamming = (target_Distance <= aura_table.spam_Range and ball_Distance < 18 and ball_Speed > 8)
-                          and ball_Velocity.Y > -50 and ball_Dot > 0.2
+                          and ball_Velocity.Y > -50 and ball_Dot > 0.1
 
 -- Menghitung sudut antara arah bola dan kecepatan bola
 local velocity_angle = math.abs(math.acos(ball_Direction:Dot(ball_Velocity.Unit)))
