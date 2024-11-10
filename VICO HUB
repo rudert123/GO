@@ -843,26 +843,17 @@ aura_table.parry_Range = math.max(math.max(ping, 3.5) + ball_Speed + ball_Distan
 -- Output range untuk keperluan debugging
 print("Parry Range yang disesuaikan:", aura_table.parry_Range)
 
--- Deteksi spam dengan pengaturan lebih realistis
-aura_table.is_Spamming = (target_Distance <= aura_table.spam_Range and ball_Distance < 18 and ball_Speed > 8)
-                          and ball_Velocity.Y > -50 and ball_Dot > 0.25
+if target_isMoving then
+        aura_table.is_Spamming = aura_table.hit_Count > 1 or (target_Distance <= aura_table.spam_Range and ball_Distance < 18 and ball_Speed > 8) and ball_Velocity.Y > -50 and ball_Dot > 0.15
+    else
+        aura_table.is_Spamming = aura_table.hit_Count > 1 or (target_Distance <= aura_table.spam_Range and ball_Distance < 18 and ball_Speed > 8) and ball_Velocity.Y > -50 and ball_Dot > 0.15
+    end
 
--- Menghitung sudut antara arah bola dan kecepatan bola
-local velocity_angle = math.abs(math.acos(ball_Direction:Dot(ball_Velocity.Unit)))
+    local velocity_angle = math.abs(math.acos(ball_Direction:Dot(ball_Velocity.Unit)))
 
--- Menambah logika untuk deteksi bola melengkung dengan sudut yang lebih moderat
-if velocity_angle > math.rad(35) then
-    aura_table.is_ball_Warping = true
-end
-
--- Penyesuaian lebih halus terhadap waktu parry
-local parry_Timing_Adjustment = (ball_Speed / 90) + (ball_Distance / 80) -- Membuat penyesuaian lebih moderat
-aura_table.parry_Timing = math.max(aura_table.parry_Range - parry_Timing_Adjustment, 0.6) -- Jangan terlalu pendek
-
--- Deteksi bola melengkung dengan sensitivitas lebih baik
-if ball_Dot < -0.2 then
-    aura_table.ball_Warping = tick()
-end
+    if ball_Dot < -0.2 then
+        aura_table.ball_Warping = tick()
+    end
 
 -- Task untuk memeriksa apakah bola melengkung
 task.spawn(function()
@@ -884,14 +875,14 @@ task.spawn(function()
 end)
 
 -- Deteksi Parry dengan penyesuaian range dan timing yang lebih tepat
-if ball_Distance <= aura_table.parry_Range and not aura_table.is_ball_Warping and ball_Speed > 0 and ball_Dot > -0.1 then
+if ball_Distance <= aura_table.parry_Range and not aura_table.is_ball_Warping and ball_Speed > 0 and ball_Dot > 0.2 then
         local cf = camera.CFrame
         local target_X = targetPosition.X
         local target_Y = targetPosition.Y
 
         if auto_curve then
             originalParryRemote:FireServer(
-                0.5,
+                0,
                 CFrame.new(cf.Position, Vector3.new(math.random(-1000, 1000), math.random(0, 1000), math.random(100, 1000))),
                 {[closest_Entity_To_mouse.Name] = targetPosition},
                 {target_X, target_Y},
@@ -900,7 +891,7 @@ if ball_Distance <= aura_table.parry_Range and not aura_table.is_ball_Warping an
         else
             local x, y, z, R00, R01, R02, R10, R11, R12, R20, R21, R22 = cf:GetComponents()
             originalParryRemote:FireServer(
-                0.5,
+                0,
                 CFrame.new(x, y, z, R00, R01, R02, R10, R11, R12, R20, R21, R22),
                 {[closest_Entity_To_mouse.Name] = targetPosition},
                 {target_X, target_Y},
