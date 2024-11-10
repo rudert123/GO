@@ -552,56 +552,61 @@ end
 local self = Nurysium_Util.getBall()
 wait(0.1)
 
--- Membuat lingkaran Visualize untuk area parry (datar di bawah karakter)
+-- Membuat objek Visualize untuk area parry (lingkaran datar di bawah karakter)
 local Visualize = Instance.new("Part", workspace)
-Visualize.Shape = Enum.PartType.Cylinder -- Menggunakan bentuk silinder untuk membuat lingkaran datar
-Visualize.Material = Enum.Material.Neon -- Anda dapat mengubah material disini
-Visualize.Size = Vector3.new(10, 0.2, 10) -- Ukuran lingkaran dan ketebalan kecil untuk efek datar
+local Visualize1 = Instance.new("Part", workspace)
+wait(0.5)
+
+-- Properti Visualize untuk area parry
+Visualize.Color = Color3.new(0, 0, 0)
+Visualize.Material = Enum.Material.ForceField
 Visualize.Transparency = 0.5
-Visualize.Color = Color3.fromRGB(0, 255, 0) -- Warna hijau
 Visualize.Anchored = true
 Visualize.CanCollide = false
-Visualize.Position = local_player.Character.HumanoidRootPart.Position - Vector3.new(0, local_player.Character.HumanoidRootPart.Size.Y / 2, 0)
-Visualize.Orientation = Vector3.new(90, 0, 0) -- Memutar lingkaran agar datar di bawah karakter
+Visualize.CastShadow = false
+Visualize.Shape = Enum.PartType.Cylinder
+Visualize.Orientation = Vector3.new(0, 0, 90)
+Visualize.Size = Vector3.new(Magnitude * 2, 0.1, Magnitude * 2) -- Menentukan ukuran lingkaran datar
 
--- Membuat objek Visualize1 untuk area spam
-local Visualize1 = Instance.new("Part", workspace)
-Visualize1.Shape = Enum.PartType.Ball
+-- Properti Visualize1 untuk area spam
+Visualize1.Color = Color3.new(1, 0, 0)
 Visualize1.Material = Enum.Material.ForceField
-Visualize1.Size = Vector3.new(aura_table.spam_Range, aura_table.spam_Range, aura_table.spam_Range)
 Visualize1.Transparency = 0.5
-Visualize1.Color = Color3.new(1, 0, 0) -- Warna merah
 Visualize1.Anchored = true
 Visualize1.CanCollide = false
 Visualize1.CastShadow = false
+Visualize1.Shape = Enum.PartType.Ball
+Visualize1.Size = Vector3.new(aura_table.spam_Range, aura_table.spam_Range, aura_table.spam_Range)
 
--- Membuat efek Highlight untuk Visualize
-local Highlight = Instance.new("Highlight")
-Highlight.Parent = Visualize
-Highlight.Enabled = true
-Highlight.FillTransparency = 0
-Highlight.OutlineColor = Color3.new(1, 1, 1)
-
--- Membuat efek Highlight untuk Visualize1
+-- Membuat Highlight untuk Visualize1 (area spam)
 local Highlight1 = Instance.new("Highlight")
 Highlight1.Parent = Visualize1
 Highlight1.Enabled = true
 Highlight1.FillTransparency = 0
 Highlight1.OutlineColor = Color3.new(1, 1, 1)
 
+-- Membuat Highlight untuk Visualize (area parry)
+local Highlight = Instance.new("Highlight")
+Highlight.Parent = Visualize
+Highlight.Enabled = true
+Highlight.FillTransparency = 0
+Highlight.OutlineColor = Color3.new(1, 1, 1)
+
 -- Task untuk mengatur ulang visualisasi dengan RenderStepped
 task.spawn(function()
     visualizervar = RunService.RenderStepped:Connect(function()
         if visualize_Enabled then
-            -- Aktifkan dan atur ulang Visualize
+            -- Aktifkan dan atur ulang Visualize (area parry)
             Visualize.Transparency = 0
-            Visualize.Size = Vector3.new(aura_table.parry_Range, 0.2, aura_table.parry_Range)
-            Visualize.CFrame = CFrame.new(local_player.Character.PrimaryPart.Position - Vector3.new(0, local_player.Character.PrimaryPart.Size.Y / 2, 0)) * CFrame.Angles(math.rad(90), 0, 0)
+            Visualize.Material = Enum.Material.ForceField
+            Visualize.Size = Vector3.new(aura_table.parry_Range, 0.1, aura_table.parry_Range) -- Ukuran parry yang dinamis
+            Visualize.CFrame = CFrame.new(local_player.Character.PrimaryPart.Position) * CFrame.Angles(math.rad(90), 0, 0) -- Menjaga orientasi visualisasi
 
-            -- Aktifkan dan atur ulang Visualize1
+            -- Aktifkan dan atur ulang Visualize1 (area spam)
             Visualize1.Transparency = 0
+            Visualize1.Material = Enum.Material.ForceField
             Visualize1.Size = Vector3.new(aura_table.spam_Range, aura_table.spam_Range, aura_table.spam_Range)
-            Visualize1.CFrame = CFrame.new(local_player.Character.PrimaryPart.Position)
+            Visualize1.CFrame = CFrame.new(local_player.Character.PrimaryPart.Position) -- Menyesuaikan dengan posisi karakter
         else
             -- Sembunyikan Visualize dan Visualize1 jika visualize_Enabled false
             Visualize.Transparency = 1
