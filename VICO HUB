@@ -45,7 +45,7 @@ local training_mode = false
 local hit_effect_Enabled = false
 local anti_curve_spam_Enabled = false
 local visualize_Enabled = false
-rawr = 750
+rawr = 255
 local Services = {game:GetService("AdService"),game:GetService("SocialService")}
 
 function initializate(dataFolder_name: string)
@@ -550,56 +550,64 @@ local function clamp(value, min, max)
 	return math.max(min, math.min(max, value))
 end
 local self = Nurysium_Util.getBall()
-	wait(0.1)
-	local Visualize = Instance.new("Part",workspace)
-	local Visualize1 = Instance.new("Part",workspace)
-	wait(0.5)
-	Visualize.Color = Color3.new(0, 1, 0)
-	Visualize.Material = Enum.Material.ForceField
-	Visualize.Transparency = 0.5
-	Visualize.Anchored = true
-	Visualize.CanCollide = false
-	Visualize.CastShadow = false
-	Visualize.Shape = Enum.PartType.Ball
-	Visualize.Size = Vector3.new(30,30,30)
-	Visualize1.Color = Color3.new(1, 0, 0)
-	Visualize1.Material = Enum.Material.ForceField
-	Visualize1.Transparency = 0.5
-	Visualize1.Anchored = true
-	Visualize1.CanCollide = false
-	Visualize1.CastShadow = false
-	Visualize1.Shape = Enum.PartType.Ball
-	Visualize1.Size = Vector3.new(aura_table.spam_Range, aura_table.spam_Range, aura_table.spam_Range)
+wait(0.1)
 
-	local Highlight1 = Instance.new("Highlight")
-	Highlight1.Parent = Visualize1
-	Highlight1.Enabled = true
-	Highlight1.FillTransparency = 0
-	Highlight1.OutlineColor = Color3.new(1, 1, 1)
-	local Highlight = Instance.new("Highlight")
-	Highlight.Parent = Visualize
-	Highlight.Enabled = true
-	Highlight.FillTransparency = 0
-	Highlight.OutlineColor = Color3.new(1, 1, 1)
-	
+-- Membuat objek Visualize untuk area parry
+local Visualize = Instance.new("Part", workspace)
+Visualize.Shape = Enum.PartType.Ball
+Visualize.Material = Enum.Material.Neon -- Anda dapat mengubah material disini
+Visualize.Size = Vector3.new(10, 10, 10) -- Ukuran awal, akan disesuaikan nanti
+Visualize.Transparency = 0.5 -- Transparansi awal
+Visualize.Color = Color3.fromRGB(0, 255, 0) -- Warna hijau
+Visualize.Anchored = true
+Visualize.CanCollide = false
+Visualize.Position = local_player.Character.HumanoidRootPart.Position
+
+-- Membuat objek Visualize1 untuk area spam
+local Visualize1 = Instance.new("Part", workspace)
+Visualize1.Shape = Enum.PartType.Ball
+Visualize1.Material = Enum.Material.ForceField
+Visualize1.Size = Vector3.new(aura_table.spam_Range, aura_table.spam_Range, aura_table.spam_Range)
+Visualize1.Transparency = 0.5
+Visualize1.Color = Color3.new(1, 0, 0) -- Warna merah
+Visualize1.Anchored = true
+Visualize1.CanCollide = false
+Visualize1.CastShadow = false
+
+-- Membuat efek Highlight untuk Visualize
+local Highlight = Instance.new("Highlight")
+Highlight.Parent = Visualize
+Highlight.Enabled = true
+Highlight.FillTransparency = 0
+Highlight.OutlineColor = Color3.new(1, 1, 1)
+
+-- Membuat efek Highlight untuk Visualize1
+local Highlight1 = Instance.new("Highlight")
+Highlight1.Parent = Visualize1
+Highlight1.Enabled = true
+Highlight1.FillTransparency = 0
+Highlight1.OutlineColor = Color3.new(1, 1, 1)
+
+-- Task untuk mengatur ulang visualisasi dengan RenderStepped
 task.spawn(function()
-	visualizervar = RunService.RenderStepped:Connect(function()
-		if visualize_Enabled then
-			Visualize.Transparency = 0
-			Visualize.Material = Enum.Material.ForceField
-			Visualize.Size = Vector3.new(aura_table.parry_Range, aura_table.parry_Range, aura_table.parry_Range)
-			Visualize.CFrame = CFrame.new(local_player.Character.PrimaryPart.Position)
-			Visualize1.Transparency = 0
-			Visualize1.Material = Enum.Material.ForceField
-			Visualize1.Size = Vector3.new(aura_table.spam_Range, aura_table.spam_Range, aura_table.spam_Range)
-			Visualize1.CFrame = CFrame.new(local_player.Character.PrimaryPart.Position)
-		else
-			Visualize.Material = Enum.Material.ForceField
-			Visualize.Transparency = 1
-			Visualize1.Material = Enum.Material.ForceField
-			Visualize1.Transparency = 1
-		end	
-	end)
+    visualizervar = RunService.RenderStepped:Connect(function()
+        if visualize_Enabled then
+            -- Aktifkan dan atur ulang Visualize
+            Visualize.Transparency = 0
+            Visualize.Material = Enum.Material.Neon -- Bisa diganti jika perlu
+            Visualize.Size = Vector3.new(aura_table.parry_Range, aura_table.parry_Range, aura_table.parry_Range)
+            Visualize.CFrame = CFrame.new(local_player.Character.PrimaryPart.Position)
+
+            -- Aktifkan dan atur ulang Visualize1
+            Visualize1.Transparency = 0
+            Visualize1.Size = Vector3.new(aura_table.spam_Range, aura_table.spam_Range, aura_table.spam_Range)
+            Visualize1.CFrame = CFrame.new(local_player.Character.PrimaryPart.Position)
+        else
+            -- Sembunyikan Visualize dan Visualize1 jika visualize_Enabled false
+            Visualize.Transparency = 1
+            Visualize1.Transparency = 1
+        end
+    end)
 end)
 
 function getClosestEntityToMouse()
@@ -654,38 +662,30 @@ Takentime = tick() - aura_table.hit_Time
 end)
 
 
-local stopSpamming = false
-local spamTask -- Menyimpan ID task untuk kontrol lebih lanjut
-
 task.spawn(function()
     autospamvar = RunService.Heartbeat:Connect(function()
-        -- Cek apakah auto_spam aktif dan pemain valid
+        -- Pre-check if auto_spam is enabled, player exists, and not in training mode
         if not auto_spam or not workspace.Alive:FindFirstChild(local_player.Name) or training_mode then
-            -- Reset variabel untuk menghentikan spam
+            -- Reset aura table and spam states
             aura_table.hit_Count = 0
             aura_table.is_Spamming = false
             aura_table.last_target = nil
             ismyautoparryspamming = false
             aura_table.spam_Range = 0
-            stopSpamming = true  -- Set flag untuk menghentikan task.spawn
-            if spamTask then
-                task.cancel(spamTask) -- Hentikan task jika aktif
-                spamTask = nil
-            end
             return
         end
 
+        -- Proceed only if closest entity is valid and in workspace
         if closest_Entity and workspace.Alive:FindFirstChild(closest_Entity.Name) and ((not standalone and aura_table.is_Spamming) or (standalone)) then
             local playerPosition = local_player.Character.PrimaryPart.Position
             local entityPosition = closest_Entity.HumanoidRootPart.Position
             local distanceToEntity = local_player:DistanceFromCharacter(entityPosition)
 
-            -- Cek jarak sebelum memulai spam
+            -- Perform spam actions only when within range
             if distanceToEntity <= aura_table.spam_Range then
                 ismyautoparryspamming = true
-                stopSpamming = false  -- Aktifkan spam
 
-                -- Precompute data untuk meningkatkan performa
+                -- Pre-compute values before the loop for efficiency
                 local cf = camera.CFrame
                 local randomTarget = Vector3.new(math.random(-1000, 1000), math.random(0, 1000), math.random(100, 1000))
                 local targetPosition = closest_Entity_To_mouse.HumanoidRootPart.Position
@@ -694,45 +694,27 @@ task.spawn(function()
                     {targetPosition.X, targetPosition.Y}
                 }
 
-                -- Task.spawn yang akan berhenti jika `stopSpamming` aktif
-                spamTask = task.spawn(function()
-                    for count = 1, rawr do
-                        -- Cek apakah perlu berhenti
-                        if stopSpamming then break end
-
-                        -- Tambahkan jeda antar pengiriman
-                        task.wait(0.01)
-
-                        if auto_spam and workspace.Alive:FindFirstChild(local_player.Name) and closest_Entity and workspace.Alive:FindFirstChild(closest_Entity.Name) then
-                            if auto_curve then
-                                originalParryRemote:FireServer(0, CFrame.new(cf.Position, randomTarget), unpack(fireArgs))
-                            else
-                                originalParryRemote:FireServer(0, cf, unpack(fireArgs))
-                            end
+                -- Perform spamming asynchronously for speed using task.defer
+                task.defer(function()
+                    for count = 1, rawr do  -- gunakan jumlah iterasi yang diinginkan
+                        if not auto_spam then break end
+                        
+                        if auto_curve then
+                            originalParryRemote:FireServer(0, CFrame.new(cf.Position, randomTarget), unpack(fireArgs))
                         else
-                            -- Jika kondisi gagal, hentikan loop
-                            stopSpamming = true
-                            break
+                            originalParryRemote:FireServer(0, cf, unpack(fireArgs))
                         end
+                        
+                        if not auto_spam then break end
                     end
                 end)
             else
-                -- Reset jika keluar dari range
+                -- Reset spam state if out of range
                 ismyautoparryspamming = false
-                stopSpamming = true  -- Set untuk menghentikan task.spawn
-                if spamTask then
-                    task.cancel(spamTask) -- Hentikan task jika keluar dari range
-                    spamTask = nil
-                end
             end
         else
-            -- Reset jika tidak ada entity terdekat
+            -- Reset spam state if entity is not found
             ismyautoparryspamming = false
-            stopSpamming = true  -- Set untuk menghentikan task.spawn
-            if spamTask then
-                task.cancel(spamTask) -- Hentikan task jika tidak ada entity terdekat
-                spamTask = nil
-            end
         end
     end)
 
