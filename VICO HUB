@@ -836,7 +836,9 @@ autoparryanalys = RunService.Heartbeat:Connect(function()
     local target_Dot = target_isMoving and math.max(target_Direction:Dot(target_Velocity.Unit), 0)
 
 aura.spam_Range = math.max(ping / 10, 10.5) + ball_Speed / 6.15
-aura.parry_Range = math.max(math.max(ping, 3.5) + ball_Speed / 3.25, 9.5)
+speedFactor = 3 - (ping / 100)
+speedFactorPingBased = 6.1 - (ping / 100)
+aura_table.parry_Range = math.max(math.max(ping, 3.5) + ball_Speed + ball_Distance / speedFactor, speedFactorPingBased)
 
 -- Output range untuk keperluan debugging
 print("Parry Range yang disesuaikan:", aura_table.parry_Range)
