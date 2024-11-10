@@ -837,16 +837,9 @@ autoparryanalys = RunService.Heartbeat:Connect(function()
     local target_Dot = target_isMoving and math.max(target_Direction:Dot(target_Velocity.Unit), 0)
 
     aura_table.spam_Range = math.clamp(math.max(ping / 9, 20) + ball_Speed / 5, 30, 1200)
--- Menghitung faktor kecepatan berdasarkan ping
-local speedFactor = 3 - (ping / 100)  -- Faktor kecepatan berdasarkan ping
-local speedFactorPingBased = 6.1 - (ping / 100)  -- Faktor kecepatan lainnya berdasarkan ping
-
--- Menghitung parry range berdasarkan ball distance dan ball speed
-local parryRangeFromDistance = math.max(ball_Distance / speedFactor, 10)  -- Menghitung range parry berdasarkan jarak bola, dengan batas minimum 10
-local parryRangeFromSpeed = math.max(ball_Speed / 4, 10)  -- Menghitung range parry berdasarkan kecepatan bola, dengan batas minimum 10
-
--- Parry Range adalah kombinasi antara dua faktor di atas
-aura_table.parry_Range = math.max(parryRangeFromDistance, parryRangeFromSpeed)
+speedFactor = 3 - (ping / 100)
+    speedFactorPingBased = 6.1 - (ping / 100)
+    aura_table.parry_Range = math.max(math.max(ping, 3.5) + ball_predicted_Distance / speedFactor, speedFactorPingBased)
 
     if target_isMoving then
         aura_table.is_Spamming = aura_table.hit_Count > 1 or (target_Distance <= aura_table.spam_Range and ball_Distance < 18 and ball_Speed > 8) and ball_Velocity.Y > -50 and ball_Dot > 0.15
@@ -875,7 +868,7 @@ aura_table.parry_Range = math.max(parryRangeFromDistance, parryRangeFromSpeed)
         aura_table.is_ball_Warping = true
     end)
 
-    if aura_table.parry_Range and not aura_table.is_ball_Warping and ball_Speed > 0 and ball_Dot > 0.2 then
+    if ball_Distance <= aura_table.parry_Range and not aura_table.is_ball_Warping and ball_Speed > 0 and ball_Dot > 0.2 then
         local cf = camera.CFrame
         local target_X = targetPosition.X
         local target_Y = targetPosition.Y
