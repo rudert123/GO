@@ -835,32 +835,16 @@ autoparryanalys = RunService.Heartbeat:Connect(function()
     local target_isMoving = target_Velocity.Magnitude > 0
     local target_Dot = target_isMoving and math.max(target_Direction:Dot(target_Velocity.Unit), 0)
 
-    aura_table.spam_Range = math.clamp(math.max(ping / 9, 20) + ball_Speed / 6.5, 30, 1500)
+    aura_table.spam_Range = math.clamp(math.max(ping / 9, 20) + ball_Speed / 3.2, 30, 1500)
     speedFactor = 3 - (ping / 100)
     speedFactorPingBased = 6.1 - (ping / 100)
     aura_table.parry_Range = math.max(math.max(ping, 3.5) + ball_Speed / speedFactor, speedFactorPingBased)
 
     if target_isMoving then
-    print("Checking moving target...")
     print("hit_Count: ", aura_table.hit_Count)
-    print("target_Distance: ", target_Distance)
-    print("spam_Range: ", aura_table.spam_Range)
-    print("ball_Distance: ", ball_Distance)
-    print("ball_Speed: ", ball_Speed)
-    print("ball_Velocity.Y: ", ball_Velocity.Y)
-    print("ball_Dot: ", ball_Dot)
-    
     aura_table.is_Spamming = aura_table.hit_Count >= 2 and target_Distance <= aura_table.spam_Range and ball_Distance < 18 and ball_Speed > 8 and ball_Velocity.Y > -50 and ball_Dot > 0.15
 else
     print("Checking stationary target...")
-    print("hit_Count: ", aura_table.hit_Count)
-    print("target_Distance: ", target_Distance)
-    print("spam_Range: ", aura_table.spam_Range)
-    print("ball_Distance: ", ball_Distance)
-    print("ball_Speed: ", ball_Speed)
-    print("ball_Velocity.Y: ", ball_Velocity.Y)
-    print("ball_Dot: ", ball_Dot)
-    
     aura_table.is_Spamming = aura_table.hit_Count >= 2 and target_Distance <= aura_table.spam_Range and ball_Distance < 18 and ball_Speed > 8 and ball_Velocity.Y > -50 and ball_Dot > 0.15
 end
 
