@@ -45,7 +45,7 @@ local training_mode = false
 local hit_effect_Enabled = false
 local anti_curve_spam_Enabled = false
 local visualize_Enabled = false
-rawr = 255
+rawr = 25
 local Services = {game:GetService("AdService"),game:GetService("SocialService")}
 
 function initializate(dataFolder_name: string)
