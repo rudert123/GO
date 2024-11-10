@@ -688,7 +688,9 @@ task.spawn(function()
 
                 -- Perform spamming asynchronously for speed using task.defer
                 task.defer(function()
-                    for count = 1, rawr do  -- gunakan jumlah iterasi yang diinginkan
+                    -- Using while loop for faster, more controlled spam
+                    local spams = 0
+                    while spams < rawr do  -- 'rawr' is the maximum number of iterations
                         if not auto_spam then break end
                         
                         if auto_curve then
@@ -698,6 +700,7 @@ task.spawn(function()
                         end
                         
                         if not auto_spam then break end
+                        spams = spams + 1
                     end
                 end)
             else
