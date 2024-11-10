@@ -557,6 +557,12 @@ local Visualize = Instance.new("Part", workspace)
 local Visualize1 = Instance.new("Part", workspace)
 wait(0.5)
 
+-- Pastikan aura_table.parry_Range dan aura_table.spam_Range sudah memiliki nilai yang valid
+if not aura_table.parry_Range or not aura_table.spam_Range then
+    warn("aura_table.parry_Range atau aura_table.spam_Range tidak didefinisikan dengan benar.")
+    return
+end
+
 -- Properti Visualize untuk area parry
 Visualize.Color = Color3.new(0, 0, 0)
 Visualize.Material = Enum.Material.ForceField
@@ -566,7 +572,7 @@ Visualize.CanCollide = false
 Visualize.CastShadow = false
 Visualize.Shape = Enum.PartType.Cylinder
 Visualize.Orientation = Vector3.new(0, 0, 90)
-Visualize.Size = Vector3.new(Magnitude * 2, 0.1, Magnitude * 2) -- Menentukan ukuran lingkaran datar
+Visualize.Size = Vector3.new(aura_table.parry_Range * 2, 0.1, aura_table.parry_Range * 2) -- Menentukan ukuran lingkaran datar
 
 -- Properti Visualize1 untuk area spam
 Visualize1.Color = Color3.new(1, 0, 0)
@@ -599,7 +605,7 @@ task.spawn(function()
             -- Aktifkan dan atur ulang Visualize (area parry)
             Visualize.Transparency = 0
             Visualize.Material = Enum.Material.ForceField
-            Visualize.Size = Vector3.new(aura_table.parry_Range, 0.1, aura_table.parry_Range) -- Ukuran parry yang dinamis
+            Visualize.Size = Vector3.new(aura_table.parry_Range * 2, 0.1, aura_table.parry_Range * 2) -- Ukuran parry yang dinamis
             Visualize.CFrame = CFrame.new(local_player.Character.PrimaryPart.Position) * CFrame.Angles(math.rad(90), 0, 0) -- Menjaga orientasi visualisasi
 
             -- Aktifkan dan atur ulang Visualize1 (area spam)
