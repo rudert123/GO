@@ -552,16 +552,17 @@ end
 local self = Nurysium_Util.getBall()
 wait(0.1)
 
--- Membuat objek Visualize untuk area parry
+-- Membuat lingkaran Visualize untuk area parry (datar di bawah karakter)
 local Visualize = Instance.new("Part", workspace)
-Visualize.Shape = Enum.PartType.Ball
+Visualize.Shape = Enum.PartType.Cylinder -- Menggunakan bentuk silinder untuk membuat lingkaran datar
 Visualize.Material = Enum.Material.Neon -- Anda dapat mengubah material disini
-Visualize.Size = Vector3.new(10, 10, 10) -- Ukuran awal, akan disesuaikan nanti
-Visualize.Transparency = 0.5 -- Transparansi awal
+Visualize.Size = Vector3.new(10, 0.2, 10) -- Ukuran lingkaran dan ketebalan kecil untuk efek datar
+Visualize.Transparency = 0.5
 Visualize.Color = Color3.fromRGB(0, 255, 0) -- Warna hijau
 Visualize.Anchored = true
 Visualize.CanCollide = false
-Visualize.Position = local_player.Character.HumanoidRootPart.Position
+Visualize.Position = local_player.Character.HumanoidRootPart.Position - Vector3.new(0, local_player.Character.HumanoidRootPart.Size.Y / 2, 0)
+Visualize.Orientation = Vector3.new(90, 0, 0) -- Memutar lingkaran agar datar di bawah karakter
 
 -- Membuat objek Visualize1 untuk area spam
 local Visualize1 = Instance.new("Part", workspace)
@@ -594,9 +595,8 @@ task.spawn(function()
         if visualize_Enabled then
             -- Aktifkan dan atur ulang Visualize
             Visualize.Transparency = 0
-            Visualize.Material = Enum.Material.Neon -- Bisa diganti jika perlu
-            Visualize.Size = Vector3.new(aura_table.parry_Range, aura_table.parry_Range, aura_table.parry_Range)
-            Visualize.CFrame = CFrame.new(local_player.Character.PrimaryPart.Position)
+            Visualize.Size = Vector3.new(aura_table.parry_Range, 0.2, aura_table.parry_Range)
+            Visualize.CFrame = CFrame.new(local_player.Character.PrimaryPart.Position - Vector3.new(0, local_player.Character.PrimaryPart.Size.Y / 2, 0)) * CFrame.Angles(math.rad(90), 0, 0)
 
             -- Aktifkan dan atur ulang Visualize1
             Visualize1.Transparency = 0
