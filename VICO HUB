@@ -2,7 +2,7 @@ print("script is running and check if not running then 🔴")
 wait(1)
 print("dont be sigma because you sigma 🧏, Nguwawor loh ya")
 wait(1)
-print("... VICO HUB (still test) ...")
+print("... VICO HUB (still beta test) ...")
 if _G.Ran == true then return end
 wait()
 _G.Ran = true
@@ -835,15 +835,12 @@ autoparryanalys = RunService.Heartbeat:Connect(function()
     local target_isMoving = target_Velocity.Magnitude > 0
     local target_Dot = target_isMoving and math.max(target_Direction:Dot(target_Velocity.Unit), 0)
 
-aura.spam_Range = math.max(ping / 10, 10.5) + ball_Speed / 6.15
-speedFactor = 3 - (ping / 100)
-speedFactorPingBased = 6.1 - (ping / 100)
-aura_table.parry_Range = math.max(math.max(ping, 3.5) + ball_Speed + ball_Distance / speedFactor, speedFactorPingBased)
+    aura_table.spam_Range = math.clamp(math.max(math.max(ping / 8.5, 15) + ball_Speed / 7.5, 8.4), 25, 1200)
+    speedFactor = 3 - (ping / 100)
+    speedFactorPingBased = 6.1 - (ping / 100)
+    aura_table.parry_Range = math.max(math.max(ping, 3.5) + ball_Speed / speedFactor, speedFactorPingBased)
 
--- Output range untuk keperluan debugging
-print("Parry Range yang disesuaikan:", aura_table.parry_Range)
-
-if target_isMoving then
+    if target_isMoving then
         aura_table.is_Spamming = aura_table.hit_Count > 1 or (target_Distance <= aura_table.spam_Range and ball_Distance < 18 and ball_Speed > 8) and ball_Velocity.Y > -50 and ball_Dot > 0.15
     else
         aura_table.is_Spamming = aura_table.hit_Count > 1 or (target_Distance <= aura_table.spam_Range and ball_Distance < 18 and ball_Speed > 8) and ball_Velocity.Y > -50 and ball_Dot > 0.15
@@ -855,27 +852,22 @@ if target_isMoving then
         aura_table.ball_Warping = tick()
     end
 
--- Task untuk memeriksa apakah bola melengkung
-task.spawn(function()
-    if (tick() - aura_table.ball_Warping) >= 0.15 + target_distance_Limited - ball_speed_Limited or ball_Distance <= 10 then
-        aura_table.is_ball_Warping = false
-        return
-    end
-
-    if aura_table.last_target then
-        if (ball_Position - aura_table.last_target.HumanoidRootPart.Position).Magnitude > 35.5 or target_Distance <= 12 then
+    task.spawn(function()
+        if (tick() - aura_table.ball_Warping) >= 0.15 + target_distance_Limited - ball_speed_Limited or ball_Distance <= 10 then
             aura_table.is_ball_Warping = false
+            return
         end
-    end
 
-    -- Deteksi anti-curve yang lebih sensitif
-    if ball_Velocity.Y > 10 then
-        aura_table.is_ball_Warping = true -- Deteksi bola melengkung berdasarkan kecepatan vertikal
-    end
-end)
+        if aura_table.last_target then
+            if (ball_Position - aura_table.last_target.HumanoidRootPart.Position).Magnitude > 35.5 or target_Distance <= 12 then
+                aura_table.is_ball_Warping = false
+            end
+        end
 
--- Deteksi Parry dengan penyesuaian range dan timing yang lebih tepat
-if ball_Distance <= aura_table.parry_Range and not aura_table.is_ball_Warping and ball_Speed > 0 and ball_Dot > 0.2 then
+        aura_table.is_ball_Warping = true
+    end)
+
+    if ball_Distance <= aura_table.parry_Range and not aura_table.is_ball_Warping and ball_Speed > 0 and ball_Dot > 0.1 then
         local cf = camera.CFrame
         local target_X = targetPosition.X
         local target_Y = targetPosition.Y
@@ -1153,3 +1145,5 @@ end
 
 -- Menjalankan fungsi cek spamming dalam task terpisah
 spawn(checkSpamming)
+
+print("Succesfull Load 🟢")
