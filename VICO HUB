@@ -550,75 +550,56 @@ local function clamp(value, min, max)
 	return math.max(min, math.min(max, value))
 end
 local self = Nurysium_Util.getBall()
-wait(0.1)
+	wait(0.1)
+	local Visualize = Instance.new("Part",workspace)
+	local Visualize1 = Instance.new("Part",workspace)
+	wait(0.5)
+	Visualize.Color = Color3.new(0, 0, 0)
+	Visualize.Material = Enum.Material.ForceField
+	Visualize.Transparency = 0.5
+	Visualize.Anchored = true
+	Visualize.CanCollide = false
+	Visualize.CastShadow = false
+	Visualize.Shape = Enum.PartType.Ball
+	Visualize.Size = Vector3.new(30,30,30)
+	Visualize1.Color = Color3.new(1, 0, 0)
+	Visualize1.Material = Enum.Material.ForceField
+	Visualize1.Transparency = 0.5
+	Visualize1.Anchored = true
+	Visualize1.CanCollide = false
+	Visualize1.CastShadow = false
+	Visualize1.Shape = Enum.PartType.Ball
+	Visualize1.Size = Vector3.new(aura_table.spam_Range, aura_table.spam_Range, aura_table.spam_Range)
 
--- Membuat objek Visualize untuk area parry (lingkaran datar di bawah karakter)
-local Visualize = Instance.new("Part", workspace)
-local Visualize1 = Instance.new("Part", workspace)
-wait(0.5)
-
--- Pastikan aura_table.parry_Range dan aura_table.spam_Range sudah memiliki nilai yang valid
-if not aura_table.parry_Range or not aura_table.spam_Range then
-    warn("aura_table.parry_Range atau aura_table.spam_Range tidak didefinisikan dengan benar.")
-    return
-end
-
--- Properti Visualize untuk area parry
-Visualize.Color = Color3.new(0, 0, 0)
-Visualize.Material = Enum.Material.ForceField
-Visualize.Transparency = 0.5
-Visualize.Anchored = true
-Visualize.CanCollide = false
-Visualize.CastShadow = false
-Visualize.Shape = Enum.PartType.Cylinder
-Visualize.Orientation = Vector3.new(0, 0, 90)
-Visualize.Size = Vector3.new(aura_table.parry_Range * 2, 0.1, aura_table.parry_Range * 2) -- Menentukan ukuran lingkaran datar
-
--- Properti Visualize1 untuk area spam
-Visualize1.Color = Color3.new(1, 0, 0)
-Visualize1.Material = Enum.Material.ForceField
-Visualize1.Transparency = 0.5
-Visualize1.Anchored = true
-Visualize1.CanCollide = false
-Visualize1.CastShadow = false
-Visualize1.Shape = Enum.PartType.Ball
-Visualize1.Size = Vector3.new(aura_table.spam_Range, aura_table.spam_Range, aura_table.spam_Range)
-
--- Membuat Highlight untuk Visualize1 (area spam)
-local Highlight1 = Instance.new("Highlight")
-Highlight1.Parent = Visualize1
-Highlight1.Enabled = true
-Highlight1.FillTransparency = 0
-Highlight1.OutlineColor = Color3.new(1, 1, 1)
-
--- Membuat Highlight untuk Visualize (area parry)
-local Highlight = Instance.new("Highlight")
-Highlight.Parent = Visualize
-Highlight.Enabled = true
-Highlight.FillTransparency = 0
-Highlight.OutlineColor = Color3.new(1, 1, 1)
-
--- Task untuk mengatur ulang visualisasi dengan RenderStepped
+	local Highlight1 = Instance.new("Highlight")
+	Highlight1.Parent = Visualize1
+	Highlight1.Enabled = true
+	Highlight1.FillTransparency = 0
+	Highlight1.OutlineColor = Color3.new(1, 1, 1)
+	local Highlight = Instance.new("Highlight")
+	Highlight.Parent = Visualize
+	Highlight.Enabled = true
+	Highlight.FillTransparency = 0
+	Highlight.OutlineColor = Color3.new(1, 1, 1)
+	
 task.spawn(function()
-    visualizervar = RunService.RenderStepped:Connect(function()
-        if visualize_Enabled then
-            -- Aktifkan dan atur ulang Visualize (area parry)
-            Visualize.Transparency = 0
-            Visualize.Material = Enum.Material.ForceField
-            Visualize.Size = Vector3.new(aura_table.parry_Range * 2, 0.1, aura_table.parry_Range * 2) -- Ukuran parry yang dinamis
-            Visualize.CFrame = CFrame.new(local_player.Character.PrimaryPart.Position) * CFrame.Angles(math.rad(90), 0, 0) -- Menjaga orientasi visualisasi
-
-            -- Aktifkan dan atur ulang Visualize1 (area spam)
-            Visualize1.Transparency = 0
-            Visualize1.Material = Enum.Material.ForceField
-            Visualize1.Size = Vector3.new(aura_table.spam_Range, aura_table.spam_Range, aura_table.spam_Range)
-            Visualize1.CFrame = CFrame.new(local_player.Character.PrimaryPart.Position) -- Menyesuaikan dengan posisi karakter
-        else
-            -- Sembunyikan Visualize dan Visualize1 jika visualize_Enabled false
-            Visualize.Transparency = 1
-            Visualize1.Transparency = 1
-        end
-    end)
+	visualizeranalyst = RunService.RenderStepped:Connect(function()
+		if visualize_Enabled then
+			Visualize.Transparency = 0
+			Visualize.Material = Enum.Material.ForceField
+			Visualize.Size = Vector3.new(aura_table.parry_Range, aura_table.parry_Range, aura_table.parry_Range)
+			Visualize.CFrame = CFrame.new(local_player.Character.PrimaryPart.Position)
+			Visualize1.Transparency = 0
+			Visualize1.Material = Enum.Material.ForceField
+			Visualize1.Size = Vector3.new(aura_table.spam_Range, aura_table.spam_Range, aura_table.spam_Range)
+			Visualize1.CFrame = CFrame.new(local_player.Character.PrimaryPart.Position)
+		else
+			Visualize.Material = Enum.Material.ForceField
+			Visualize.Transparency = 1
+			Visualize1.Material = Enum.Material.ForceField
+			Visualize1.Transparency = 1
+		end	
+	end)
 end)
 
 function getClosestEntityToMouse()
