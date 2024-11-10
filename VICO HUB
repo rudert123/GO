@@ -656,11 +656,9 @@ end)
 
 local stopSpamming = false
 local spamTask -- Menyimpan ID task untuk kontrol lebih lanjut
-local requiredParries = 2  -- Jumlah parry yang dibutuhkan untuk memulai spam
-aura_table.hit_Count = aura_table.hit_Count or 0  -- Inisialisasi jumlah hit atau parry
 
 task.spawn(function()
-    autospamanalys = RunService.Heartbeat:Connect(function()
+    autospamvar = RunService.Heartbeat:Connect(function()
         -- Cek apakah auto_spam aktif dan pemain valid
         if not auto_spam or not workspace.Alive:FindFirstChild(local_player.Name) or training_mode then
             -- Reset variabel untuk menghentikan spam
@@ -670,12 +668,10 @@ task.spawn(function()
             ismyautoparryspamming = false
             aura_table.spam_Range = 0
             stopSpamming = true  -- Set flag untuk menghentikan task.spawn
-
             if spamTask then
                 task.cancel(spamTask) -- Hentikan task jika aktif
                 spamTask = nil
             end
-
             return
         end
 
@@ -686,51 +682,42 @@ task.spawn(function()
 
             -- Cek jarak sebelum memulai spam
             if distanceToEntity <= aura_table.spam_Range then
-                -- Increment hit count jika dalam range
-                aura_table.hit_Count = aura_table.hit_Count + 1
-                
-                -- Jika jumlah parry sudah mencapai requiredParries, mulai spam
-                if aura_table.hit_Count >= requiredParries then
-                    ismyautoparryspamming = true
-                    stopSpamming = false  -- Aktifkan spam
+                ismyautoparryspamming = true
+                stopSpamming = false  -- Aktifkan spam
 
-                    -- Precompute data untuk meningkatkan performa
-                    local cf = camera.CFrame
-                    local randomTarget = Vector3.new(math.random(-1000, 1000), math.random(0, 1000), math.random(100, 1000))
-                    local targetPosition = closest_Entity_To_mouse.HumanoidRootPart.Position
-                    local fireArgs = {
-                        {[closest_Entity_To_mouse.Name] = targetPosition},
-                        {targetPosition.X, targetPosition.Y}
-                    }
+                -- Precompute data untuk meningkatkan performa
+                local cf = camera.CFrame
+                local randomTarget = Vector3.new(math.random(-1000, 1000), math.random(0, 1000), math.random(100, 1000))
+                local targetPosition = closest_Entity_To_mouse.HumanoidRootPart.Position
+                local fireArgs = {
+                    {[closest_Entity_To_mouse.Name] = targetPosition},
+                    {targetPosition.X, targetPosition.Y}
+                }
 
-                    -- Task.spawn yang akan berhenti jika `stopSpamming` aktif
-                    spamTask = task.spawn(function()
-                        for count = 1, rawr do
-                            -- Cek apakah perlu berhenti
-                            if stopSpamming then break end
+                -- Task.spawn yang akan berhenti jika `stopSpamming` aktif
+                spamTask = task.spawn(function()
+                    for count = 1, rawr do
+                        -- Cek apakah perlu berhenti
+                        if stopSpamming then break end
 
-                            -- Tambahkan jeda antar pengiriman
-                            task.wait(0.001)
+                        -- Tambahkan jeda antar pengiriman
+                        task.wait(0.01)
 
-                            if auto_spam and workspace.Alive:FindFirstChild(local_player.Name) and closest_Entity and workspace.Alive:FindFirstChild(closest_Entity.Name) then
-                                if auto_curve then
-                                    originalParryRemote:FireServer(0, CFrame.new(cf.Position, randomTarget), unpack(fireArgs))
-                                else
-                                    originalParryRemote:FireServer(0, cf, unpack(fireArgs))
-                                end
+                        if auto_spam and workspace.Alive:FindFirstChild(local_player.Name) and closest_Entity and workspace.Alive:FindFirstChild(closest_Entity.Name) then
+                            if auto_curve then
+                                originalParryRemote:FireServer(0, CFrame.new(cf.Position, randomTarget), unpack(fireArgs))
                             else
-                                -- Jika kondisi gagal, hentikan loop
-                                stopSpamming = true
-                                break
+                                originalParryRemote:FireServer(0, cf, unpack(fireArgs))
                             end
+                        else
+                            -- Jika kondisi gagal, hentikan loop
+                            stopSpamming = true
+                            break
                         end
-                        -- Reset hit count setelah spam selesai
-                        aura_table.hit_Count = 0
-                    end)
-                end
+                    end
+                end)
             else
                 -- Reset jika keluar dari range
-                aura_table.hit_Count = 0
                 ismyautoparryspamming = false
                 stopSpamming = true  -- Set untuk menghentikan task.spawn
                 if spamTask then
@@ -740,12 +727,11 @@ task.spawn(function()
             end
         else
             -- Reset jika tidak ada entity terdekat
-            aura_table.hit_Count = 0
             ismyautoparryspamming = false
             stopSpamming = true  -- Set untuk menghentikan task.spawn
-            if spamTask then 
+            if spamTask then
                 task.cancel(spamTask) -- Hentikan task jika tidak ada entity terdekat
-                spamTask = nil 
+                spamTask = nil
             end
         end
     end)
