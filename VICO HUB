@@ -654,53 +654,79 @@ Takentime = tick() - aura_table.hit_Time
 end)
 
 
+local spamTask -- Variabel untuk menyimpan referensi task spam
+
 task.spawn(function()
-    autospamanalys = RunService.Heartbeat:Connect(function()
-    if not auto_spam or not workspace.Alive:FindFirstChild(local_player.Name) or training_mode then
-        aura_table.hit_Count = 0
-        aura_table.is_Spamming = false
-        aura_table.last_target = nil
-        ismyautoparryspamming = false
-        aura_table.spam_Range = 0
-        return
-    end
+    autospamvar = RunService.Heartbeat:Connect(function()
+        -- Pre-check if auto_spam is enabled, player exists, and not in training mode
+        if not auto_spam or not workspace.Alive:FindFirstChild(local_player.Name) or training_mode then
+            -- Reset aura table and spam states
+            aura_table.hit_Count = 0
+            aura_table.is_Spamming = false
+            aura_table.last_target = nil
+            ismyautoparryspamming = false
+            aura_table.spam_Range = 0
+            
+            -- Hentikan task spam jika auto_spam mati
+            if spamTask then
+                spamTask:Disconnect()
+                spamTask = nil
+            end
+            
+            return
+        end
 
-    if closest_Entity and workspace.Alive:FindFirstChild(closest_Entity.Name) and ((not standalone and aura_table.is_Spamming) or standalone) then
-        local playerPosition = local_player.Character.PrimaryPart.Position
-        local entityPosition = closest_Entity.HumanoidRootPart.Position
-        local distanceToEntity = local_player:DistanceFromCharacter(entityPosition)
+        -- Proceed only if closest entity is valid and in workspace
+        if closest_Entity and workspace.Alive:FindFirstChild(closest_Entity.Name) and ((not standalone and aura_table.is_Spamming) or (standalone)) then
+            local playerPosition = local_player.Character.PrimaryPart.Position
+            local entityPosition = closest_Entity.HumanoidRootPart.Position
+            local distanceToEntity = local_player:DistanceFromCharacter(entityPosition)
 
-        if distanceToEntity <= aura_table.spam_Range then
-            ismyautoparryspamming = true
+            -- Perform spam actions only when within range
+            if distanceToEntity <= aura_table.spam_Range then
+                ismyautoparryspamming = true
 
-            local cf = camera.CFrame
-            local randomTarget = Vector3.new(math.random(-1000, 1000), math.random(0, 1000), math.random(100, 1000))
-            local targetPosition = closest_Entity_To_mouse.HumanoidRootPart.Position
-            local fireArgs = {
-                {[closest_Entity_To_mouse.Name] = targetPosition},
-                {targetPosition.X, targetPosition.Y}
-            }
+                -- Pre-compute values before the loop for efficiency
+                local cf = camera.CFrame
+                local randomTarget = Vector3.new(math.random(-1000, 1000), math.random(0, 1000), math.random(100, 1000))
+                local targetPosition = closest_Entity_To_mouse.HumanoidRootPart.Position
+                local fireArgs = {
+                    {[closest_Entity_To_mouse.Name] = targetPosition},
+                    {targetPosition.X, targetPosition.Y}
+                }
 
-            -- Loop langsung dalam `Heartbeat` tanpa `task.defer`
-            local spams = 0
-            while spams < rawr do
-                if not auto_spam then break end
+                -- Mulai task spam jika belum aktif
+                if not spamTask then
+                    spamTask = RunService.Heartbeat:Connect(function()
+                        -- Using while loop for faster, more controlled spam
+                        for spams = 1, rawr do  -- 'rawr' is the maximum number of iterations
+                            if not auto_spam then break end
 
-                if auto_curve then
-                    originalParryRemote:FireServer(0.5, CFrame.new(cf.Position, randomTarget), unpack(fireArgs))
-                else
-                    originalParryRemote:FireServer(0.5, cf, unpack(fireArgs))
+                            if auto_curve then
+                                originalParryRemote:FireServer(0, CFrame.new(cf.Position, randomTarget), unpack(fireArgs))
+                            else
+                                originalParryRemote:FireServer(0, cf, unpack(fireArgs))
+                            end
+                        end
+                    end)
                 end
-
-                spams = spams + 1
+            else
+                -- Reset spam state if out of range and stop spamTask
+                ismyautoparryspamming = false
+                if spamTask then
+                    spamTask:Disconnect()
+                    spamTask = nil
+                end
             end
         else
+            -- Reset spam state if entity is not found and stop spamTask
             ismyautoparryspamming = false
+            if spamTask then
+                spamTask:Disconnect()
+                spamTask = nil
+            end
         end
-    else
-        ismyautoparryspamming = false
-    end
-end)
+    end)
 
 local function linear_predict(a: Vector3, b: Vector3, time_volume: number)
     time_volume = math.clamp(time_volume, 0, 1)
@@ -1068,36 +1094,35 @@ local notificationShown = true  -- Flag untuk melacak jika notifikasi telah dita
 
 -- Fungsi untuk cek secara berkala apakah ismyautoparryspamming aktif
 
+-- Flag untuk menunjukkan apakah notifikasi telah ditampilkan
+local notificationShown = false
+
+-- Fungsi untuk cek secara berkala apakah ismyautoparryspamming aktif
 local function checkSpamming()
-
-	while true do  -- Loop infinite untuk cek kondisi
-
+	while true do -- Loop infinite untuk cek kondisi
 		if ismyautoparryspamming and not notificationShown then
-
+			-- Notifikasi untuk AutoSpam aktif
 			Notification.new({
-
-				Title = "Detected Spam",
-
-				Description = "Is Now Spamming", 
-
+				Title = "AutoSpam Detected",
+				Description = "AutoSpam: On", 
 				Duration = 2
-
 			})
-
 			notificationShown = true  -- Set flag menjadi true setelah menampilkan notifikasi
-
-		elseif not ismyautoparryspamming then
-
-			notificationShown = false  -- Reset flag saat tidak ada spamming
-
+		elseif not ismyautoparryspamming and notificationShown then
+			-- Notifikasi untuk AutoSpam mati
+			Notification.new({
+				Title = "AutoSpam Undetected",
+				Description = "AutoSpam: Off", 
+				Duration = 2
+			})
+			notificationShown = false  -- Reset flag saat spamming berhenti
 		end
-
 		wait(0.5)  -- Tunggu 0.5 detik sebelum cek lagi (atur sesuai kebutuhan)
 	end
 end
 
--- Menjalankan fungsi cek spamming dalam task terpisah
-spawn(checkSpamming)
+-- Memulai fungsi cek status spamming di latar belakang
+task.spawn(checkSpamming)
 
 print("Succesfull Load 🟢")
 wait(2)
