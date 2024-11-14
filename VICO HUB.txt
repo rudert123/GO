@@ -45,7 +45,7 @@ local training_mode = false
 local hit_effect_Enabled = false
 local anti_curve_spam_Enabled = false
 local visualize_Enabled = false
-rawr = 100
+rawr = 20
 local Services = {game:GetService("AdService"),game:GetService("SocialService")}
 
 function initializate(dataFolder_name: string)
@@ -481,7 +481,7 @@ RunService.RenderStepped:Connect(function()
                     end
                 end
                 
-                wait(0) -- Atur waktu tunggu untuk spam yang lebih cepat, ubah sesuai kebutuhan
+                wait(0.05) -- Atur waktu tunggu untuk spam yang lebih cepat, ubah sesuai kebutuhan
             end
         end
     end
@@ -815,7 +815,14 @@ autoparryanalys = RunService.Heartbeat:Connect(function()
     local target_isMoving = target_Velocity.Magnitude > 0
     local target_Dot = target_isMoving and math.max(target_Direction:Dot(target_Velocity.Unit), 0)
 
-    aura_table.spam_Range = math.clamp(math.max(math.max(ping / 8.5, 19) + ball_Speed / 7.5, 8.4), 25, 1200)
+    aura_table.spam_Range = math.clamp(
+    math.max(
+        math.max(ping / 8.5, 15) + ball_Speed / 7.5,  -- Menentukan dasar jarak spam berdasarkan kecepatan bola dan ping
+        8.4                                            
+    ),
+    10,  -- Jarak minimal untuk spam detection (mengatur batas minimum jarak spam)
+    1200 -- Jarak maksimal untuk spam detection (mengatur batas maksimal jarak spam)
+)
     speedFactor = math.max(3 - (ping / 10), 0.1)  -- local memastikan hanya bisa diakses di blok ini
     speedFactorPingBased = math.max(6.1 - (ping / 10), 0.1)
 aura_table.parry_Range = math.max(
