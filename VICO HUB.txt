@@ -1,4 +1,4 @@
-print("script is running and check if not running then 🔴..")
+print("script is running and check if not running then 🔴")
 wait(1)
 print("dont be sigma because you sigma 🧏, Nguwawor loh ya")
 wait(1)
@@ -666,13 +666,13 @@ task.spawn(function()
             aura_table.last_target = nil
             ismyautoparryspamming = false
             aura_table.spam_Range = 0
-            
+
             -- Hentikan task spam jika auto_spam mati
             if spamTask then
                 spamTask:Disconnect()
                 spamTask = nil
             end
-            
+
             return
         end
 
@@ -707,6 +707,9 @@ task.spawn(function()
                             else
                                 originalParryRemote:FireServer(0, cf, unpack(fireArgs))
                             end
+
+                            -- Tambahkan task.wait untuk memberikan jeda antar spam
+                            task.wait(0.05)  -- Misalnya, beri jeda 50ms (ubah sesuai kebutuhan)
                         end
                     end)
                 end
