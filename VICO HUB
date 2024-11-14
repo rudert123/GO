@@ -748,38 +748,7 @@ autoparryanalys = RunService.Heartbeat:Connect(function()
         return
     end
 
-    local lastPing = nil
-local pingThreshold = 150
-local maxPingSpike = 100
-local rapidThreshold = 50
-local rapidSpikeDetected = false
-
-while true do
-    local Ping = Stats.Network.ServerStatsItem['Data Ping']:GetValue()
-    
-    if lastPing then
-        local pingDifference = math.abs(currentPing - lastPing)
-        
-        if pingDifference > maxPingSpike then
-            print("Big Ping Spike Detected! Current Ping: " .. currentPing)
-            rapidSpikeDetected = true
-        end
-        
-        if pingDifference > rapidThreshold then
-            print("Sudden Ping Spike Detected! Immediate Action Needed! Current Ping: " .. currentPing)
-            rapidSpikeDetected = true
-        end
-    end
-    
-    if rapidSpikeDetected then
-        print("Handling ping spike by reducing game speed or adding delay...")
-        rapidSpikeDetected = false
-    end
-
-    lastPing = Ping
-    wait(0.5)
-end
-
+    ping = Stats.Network.ServerStatsItem['Data Ping']:GetValue()
     local self
 
     if training_mode then
