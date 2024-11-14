@@ -819,8 +819,8 @@ autoparryanalys = RunService.Heartbeat:Connect(function()
     local target_Dot = target_isMoving and math.max(target_Direction:Dot(target_Velocity.Unit), 0)
 
     aura_table.spam_Range = math.clamp(math.max(math.max(ping / 8.5, 19) + ball_Speed / 7.5, 8.4), 25, 1200)
-    local speedFactor = 3 - (ping / 10)
-local speedFactorPingBased = 6.1 - (ping / 10)
+    speedFactor = math.max(3 - (ping / 10), 0.1)  -- Menjamin bahwa speedFactor tidak akan terlalu kecil
+    speedFactorPingBased = math.max(6.1 - (ping / 10), 0.1)  -- Hal yang sama untuk speedFactorPingBased
 aura_table.parry_Range = math.max(
     math.max(ping, 3.5) + ball_Speed / (speedFactor * math.pi),
     speedFactorPingBased
